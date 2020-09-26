@@ -1,8 +1,8 @@
 import React from 'react';
 import {SafeAreaView, StyleSheet, View, Text} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import * as name from './screens/index';
 
 const Stack = createStackNavigator();
@@ -13,45 +13,43 @@ function App() {
 
   const Navigator = () => {
     const loginStack = () => {
-      return(
+      return (
         <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Login" component={Login}/>
-          <Stack.Screen name="SignUp" component={SignUp}/>
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="SignUp" component={SignUp} />
         </Stack.Navigator>
-      )
-    }
+      );
+    };
 
     const homeStack = () => {
-      return(
+      return (
         <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen name="Home" component={homeTab}/>
+          <Stack.Screen name="Home" component={homeTab} />
         </Stack.Navigator>
-      )
-    }
+      );
+    };
 
     const homeTab = () => {
-      return(
+      return (
         <BottomTabs.Navigator initialRouteName="List">
-          <BottomTabs.Screen name="List" component={List}/>
-          <BottomTabs.Screen name="State" component={State}/>
-          <BottomTabs.Screen name="Chat" component={Chat}/>
-          <BottomTabs.Screen name="Setting" component={Setting}/>
+          <BottomTabs.Screen name="List" component={List} />
+          <BottomTabs.Screen name="State" component={State} />
+          <BottomTabs.Screen name="Chat" component={Chat} />
+          <BottomTabs.Screen name="Setting" component={Setting} />
         </BottomTabs.Navigator>
-      )
-    }
+      );
+    };
 
-    return(
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="Login">
-            <Stack.Screen name="Login" component={loginStack} />
-            <Stack.Screen name="Home" component={homeStack} />
-          </Stack.Navigator>
-        </NavigationContainer>
-    )
-  } 
-  return <Navigator/>
+    return (
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="Login" component={loginStack} />
+          <Stack.Screen name="Home" component={homeStack} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  };
+  return <Navigator />;
 }
-
-
 
 export default App;
