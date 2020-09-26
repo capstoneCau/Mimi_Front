@@ -8,6 +8,7 @@ import {
   Image,
   ImageBackground,
 } from 'react-native';
+import KakaoLoginBtn from '../components/KakaoLoginBtn';
 
 export default function Login({navigation}) {
   return (
@@ -27,12 +28,6 @@ export default function Login({navigation}) {
 
 function Logo() {
   return <Image style={styles.logo} source={require('../image/logo.png')} />;
-}
-
-function KakaoLoginBtn() {
-  return (
-    <Image style={styles.kakaoBtn} source={require('../image/kakao.png')} />
-  );
 }
 
 // 임시 Next Btn
@@ -72,10 +67,6 @@ const styles = StyleSheet.create({
     flex: 3,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  kakaoBtn: {
-    height: 48,
-    width: 240,
   },
   next_container: {
     flex: 0.5,
