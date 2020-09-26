@@ -6,12 +6,7 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-export default function List() {
-  return (
-    <View>
-      <TouchableOpacity>
-        <Text>목록</Text>
-      </TouchableOpacity>
-    </View>
-  );
+
+export default function List({navigation}) {
+  return <View></View>;
 }
