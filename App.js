@@ -3,7 +3,7 @@ import {SafeAreaView, StyleSheet, View, Text} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import * as name from './screens/index';
+import * as name from './src/screens/index';
 
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
