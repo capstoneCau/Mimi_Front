@@ -2,6 +2,9 @@ package com.capstone;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -10,6 +13,15 @@ import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
+import android.content.pm.Signature;
+import android.util.Base64;
+import android.util.Log;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+//import com.dooboolab.kakaologins.RNKakaoLoginsPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -45,6 +57,19 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+
+    try {
+      PackageInfo info = getPackageManager().getPackageInfo("com.rn_social_login", PackageManager.GET_SIGNATURES);
+      for (Signature signature : info.signatures) {
+        MessageDigest md = MessageDigest.getInstance("SHA");
+        md.update(signature.toByteArray());
+        Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+      }
+    } catch (PackageManager.NameNotFoundException e) {
+
+    } catch (NoSuchAlgorithmException e) {
+      
+    }
   }
 
   /**
