@@ -11,6 +11,7 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.dooboolab.kakaologins.RNKakaoLoginsPackage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import android.util.Log;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-//import com.dooboolab.kakaologins.RNKakaoLoginsPackage;
+
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -38,6 +39,7 @@ public class MainApplication extends Application implements ReactApplication {
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
+          packages.add(new RNKakaoLoginsPackage());
           return packages;
         }
 
@@ -57,9 +59,8 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
-
     try {
-      PackageInfo info = getPackageManager().getPackageInfo("com.rn_social_login", PackageManager.GET_SIGNATURES);
+      PackageInfo info = getPackageManager().getPackageInfo("com.capstone", PackageManager.GET_SIGNATURES);
       for (Signature signature : info.signatures) {
         MessageDigest md = MessageDigest.getInstance("SHA");
         md.update(signature.toByteArray());
