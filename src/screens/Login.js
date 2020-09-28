@@ -6,7 +6,6 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  ImageBackground,
 } from 'react-native';
 import KakaoLoginBtn from '../components/KakaoLoginBtn';
 
