@@ -1,25 +1,35 @@
 import React, {useState, useEffect} from 'react';
-import { View, Text, PermissionsAndroid, TouchableOpacity, StyleSheet } from "react-native"; 
+import { View, Text, PermissionsAndroid, TouchableOpacity, StyleSheet, TextInput  } from "react-native"; 
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps"; 
 import Geolocation from 'react-native-geolocation-service';
+import googleApiKey from '../../googleApiKey.json'
 
 function GoogleMap() { 
     // console.log(getDistane())
     const [orgLatitude, setLatitude] = useState(0.0);
     const [orgLongitude, setLongitude] = useState(0.0);
     const [_watchId, setWatchId] = useState(null)
+    const [testLocation, setTestLocation] = useState('')
     const desLatitude = 0.0
     const desLongitude = 0.0
     let wid = null
-    const getDistaneTime = async () => {
-        const APP_KEy = "AIzaSyAIyxQhX3vlCITn3oRTj27loxqqd1kmRd0"
+    const getDistaneTime = async (desLatitude, desLongitude) => {
+        const APP_KEY = googleApiKey.distance.key
         const BASE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?"
         const params = `units=metric&mode=transit&origins=${orgLatitude},${orgLongitude}&destinations=${desLatitude},${desLongitude}&region=KR&key=${APP_KEY}`
-   
-        const res = await fetch('https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&mode=transit&origins=37.541,126.986&destinations=35.1595454,126.8526012&region=KR&key=AIzaSyAIyxQhX3vlCITn3oRTj27loxqqd1kmRd0')
+        
+        console.log(BASE_URL+params)
+
+        const res = await fetch(BASE_URL+params)
         const json = await res.json()
-    
-        return json
+        
+        const time = parseInt(json.rows[0].elements[0].duration.value)
+        const hour = parseInt(time/3600)
+        const min = parseInt((time-(hour*3600))/60)
+
+        console.log(hour, "hour", min, "min")
+
+        return {hour, min}
     }
 
     const getCurrentPosition = async () => {
@@ -37,6 +47,30 @@ function GoogleMap() {
         ));
     }
 
+    const getAddressPosition = async (address) => {
+        const APP_KEY = googleApiKey.geocoding.key
+        const BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json?"
+        const params = `address=${address}&key=${APP_KEY}`
+        
+        // console.log(BASE_URL+params)
+        // const res = await fetch(BASE_URL+params)
+        // const json = await res.json() 
+        const res = await fetch(BASE_URL + params)
+        const json = await res.json()
+        console.log(json.results[0].geometry.location)
+        return json.results[0].geometry.location
+        // Geocoder.init(APP_KEY); // use a valid API key
+        // Geocoder.from(address)
+        // .then(json => {
+        //     var location = json.results[0].geometry.location;
+        //     console.log(location);
+        //     return location
+        // })
+        // .catch(error => console.warn(error));
+
+        
+    }
+
     const stopGetPosition = () => {
         // console.log(_watchid)
         // Geolocation.stopObserving()
@@ -46,6 +80,7 @@ function GoogleMap() {
             setWatchId(null)
             // 종료 기능
         }
+        console.log()
     }
 
     const requestLocationPermission = async () => {
@@ -78,6 +113,20 @@ function GoogleMap() {
                 longitudeDelta: 0.0421, 
             }}
         />  */}
+        <TextInput
+            style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+            onChangeText={text => {
+                setTestLocation(text)
+                // console.log(testLocation)
+            }}
+            onSubmitEditing={async () => {
+                const {lat, lng} = await getAddressPosition(testLocation)
+                console.log(lat, lng)
+                const {hour, min} = await getDistaneTime(lat, lng)
+                console.log(hour, min)
+            }}
+            value={testLocation}
+            />
         <TouchableOpacity
             onPress={() => {
                 getCurrentPosition()
@@ -93,6 +142,10 @@ function GoogleMap() {
             style={styles.getPositionStopBtn}>
         <Text style={styles.getPositionStopText}>Stop</Text>
         </TouchableOpacity>
+        <View>
+        
+        </View>
+        
     </View>); 
 
 } export default GoogleMap;
