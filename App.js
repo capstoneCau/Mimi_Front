@@ -9,7 +9,7 @@ const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
 function App() {
-  const {Login, SignUp, List, State, Chat, Setting, AddMeeting} = name;
+  const {Login, SignUp, List, State, Chat, Setting, AddMeeting, GoogleMap} = name;
 
   const Navigator = () => {
     const loginStack = () => {
@@ -45,6 +45,7 @@ function App() {
           <BottomTabs.Screen name="State" component={State} />
           <BottomTabs.Screen name="Chat" component={Chat} />
           <BottomTabs.Screen name="Setting" component={Setting} />
+          <BottomTabs.Screen name="Map" component={GoogleMap} />
         </BottomTabs.Navigator>
       );
     };
