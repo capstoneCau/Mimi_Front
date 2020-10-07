@@ -9,13 +9,25 @@ import {
 
 export default function SignUp({navigation}) {
   return (
-    <View>
+    <View style={styles.container}>
       <TouchableOpacity
         onPress={() => {
           navigation.navigate('Home');
         }}>
-        <Text>회원가입</Text>
+        <Text style={styles.text}>회원가입</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    // backgroundColor: 'red'
+  },
+  text: {
+    height: "100%",
+    width: "100%"
+  },
+  
+});
