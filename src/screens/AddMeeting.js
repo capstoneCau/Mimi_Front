@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
 import {CONST_VALUE} from '../common/common';
@@ -19,10 +20,11 @@ var height = Dimensions.get('window').height;
 export default function AddMeeting({navigation}) {
   const [meetingInfo, setMeetingInfo] = useState({
     peopleCount: 4,
+    school: '',
     dates: [],
-    introduce: '',
+    intro: '',
   });
-  const {peopleCount, dates, introduce} = meetingInfo;
+  const {peopleCount, school, dates, intro} = meetingInfo;
   const changeMeetingInfo = (name, value) => {
     setMeetingInfo({
       ...meetingInfo,
@@ -40,14 +42,16 @@ export default function AddMeeting({navigation}) {
           <DatePick onChange={changeMeetingInfo} />
         </View>
         <View style={styles.shortIntroduceContainer}>
-          <ShortIntroduce />
+          <ShortIntroduce onChange={changeMeetingInfo} />
         </View>
       </View>
       <View style={styles.friendInfoContainer}>
         <View style={styles.peopleCountContainer}>
-          <PeopleCount />
+          <PeopleCount peopleCount={peopleCount} onChange={changeMeetingInfo} />
         </View>
-        <Text>HI</Text>
+        <View style={styles.peopleContainer}>
+          <People peopleCount={peopleCount} />
+        </View>
       </View>
     </View>
   );
@@ -70,13 +74,21 @@ function DatePick({onChange}) {
     const dates =
       date.getMonth() +
       1 +
-      '월 ' +
+      '/' +
       date.getDate() +
-      '일 ' +
+      '(' +
       CONST_VALUE.WEEK[date.getDay()] +
-      '요일';
+      ') ';
     setSelectedDate(selectedDate.concat(dates));
   };
+
+  const resetDate = () => {
+    setSelectedDate('');
+  };
+
+  useEffect(() => {
+    onChange('dates', selectedDate);
+  }, [selectedDate]);
 
   return (
     <View style={styles.datePick}>
@@ -98,23 +110,49 @@ function DatePick({onChange}) {
   );
 }
 
-function ShortIntroduce() {
+function ShortIntroduce({onChange}) {
   return (
     <View>
-      <TextInput style={styles.shortIntroduceInput} placeholder="한줄소개" />
+      <TextInput
+        style={styles.shortIntroduceInput}
+        placeholder="한줄소개"
+        onChangeText={(value) => onChange('intro', value)}
+      />
     </View>
   );
 }
 
-function PeopleCount() {
+function PeopleCount({peopleCount, onChange}) {
   const numberGroup = ['1명', '2명', '3명', '4명', '5명'];
   return (
     <View style={styles.peopleCountButton}>
       <ButtonGroup
         buttons={numberGroup}
+        onPress={(index) => onChange('peopleCount', index + 1)}
+        selectedIndex={peopleCount - 1}
         selectedButtonStyle={{backgroundColor: 'red'}}
         containerStyle={{flex: 1}}
       />
+    </View>
+  );
+}
+
+function People({peopleCount}) {
+  let line;
+  let temp = [];
+  if (peopleCount < 3) {
+    line = styles.line1;
+  } else if (peopleCount >= 3 && peopleCount < 5) {
+    line = styles.line2;
+  } else {
+    line = styles.line3;
+  }
+  for (let i = 1; i <= peopleCount; i++) {
+    temp.push(<Text>{i}</Text>);
+  }
+  return (
+    <View style={styles.lineContainer}>
+      <View style={line}>{temp}</View>
     </View>
   );
 }
@@ -175,5 +213,22 @@ const styles = StyleSheet.create({
 
   friendInfoContainer: {
     flex: 3,
+  },
+  peopleContainer: {
+    flex: 1,
+  },
+  lineContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  line1: {
+    flex: 1,
+  },
+  line2: {
+    flex: 1,
+  },
+  line3: {
+    flex: 1,
   },
 });
