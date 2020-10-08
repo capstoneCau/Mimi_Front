@@ -10,9 +10,7 @@ function GoogleMap() {
     const [orgLongitude, setLongitude] = useState(0.0);
     const [_watchId, setWatchId] = useState(null)
     const [testLocation, setTestLocation] = useState('')
-    const desLatitude = 0.0
-    const desLongitude = 0.0
-    let wid = null
+
     const getDistaneTime = async (desLatitude, desLongitude) => {
         const APP_KEY = googleApiKey.distance.key
         const BASE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?"
@@ -101,7 +99,6 @@ function GoogleMap() {
             console.warn(err)
         }
     }
-    
     return ( 
     <View style={{ flex: 1 }}> 
         {/* <MapView style={{ flex: 1 }} 
@@ -142,17 +139,13 @@ function GoogleMap() {
             style={styles.getPositionStopBtn}>
         <Text style={styles.getPositionStopText}>Stop</Text>
         </TouchableOpacity>
-        <View>
-        
-        </View>
-        
     </View>); 
 
 } export default GoogleMap;
 
 const styles = StyleSheet.create({
     getPositionBtn: {
-      height: 300,
+      height: 200,
       width: 300,
       backgroundColor: 'red',
     },
@@ -160,13 +153,22 @@ const styles = StyleSheet.create({
         fontSize: 100
     },
     getPositionStopBtn: {
-        height: 300,
+        height: 200,
         width: 300,
         backgroundColor: 'blue',
-      },
-      getPositionStopText: {
-          fontSize: 100,
-          color: 'white'
-      }
+    },
+    getPositionStopText: {
+        fontSize: 100,
+        color: 'white'
+    },
+    serverTestBtn: {
+        height: 200,
+        width: 300,
+        backgroundColor: 'green',
+    },
+    serverTestText: {
+        fontSize: 100,
+        color: 'white'
+    }
   });
   
