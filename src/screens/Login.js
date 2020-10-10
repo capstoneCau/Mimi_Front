@@ -18,6 +18,9 @@ export default function Login({navigation}) {
       <View style={styles.login_container}>
         <KakaoLoginBtn navigation={navigation} />
       </View>
+      <View style={styles.next_container}>
+        <Next navigation={navigation} />
+      </View>
     </View>
   );
 }
