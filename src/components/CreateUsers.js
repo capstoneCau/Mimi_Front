@@ -22,12 +22,16 @@ var height = Dimensions.get('window').height;
 export default function CreateUsers({navigation, kakao_auth_id}) {
   const [showMbtiModal, setShowMbtiModal] = useState(false);
   const [showStarModal, setShowStarModal] = useState(false);
+  const [showSchoolModal, setShowSchoolModal] = useState(false);
+  const [showcertificationModal, setShowCertificationModal] = useState(false);
   const [inputs, setInputs] = useState({
     username: '',
     school: '',
     email: '',
+    schoolAddress: '',
     adress: '',
     mbti: '',
+    star: '',
     gender: '',
     age: '',
     kakao_auth_id: kakao_auth_id,
@@ -65,7 +69,38 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
     '사수자리',
     '염소자리',
   ];
-  const {username, school, email, adress, mbti, gender, age} = inputs;
+
+  const schoolSort = [
+    '중앙대학교',
+    '숭실대학교',
+    '연세대학교',
+    '고려대학교',
+    '한양대학교',
+    '서강대학교',
+    '성균관대학교',
+    '서울대학교',
+  ];
+  const schoolEmailSort = [
+    'cau.ac.kr',
+    'soongsil.ac.kr',
+    'yonsei.ac.kr',
+    'korea.ac.kr',
+    'hanyang.ac.kr',
+    'sogang.ac.kr',
+    'skku.ac.kr',
+    'snu.ac.kr',
+  ];
+
+  const {
+    username,
+    school,
+    schoolAddress,
+    email,
+    adress,
+    mbti,
+    gender,
+    age,
+  } = inputs;
   const onChange = (name, value) => {
     setInputs({
       ...inputs,
@@ -75,7 +110,7 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
 
   const List = (kinds) => {
     const sort = kinds === 'mbti' ? mbtiSort : starSort;
-    const color = [
+    const sortColor = [
       '#497649',
       '#1EAAAA',
       '#FF6E6E',
@@ -99,11 +134,13 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
           data={sort}
           renderItem={({item, index}) => (
             <TouchableOpacity
-              style={[styles.modalbox, {backgroundColor: color[index]}]}
+              style={[styles.modalbox, {backgroundColor: sortColor[index]}]}
               onPress={() => {
                 if (kinds === 'mbti') {
+                  onChange('mbti', item);
                   setShowMbtiModal(false);
                 } else {
+                  onChange('star', item);
                   setShowStarModal(false);
                 }
               }}>
@@ -116,6 +153,26 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
       </SafeAreaView>
     );
   };
+
+  const schoolList = (
+    <SafeAreaView style={styles.schoolModalboxContainer}>
+      <FlatList
+        data={schoolSort}
+        renderItem={({item, index}) => (
+          <TouchableOpacity
+            style={styles.schoolModalbox}
+            onPress={() => {
+              onChange('school', item);
+              onChange('schoolAddress', schoolEmailSort[index]);
+              setShowSchoolModal(false);
+            }}>
+            <Text style={styles.schoolModalText}>{item}</Text>
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item, index) => index}
+      />
+    </SafeAreaView>
+  );
 
   const mbtiModal = (
     <Modal animationType={'slide'} transparent={false} visible={showMbtiModal}>
@@ -139,31 +196,125 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
     </Modal>
   );
 
+  const schoolModal = (
+    <Modal
+      animationType={'slide'}
+      transparent={false}
+      visible={showSchoolModal}>
+      <View style={styles.mbtiContainer}>
+        <Text style={styles.mbtiIntroduceText}>
+          당신의 학교를 선택해 주세요!
+        </Text>
+        {schoolList}
+      </View>
+    </Modal>
+  );
+
+  const certificationModal = (
+    <Modal
+      animationType={'slide'}
+      transparent={false}
+      visible={showcertificationModal}>
+      <View style={styles.mbtiContainer}>
+        <Text style={styles.mbtiIntroduceText}>
+          해당 메일에 전송된 코드를 입력해 주세요!
+        </Text>
+        <View style={styles.certifyContainer}>
+          <TextInput
+            style={styles.inputCode}
+            title="인증코드"
+            placeholder="전송된 코드를 입력해 주세요"
+          />
+          <Button
+            title="인증하기"
+            onPress={() => {
+              setShowCertificationModal(false);
+            }}
+          />
+        </View>
+        <View style={styles.additionalCertifyContainer}>
+          <View style={{marginRight: 10}}>
+            <Button title="재전송하기" color="#64CD3C" onPress={() => {}} />
+          </View>
+          <Button
+            title="취소"
+            color="red"
+            onPress={() => {
+              setShowCertificationModal(false);
+            }}
+          />
+        </View>
+      </View>
+    </Modal>
+  );
+
   return (
     <View style={styles.container}>
       {mbtiModal}
       {starModal}
-      <Text style={styles.subTitleText}>필수 입력</Text>
-      <View style={styles.inputContainer}>
-        <TextInputComp
-          onChange={onChange}
-          title="이름"
-          name="username"
-          value={username}
-          placeholder="이름을 입력해주세요"
-        />
-        <View style={styles.schoolButton}>
+      {schoolModal}
+      {certificationModal}
+      <View style={styles.essentialContainer}>
+        <Text style={styles.subTitleText}>필수 입력</Text>
+        <View style={styles.inputContainer}>
           <TextInputComp
+            style={styles.name}
             onChange={onChange}
-            title="이메일"
-            name="email"
-            value={email}
-            placeholder="예) 미팅대학교"
+            title="이름"
+            name="username"
+            value={username}
+            placeholder="이름을 입력해 주세요"
           />
         </View>
+        <View style={styles.buttonContainer}>
+          <Text style={styles.text}>학교</Text>
+          <Button
+            color="#000069"
+            title="학교선택"
+            onPress={() => {
+              setShowSchoolModal(true);
+            }}
+          />
+        </View>
+        <View style={styles.emailContainer}>
+          <Text style={styles.text}>학교 이메일</Text>
+          <View style={styles.email}>
+            <TextInput
+              style={styles.inputEmail}
+              value={email}
+              placeholder="이메일을 입력해 주세요"
+              onChangeText={(v) => onChange('email', v)}
+            />
+            <Text style={styles.atSign}>@</Text>
+            <Text style={styles.addressText}>{schoolAddress}</Text>
+            <Button
+              color="#64CD3C"
+              title="인증하기"
+              onPress={() => {
+                console.log(schoolAddress + '1');
+                if (schoolAddress === '') {
+                  Alert.alert(
+                    '죄송합니다',
+                    '학교선택을 먼저 해주세요.',
+                    [
+                      {
+                        text: 'Cancel',
+                        style: 'cancel',
+                      },
+                      {text: 'OK'},
+                    ],
+                    {cancelable: false},
+                  );
+                } else {
+                  setShowCertificationModal(true);
+                }
+              }}
+            />
+          </View>
+        </View>
       </View>
-      <Text style={[styles.subTitleText, styles.line]}>선택 입력</Text>
-      <View style={styles.inputContainer}>
+      <View style={styles.selectContainer}>
+        <Text style={[styles.subTitleText, styles.line]}>선택 입력</Text>
         <View style={styles.buttonContainer}>
           <Button
             color="#000069"
@@ -183,6 +334,15 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
           />
         </View>
       </View>
+      <View style={styles.completeButton}>
+        <Button
+          color="red"
+          title="가입완료"
+          onPress={() => {
+            navigation.navigate('Home');
+          }}
+        />
+      </View>
     </View>
   );
 }
@@ -192,7 +352,7 @@ function TextInputComp({title, name, value, placeholder, onChange}) {
     <View style={styles.textInputContainer}>
       <Text style={styles.text}>{title}</Text>
       <TextInput
-        style={styles.inputSchool}
+        style={styles.input}
         value={value}
         placeholder={placeholder}
         onChangeText={(v) => onChange(name, v)}
@@ -205,23 +365,68 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
+    marginLeft: 25,
+    marginRight: 25,
   },
   subTitleText: {
     fontSize: 30,
-    padding: 20,
+    marginTop: 30,
+    marginBottom: 20,
+  },
+  essentialContainer: {
+    flex: 4,
   },
   inputContainer: {
     flex: 1,
   },
+  textInputContainer: {
+    flex: 1,
+  },
+  text: {
+    marginBottom: 10,
+  },
+  input: {
+    flex: 0.8,
+    width: width * 0.4,
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
   buttonContainer: {
     width: 100,
-    margin: 20,
+    marginBottom: 20,
   },
-
+  emailContainer: {
+    flex: 1,
+  },
+  inputEmail: {
+    width: width * 0.4,
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
+  email: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  atSign: {
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  addressText: {
+    marginRight: 15,
+  },
+  selectContainer: {
+    flex: 3,
+  },
   line: {
     borderTopColor: 'gray',
-    borderTopWidth: 2,
+    borderTopWidth: 1,
   },
+
+  completeButton: {
+    alignItems: 'flex-end',
+    marginBottom: 20,
+  },
+
   mbtiContainer: {
     flex: 1,
   },
@@ -231,6 +436,33 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modalboxContainer: {},
+  schoolModalbox: {
+    flex: 1,
+    margin: 3,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  schoolModalText: {
+    height: 50,
+    fontSize: 20,
+  },
+  certifyContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    height: height * 0.06,
+  },
+  inputCode: {
+    flex: 0.8,
+    width: width * 0.4,
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
+  additionalCertifyContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    margin: 10,
+  },
   modalbox: {
     flex: 1,
     margin: 1,
