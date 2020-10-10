@@ -1,4 +1,4 @@
-const SERVER_DOMAIN = 'http://111.118.40.200:8000/mail/';
+const SERVER_DOMAIN = 'https://mimi-server-akuui.run.goorm.io/mail/';
 
 export const getAuthCode = async (address) => {
   const res = await fetch(SERVER_DOMAIN, {
