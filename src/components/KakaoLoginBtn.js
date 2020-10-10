@@ -53,7 +53,6 @@ export default function KakaoLoginBtn({navigation}) {
       if(await onLoginUser(profile.id)) {
         navigation.navigate('Home')
       } else {
-        console.log(3)
         navigation.navigate('SignUp')
       }
 

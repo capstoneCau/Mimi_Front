@@ -34,14 +34,12 @@ export const registerUserInfoAsync = (userInfo) => async (dispatch, getState) =>
         // referrer: 'no-referrer', // no-referrer, *client
         body: JSON.stringify(userInfo), // body data type must match "Content-Type" header
     })
-    console.log(userInfo)
     dispatch({type:REGISTER_USER_INFO});
 }
 
 export const requestKaKaoAuthIdAsync = (kakaoId) => async (dispatch, getState) => {1
     const res = await fetch(SERVER_DOMAIN + `api/v1/user/users/${kakaoId}`)
     const userInfo = await res.json()
-    console.log(4)
     if (userInfo["kakao_id"] == null) {
         dispatch({type:REQUEST_KAKAO_AUTH_ID, kakaoId})
         return false
