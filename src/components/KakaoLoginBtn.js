@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,18 +8,20 @@ import {
   Image,
 } from 'react-native';
 import KakaoLogins from "@react-native-seoul/kakao-login";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch, shallowEqual } from 'react-redux';
+import { requestKaKaoAuthIdAsync } from '../modules/login';
 
-export default function KakaoLoginBtn() {
+export default function KakaoLoginBtn({navigation}) {
   const [loginLoading, setLoginLoading] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
   // const [unlinkLoading, setUnlinkLoading] = useState(false);
   const [token, setToken] = useState(TOKEN_EMPTY);
   const [profile, setProfile] = useState(PROFILE_EMPTY);
-  const [isLogin, setIsLogin] = useState(false);
   // const user = useSelector(state => state.login);
-
+  const dispatch = useDispatch();
+  const onLoginUser = useCallback(kakaoId => dispatch(requestKaKaoAuthIdAsync(kakaoId)), [dispatch]);
+  const [user, setUser] = useState(useSelector(state => state.login, shallowEqual)) 
 
   const logCallback = (log, callback) => {
     console.log(log);
@@ -37,7 +39,6 @@ export default function KakaoLoginBtn() {
     logCallback('Login Start', setLoginLoading(true));
     try {
       const result = await KakaoLogins.login();
-      setIsLogin(true)
       setToken(result.accessToken);
       logCallback(
         `Login Finished:${JSON.stringify(result)}`,
@@ -48,9 +49,13 @@ export default function KakaoLoginBtn() {
       logCallback(
         `Get Profile Finished:${JSON.stringify(profile)}`,
         setProfileLoading(false),
-      );
-      const id = profile.id
-      console.log(id)
+      );   
+      if(await onLoginUser(profile.id)) {
+        navigation.navigate('Home')
+      } else {
+        navigation.navigate('SignUp')
+      }
+
     } catch(err) {
       if (err.code === 'E_CANCELLED_OPERATION') {
         logCallback(`Login Cancelled:${err.message}`, setLoginLoading(false));
@@ -70,7 +75,6 @@ export default function KakaoLoginBtn() {
         setToken(TOKEN_EMPTY);
         setProfile(PROFILE_EMPTY);
         logCallback(`Logout Finished:${result}`, setLogoutLoading(false));
-        setIsLogin(false)
     }catch(err) {
         logCallback(
             `Logout Failed:${err.code} ${err.message}`,
@@ -81,7 +85,8 @@ export default function KakaoLoginBtn() {
 
   return (
     <TouchableOpacity
-      onPress={ !isLogin ? kakaoLogin : kakaoLogout}>
+      // onPress={ !isLogin ? kakaoLogin : kakaoLogout}>
+      onPress={kakaoLogin}>
       <Image style={styles.kakaoBtn} source={require('../image/kakao.png')} />
     </TouchableOpacity>
     
