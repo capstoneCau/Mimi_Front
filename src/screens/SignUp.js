@@ -25,9 +25,7 @@ export default function SignUp({navigation}) {
   useEffect(() => {
     fadeOut();
   });
-  const signUp = startSignUp ? (
-    <CreateUsers navigation={navigation}/>
-  ) : null;
+  const signUp = startSignUp ? <CreateUsers navigation={navigation} /> : null;
 
   return (
     <SafeAreaView style={styles.container}>
