@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import KakaoLogins from "@react-native-seoul/kakao-login";
-import { useSelector, useDispatch, shallowEqual } from 'react-redux';
-import { requestKaKaoAuthIdAsync } from '../modules/login';
+import KakaoLogins from '@react-native-seoul/kakao-login';
+import {useSelector, useDispatch, shallowEqual} from 'react-redux';
+import {requestKaKaoAuthIdAsync} from '../modules/login';
 
 export default function KakaoLoginBtn({navigation}) {
   const [loginLoading, setLoginLoading] = useState(false);
@@ -20,8 +20,13 @@ export default function KakaoLoginBtn({navigation}) {
   const [profile, setProfile] = useState(PROFILE_EMPTY);
   // const user = useSelector(state => state.login);
   const dispatch = useDispatch();
-  const onLoginUser = useCallback(kakaoId => dispatch(requestKaKaoAuthIdAsync(kakaoId)), [dispatch]);
-  const [user, setUser] = useState(useSelector(state => state.login, shallowEqual)) 
+  const onLoginUser = useCallback(
+    (kakaoId) => dispatch(requestKaKaoAuthIdAsync(kakaoId)),
+    [dispatch],
+  );
+  const [user, setUser] = useState(
+    useSelector((state) => state.login, shallowEqual),
+  );
 
   const logCallback = (log, callback) => {
     console.log(log);
@@ -49,14 +54,13 @@ export default function KakaoLoginBtn({navigation}) {
       logCallback(
         `Get Profile Finished:${JSON.stringify(profile)}`,
         setProfileLoading(false),
-      );   
-      if(await onLoginUser(profile.id)) {
-        navigation.navigate('Home')
+      );
+      if (await onLoginUser(profile.id)) {
+        navigation.navigate('Home');
       } else {
-        navigation.navigate('SignUp')
+        navigation.navigate('SignUp');
       }
-
-    } catch(err) {
+    } catch (err) {
       if (err.code === 'E_CANCELLED_OPERATION') {
         logCallback(`Login Cancelled:${err.message}`, setLoginLoading(false));
       } else {
@@ -71,15 +75,15 @@ export default function KakaoLoginBtn({navigation}) {
   const kakaoLogout = async () => {
     logCallback('Logout Start', setLogoutLoading(true));
     try {
-        const result = await KakaoLogins.logout()
-        setToken(TOKEN_EMPTY);
-        setProfile(PROFILE_EMPTY);
-        logCallback(`Logout Finished:${result}`, setLogoutLoading(false));
-    }catch(err) {
-        logCallback(
-            `Logout Failed:${err.code} ${err.message}`,
-            setLogoutLoading(false),
-          );
+      const result = await KakaoLogins.logout();
+      setToken(TOKEN_EMPTY);
+      setProfile(PROFILE_EMPTY);
+      logCallback(`Logout Finished:${result}`, setLogoutLoading(false));
+    } catch (err) {
+      logCallback(
+        `Logout Failed:${err.code} ${err.message}`,
+        setLogoutLoading(false),
+      );
     }
   };
 

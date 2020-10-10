@@ -91,19 +91,6 @@ function App() {
             }}
           />
           <BottomTabs.Screen
-            name="Setting"
-            component={Setting}
-            options={{
-              tabBarIcon: ({focused}) => {
-                return focused ? (
-                  <Icon name="settings-sharp" size={30} />
-                ) : (
-                  <Icon name="settings-outline" size={30} />
-                );
-              },
-            }}
-          />
-          <BottomTabs.Screen
             name="Map"
             component={GoogleMap}
             options={{
@@ -112,6 +99,19 @@ function App() {
                   <Icon name="navigate-sharp" size={30} />
                 ) : (
                   <Icon name="navigate-outline" size={30} />
+                );
+              },
+            }}
+          />
+          <BottomTabs.Screen
+            name="Setting"
+            component={Setting}
+            options={{
+              tabBarIcon: ({focused}) => {
+                return focused ? (
+                  <Icon name="settings-sharp" size={30} />
+                ) : (
+                  <Icon name="settings-outline" size={30} />
                 );
               },
             }}
