@@ -27,7 +27,7 @@ export default function KakaoLoginBtn({navigation}) {
     console.log(log);
     callback;
   };
-  
+
   const TOKEN_EMPTY = 'token has not fetched';
   const PROFILE_EMPTY = {
     id: 'profile has not fetched',
@@ -89,7 +89,6 @@ export default function KakaoLoginBtn({navigation}) {
       onPress={kakaoLogin}>
       <Image style={styles.kakaoBtn} source={require('../image/kakao.png')} />
     </TouchableOpacity>
-    
   );
 }
 
