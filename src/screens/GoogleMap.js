@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { View, Text, PermissionsAndroid, TouchableOpacity, StyleSheet, TextInput  } from "react-native"; 
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps"; 
+// import MapView, { PROVIDER_GOOGLE } from "react-native-maps"; 
 import Geolocation from 'react-native-geolocation-service';
 import googleApiKey from '../../googleApiKey.json'
 

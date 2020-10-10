@@ -1,4 +1,4 @@
-import React, {useState, useEffect, Fragment} from 'react';
+import React, {useState, useEffect, Fragment, useCallback} from 'react';
 import {
   StyleSheet,
   Text,
@@ -15,25 +15,29 @@ import {
 } from 'react-native';
 import {Avatar, Card, IconButton} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import { useSelector, useDispatch } from 'react-redux'
+import { registerUserInfoAsync } from '../modules/login';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-export default function CreateUsers({navigation, kakao_auth_id}) {
+export default function CreateUsers({navigation}) {
   const [showMbtiModal, setShowMbtiModal] = useState(false);
   const [showStarModal, setShowStarModal] = useState(false);
   const [showSchoolModal, setShowSchoolModal] = useState(false);
   const [showcertificationModal, setShowCertificationModal] = useState(false);
+  const dispatch = useDispatch();
+  const registerUser = useCallback(userInfo => dispatch(registerUserInfoAsync(userInfo)), [dispatch]);
+
   const [inputs, setInputs] = useState({
-    username: '',
+    name: '',
     school: '',
     email: '',
-    schoolAddress: '',
-    adress: '',
+    // schoolAddress: '',
+    // adress: '',
     mbti: '',
     star: '',
     gender: '',
-    age: '',
+    // age: '',
     kakao_auth_id: kakao_auth_id,
   });
   const mbtiSort = [
@@ -92,17 +96,17 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
   ];
 
   const {
-    username,
+    name,
     school,
-    schoolAddress,
+    // schoolAddress,
     email,
-    adress,
+    // adress,
     mbti,
     star,
     gender,
-    age,
+    // age,
   } = inputs;
-
+  const { kakaoId : kakao_auth_id } = useSelector(state => state.login)
   const onChange = (name, value) => {
     setInputs({
       ...inputs,
@@ -131,7 +135,7 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
       '#D2691E',
     ];
     console.log(school);
-    console.log(schoolAddress);
+    // console.log(schoolAddress);
     return (
       <SafeAreaView style={styles.modalboxContainer}>
         <FlatList
@@ -170,7 +174,7 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
                 return {...inputs, ['school']: item};
               });
               setInputs((inputs) => {
-                return {...inputs, ['schoolAddress']: schoolEmailSort[index]};
+                return {...inputs, ['email']: schoolEmailSort[index]};
               });
               setShowSchoolModal(false);
             }}>
@@ -346,7 +350,10 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
           color="red"
           title="가입완료"
           onPress={() => {
-            navigation.navigate('Home');
+            const userInfo = {
+              "kakao_auth_id" : kakao_auth_id,
+              "name" : name
+            }
           }}
         />
       </View>

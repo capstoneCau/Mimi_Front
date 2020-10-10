@@ -10,8 +10,7 @@ import {
 import Animated from 'react-native-reanimated';
 import CreateUsers from '../components/CreateUsers';
 
-export default function SignUp({route, navigation}) {
-  const {kakao_auth_id} = route.params;
+export default function SignUp({navigation}) {
   const [startSignUp, setStartSignUp] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const fadeOut = () => {
@@ -27,7 +26,7 @@ export default function SignUp({route, navigation}) {
     fadeOut();
   });
   const signUp = startSignUp ? (
-    <CreateUsers navigation={navigation} kakao_auth_id={kakao_auth_id} />
+    <CreateUsers navigation={navigation}/>
   ) : null;
 
   return (
