@@ -98,9 +98,11 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
     email,
     adress,
     mbti,
+    star,
     gender,
     age,
   } = inputs;
+
   const onChange = (name, value) => {
     setInputs({
       ...inputs,
@@ -128,6 +130,8 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
       '#3C5A91',
       '#D2691E',
     ];
+    console.log(school);
+    console.log(schoolAddress);
     return (
       <SafeAreaView style={styles.modalboxContainer}>
         <FlatList
@@ -162,8 +166,12 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
           <TouchableOpacity
             style={styles.schoolModalbox}
             onPress={() => {
-              onChange('school', item);
-              onChange('schoolAddress', schoolEmailSort[index]);
+              setInputs((inputs) => {
+                return {...inputs, ['school']: item};
+              });
+              setInputs((inputs) => {
+                return {...inputs, ['schoolAddress']: schoolEmailSort[index]};
+              });
               setShowSchoolModal(false);
             }}>
             <Text style={styles.schoolModalText}>{item}</Text>
@@ -291,7 +299,6 @@ export default function CreateUsers({navigation, kakao_auth_id}) {
               color="#64CD3C"
               title="인증하기"
               onPress={() => {
-                console.log(schoolAddress + '1');
                 if (schoolAddress === '') {
                   Alert.alert(
                     '죄송합니다',
