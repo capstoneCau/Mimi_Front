@@ -12,12 +12,14 @@ import {
   Alert,
   Dimensions,
   TouchableOpacity,
+  ToastAndroid,
 } from 'react-native';
 import {Avatar, Card, IconButton, RadioButton} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSelector, useDispatch } from 'react-redux'
 import { registerUserInfoAsync } from '../modules/login';
-import { getInformation } from '../modules/getInformation'
+import { getInformation } from '../modules/getInformation';
+import { getAuthCode } from '../modules/getAuthCode';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -29,6 +31,9 @@ export default function CreateUsers({navigation}) {
   const [schoolSort, setSchoolSort] = useState();
   const [mbtiSort, setMbtiSort] = useState();
   const [starSort, setStarSort] = useState();
+  const [authCode, setAuthCode] = useState();
+  const [inputAuthCode, setInputAuthCode] = useState();
+  const [isAuth, setAuth] = useState(false)
   const dispatch = useDispatch();
   const registerUser = useCallback(userInfo => dispatch(registerUserInfoAsync(userInfo)), [dispatch]);
   const { kakaoId : kakao_auth_id } = useSelector(state => state.login)
@@ -201,17 +206,42 @@ export default function CreateUsers({navigation}) {
             style={styles.inputCode}
             title="인증코드"
             placeholder="전송된 코드를 입력해 주세요"
+            onChangeText={value => {
+              setInputAuthCode(value)
+            }}
           />
           <Button
             title="인증하기"
-            onPress={() => {
-              setShowCertificationModal(false);
+            onPress={ () => {
+              if(authCode == inputAuthCode) {
+                ToastAndroid.showWithGravity(
+                  "인증 성공",
+                  ToastAndroid.SHORT,
+                  ToastAndroid.CENTER
+                );
+                setShowCertificationModal(false);
+                setAuth(true)
+              } else {
+                ToastAndroid.showWithGravity(
+                  "인증 번호가 틀립니다.",
+                  ToastAndroid.SHORT,
+                  ToastAndroid.CENTER
+                );
+              }
             }}
+            
           />
         </View>
         <View style={styles.additionalCertifyContainer}>
           <View style={{marginRight: 10}}>
-            <Button title="재전송하기" color="#64CD3C" onPress={() => {}} />
+            <Button title="재전송하기" color="#64CD3C" onPress={ async () => {
+              ToastAndroid.showWithGravity(
+                "인증 메일이 재 전송 되었습니다.",
+                ToastAndroid.SHORT,
+                ToastAndroid.CENTER
+              );
+              setAuthCode(await getAuthCode(emailHost + "@" + schoolAddress))
+            }} />
           </View>
           <Button
             title="취소"
@@ -266,8 +296,8 @@ export default function CreateUsers({navigation}) {
             <Text style={styles.addressText}>{schoolAddress}</Text>
             <Button
               color="#64CD3C"
-              title="인증하기"
-              onPress={() => {
+              title={isAuth ? "인증성공" :"인증하기"}
+              onPress={async () => {
                 if (schoolAddress === '') {
                   Alert.alert(
                     '죄송합니다',
@@ -282,9 +312,11 @@ export default function CreateUsers({navigation}) {
                     {cancelable: false},
                   );
                 } else {
+                  setAuthCode(await getAuthCode(emailHost + "@" + schoolAddress))
                   setShowCertificationModal(true);
                 }
               }}
+              disabled = {isAuth}
             />
           </View>
         </View>
@@ -326,12 +358,28 @@ export default function CreateUsers({navigation}) {
           color="red"
           title="가입완료"
           onPress={async () => {
-            inputs.email = emailHost + "@" + schoolAddress
-            delete inputs.schoolAddress
-            delete inputs.emailHost
-            console.log(inputs)
-            await registerUser(inputs)
-            navigation.navigate('Home')
+            if(isAuth) {
+              inputs.email = emailHost + "@" + schoolAddress
+              delete inputs.schoolAddress
+              delete inputs.emailHost
+              console.log(inputs)
+              await registerUser(inputs)
+              navigation.navigate('Home')
+            } else {
+              Alert.alert(
+                '죄송합니다',
+                '학교인증을 먼저 해주세요.',
+                [
+                  {
+                    text: 'Cancel',
+                    style: 'cancel',
+                  },
+                  {text: 'OK'},
+                ],
+                {cancelable: false},
+              );
+            }
+            
           }}
         />
       </View>
