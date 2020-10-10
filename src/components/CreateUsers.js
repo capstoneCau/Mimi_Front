@@ -16,10 +16,10 @@ import {
 } from 'react-native';
 import {Avatar, Card, IconButton, RadioButton} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useSelector, useDispatch } from 'react-redux'
-import { registerUserInfoAsync } from '../modules/login';
-import { getInformation } from '../modules/getInformation';
-import { getAuthCode } from '../modules/getAuthCode';
+import {useSelector, useDispatch} from 'react-redux';
+import {registerUserInfoAsync} from '../modules/login';
+import {getInformation} from '../modules/getInformation';
+import {getAuthCode} from '../modules/getAuthCode';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -33,10 +33,13 @@ export default function CreateUsers({navigation}) {
   const [starSort, setStarSort] = useState();
   const [authCode, setAuthCode] = useState();
   const [inputAuthCode, setInputAuthCode] = useState();
-  const [isAuth, setAuth] = useState(false)
+  const [isAuth, setAuth] = useState(false);
   const dispatch = useDispatch();
-  const registerUser = useCallback(userInfo => dispatch(registerUserInfoAsync(userInfo)), [dispatch]);
-  const { kakaoId : kakao_auth_id } = useSelector(state => state.login)
+  const registerUser = useCallback(
+    (userInfo) => dispatch(registerUserInfoAsync(userInfo)),
+    [dispatch],
+  );
+  const {kakaoId: kakao_auth_id} = useSelector((state) => state.login);
   const [inputs, setInputs] = useState({
     name: '',
     school: '',
@@ -51,7 +54,7 @@ export default function CreateUsers({navigation}) {
     kakao_auth_id: kakao_auth_id,
     birthday: '1996-09-24',
     profileImg: 1,
-    kakao_id: 'asdf'
+    kakao_id: 'asdf',
   });
 
   const {
@@ -69,14 +72,14 @@ export default function CreateUsers({navigation}) {
 
   useEffect(() => {
     const infor = async () => {
-      await setSchoolSort(await getInformation('school'))
-      await setMbtiSort(await getInformation('mbti'))
-      await setStarSort(await getInformation('star'))
-    }
-    
-    infor()
-  }, [])
-  
+      await setSchoolSort(await getInformation('school'));
+      await setMbtiSort(await getInformation('mbti'));
+      await setStarSort(await getInformation('star'));
+    };
+
+    infor();
+  }, []);
+
   const onChange = (name, value) => {
     setInputs({
       ...inputs,
@@ -206,42 +209,45 @@ export default function CreateUsers({navigation}) {
             style={styles.inputCode}
             title="인증코드"
             placeholder="전송된 코드를 입력해 주세요"
-            onChangeText={value => {
-              setInputAuthCode(value)
+            onChangeText={(value) => {
+              setInputAuthCode(value);
             }}
           />
           <Button
             title="인증하기"
-            onPress={ () => {
-              if(authCode == inputAuthCode) {
+            onPress={() => {
+              if (authCode == inputAuthCode) {
                 ToastAndroid.showWithGravity(
-                  "인증 성공",
+                  '인증 성공',
                   ToastAndroid.SHORT,
-                  ToastAndroid.CENTER
+                  ToastAndroid.CENTER,
                 );
                 setShowCertificationModal(false);
-                setAuth(true)
+                setAuth(true);
               } else {
                 ToastAndroid.showWithGravity(
-                  "인증 번호가 틀립니다.",
+                  '인증 번호가 틀립니다.',
                   ToastAndroid.SHORT,
-                  ToastAndroid.CENTER
+                  ToastAndroid.CENTER,
                 );
               }
             }}
-            
           />
         </View>
         <View style={styles.additionalCertifyContainer}>
           <View style={{marginRight: 10}}>
-            <Button title="재전송하기" color="#64CD3C" onPress={ async () => {
-              ToastAndroid.showWithGravity(
-                "인증 메일이 재 전송 되었습니다.",
-                ToastAndroid.SHORT,
-                ToastAndroid.CENTER
-              );
-              setAuthCode(await getAuthCode(emailHost + "@" + schoolAddress))
-            }} />
+            <Button
+              title="재전송하기"
+              color="#64CD3C"
+              onPress={async () => {
+                ToastAndroid.showWithGravity(
+                  '인증 메일이 재 전송 되었습니다.',
+                  ToastAndroid.SHORT,
+                  ToastAndroid.CENTER,
+                );
+                setAuthCode(await getAuthCode(emailHost + '@' + schoolAddress));
+              }}
+            />
           </View>
           <Button
             title="취소"
@@ -272,6 +278,17 @@ export default function CreateUsers({navigation}) {
             value={name}
             placeholder="이름을 입력해 주세요"
           />
+          <View style={styles.genderContainer}>
+            <Text style={styles.text}>성별</Text>
+            <RadioButton.Group
+              onValueChange={(value) => {
+                onChange('gender', value === 'true');
+              }}
+              value={gender.toString()}>
+              <RadioButton.Item label="Man" value="false" />
+              <RadioButton.Item label="Girl" value="true" />
+            </RadioButton.Group>
+          </View>
         </View>
         <View style={styles.buttonContainer}>
           <Text style={styles.text}>학교</Text>
@@ -296,7 +313,7 @@ export default function CreateUsers({navigation}) {
             <Text style={styles.addressText}>{schoolAddress}</Text>
             <Button
               color="#64CD3C"
-              title={isAuth ? "인증성공" :"인증하기"}
+              title={isAuth ? '인증성공' : '인증하기'}
               onPress={async () => {
                 if (schoolAddress === '') {
                   Alert.alert(
@@ -312,22 +329,15 @@ export default function CreateUsers({navigation}) {
                     {cancelable: false},
                   );
                 } else {
-                  setAuthCode(await getAuthCode(emailHost + "@" + schoolAddress))
+                  setAuthCode(
+                    await getAuthCode(emailHost + '@' + schoolAddress),
+                  );
                   setShowCertificationModal(true);
                 }
               }}
-              disabled = {isAuth}
+              disabled={isAuth}
             />
           </View>
-        </View>
-        <View style={styles.buttonContainer}>
-          <Text style={styles.text}>성별</Text>
-          <RadioButton.Group onValueChange={value => {
-            onChange('gender', value === 'true')
-          }} value={gender.toString()}>
-            <RadioButton.Item label="Man" value="false" />
-            <RadioButton.Item label="Girl" value="true" />
-          </RadioButton.Group>
         </View>
       </View>
       <View style={styles.selectContainer}>
@@ -358,13 +368,13 @@ export default function CreateUsers({navigation}) {
           color="red"
           title="가입완료"
           onPress={async () => {
-            if(isAuth) {
-              inputs.email = emailHost + "@" + schoolAddress
-              delete inputs.schoolAddress
-              delete inputs.emailHost
-              console.log(inputs)
-              await registerUser(inputs)
-              navigation.navigate('Home')
+            if (isAuth) {
+              inputs.email = emailHost + '@' + schoolAddress;
+              delete inputs.schoolAddress;
+              delete inputs.emailHost;
+              console.log(inputs);
+              await registerUser(inputs);
+              navigation.navigate('Home');
             } else {
               Alert.alert(
                 '죄송합니다',
@@ -379,7 +389,6 @@ export default function CreateUsers({navigation}) {
                 {cancelable: false},
               );
             }
-            
           }}
         />
       </View>
@@ -418,6 +427,11 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flex: 1,
+    flexDirection: 'row',
+  },
+  genderContainer: {
+    height: 10,
+    marginRight: 50,
   },
   textInputContainer: {
     flex: 1,
