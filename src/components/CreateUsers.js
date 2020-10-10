@@ -13,10 +13,11 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
-import {Avatar, Card, IconButton} from 'react-native-paper';
+import {Avatar, Card, IconButton, RadioButton} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSelector, useDispatch } from 'react-redux'
 import { registerUserInfoAsync } from '../modules/login';
+import { getInformation } from '../modules/getInformation'
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -25,88 +26,52 @@ export default function CreateUsers({navigation}) {
   const [showStarModal, setShowStarModal] = useState(false);
   const [showSchoolModal, setShowSchoolModal] = useState(false);
   const [showcertificationModal, setShowCertificationModal] = useState(false);
+  const [schoolSort, setSchoolSort] = useState();
+  const [mbtiSort, setMbtiSort] = useState();
+  const [starSort, setStarSort] = useState();
   const dispatch = useDispatch();
   const registerUser = useCallback(userInfo => dispatch(registerUserInfoAsync(userInfo)), [dispatch]);
-
+  const { kakaoId : kakao_auth_id } = useSelector(state => state.login)
   const [inputs, setInputs] = useState({
     name: '',
     school: '',
     email: '',
-    // schoolAddress: '',
-    // adress: '',
+    emailHost: '',
+    schoolAddress: '',
+    address: 'aaaaa',
     mbti: '',
     star: '',
-    gender: '',
+    gender: false,
     // age: '',
     kakao_auth_id: kakao_auth_id,
+    birthday: '1996-09-24',
+    profileImg: 1,
+    kakao_id: 'asdf'
   });
-  const mbtiSort = [
-    'ISTJ',
-    'ISFJ',
-    'INFJ',
-    'INTJ',
-    'ISTP',
-    'ISFP',
-    'INFP',
-    'INTP',
-    'ESTP',
-    'ESFP',
-    'ENFP',
-    'ENTP',
-    'ESTJ',
-    'ESFJ',
-    'ENFJ',
-    'ENTJ',
-  ];
-
-  const starSort = [
-    '물병자리',
-    '물고기자리',
-    '양자리',
-    '황소자리',
-    '쌍둥이자리',
-    '게자리',
-    '사자자리',
-    '처녀자리',
-    '천칭자리',
-    '전갈자리',
-    '사수자리',
-    '염소자리',
-  ];
-
-  const schoolSort = [
-    '중앙대학교',
-    '숭실대학교',
-    '연세대학교',
-    '고려대학교',
-    '한양대학교',
-    '서강대학교',
-    '성균관대학교',
-    '서울대학교',
-  ];
-  const schoolEmailSort = [
-    'cau.ac.kr',
-    'soongsil.ac.kr',
-    'yonsei.ac.kr',
-    'korea.ac.kr',
-    'hanyang.ac.kr',
-    'sogang.ac.kr',
-    'skku.ac.kr',
-    'snu.ac.kr',
-  ];
 
   const {
     name,
     school,
-    // schoolAddress,
+    schoolAddress,
+    emailHost,
     email,
-    // adress,
+    // address,
     mbti,
     star,
     gender,
     // age,
   } = inputs;
-  const { kakaoId : kakao_auth_id } = useSelector(state => state.login)
+
+  useEffect(() => {
+    const infor = async () => {
+      await setSchoolSort(await getInformation('school'))
+      await setMbtiSort(await getInformation('mbti'))
+      await setStarSort(await getInformation('star'))
+    }
+    
+    infor()
+  }, [])
+  
   const onChange = (name, value) => {
     setInputs({
       ...inputs,
@@ -116,6 +81,7 @@ export default function CreateUsers({navigation}) {
 
   const List = (kinds) => {
     const sort = kinds === 'mbti' ? mbtiSort : starSort;
+    // console.log(sort)
     const sortColor = [
       '#497649',
       '#1EAAAA',
@@ -134,8 +100,6 @@ export default function CreateUsers({navigation}) {
       '#3C5A91',
       '#D2691E',
     ];
-    console.log(school);
-    // console.log(schoolAddress);
     return (
       <SafeAreaView style={styles.modalboxContainer}>
         <FlatList
@@ -145,14 +109,14 @@ export default function CreateUsers({navigation}) {
               style={[styles.modalbox, {backgroundColor: sortColor[index]}]}
               onPress={() => {
                 if (kinds === 'mbti') {
-                  onChange('mbti', item);
+                  onChange('mbti', item.name);
                   setShowMbtiModal(false);
                 } else {
-                  onChange('star', item);
+                  onChange('star', item.name);
                   setShowStarModal(false);
                 }
               }}>
-              <Text style={styles.modalText}>{item}</Text>
+              <Text style={styles.modalText}>{item.name}</Text>
             </TouchableOpacity>
           )}
           numColumns={4}
@@ -170,18 +134,19 @@ export default function CreateUsers({navigation}) {
           <TouchableOpacity
             style={styles.schoolModalbox}
             onPress={() => {
+              // console.log(schoolSort)
               setInputs((inputs) => {
-                return {...inputs, ['school']: item};
+                return {...inputs, ['school']: item.name};
               });
               setInputs((inputs) => {
-                return {...inputs, ['email']: schoolEmailSort[index]};
+                return {...inputs, ['schoolAddress']: item.email_info};
               });
               setShowSchoolModal(false);
             }}>
-            <Text style={styles.schoolModalText}>{item}</Text>
+            <Text style={styles.schoolModalText}>{item.name}</Text>
           </TouchableOpacity>
         )}
-        keyExtractor={(item, index) => index}
+        keyExtractor={(item, index) => index.toString()}
       />
     </SafeAreaView>
   );
@@ -273,8 +238,8 @@ export default function CreateUsers({navigation}) {
             style={styles.name}
             onChange={onChange}
             title="이름"
-            name="username"
-            value={username}
+            name="name"
+            value={name}
             placeholder="이름을 입력해 주세요"
           />
         </View>
@@ -293,9 +258,9 @@ export default function CreateUsers({navigation}) {
           <View style={styles.email}>
             <TextInput
               style={styles.inputEmail}
-              value={email}
+              value={emailHost}
               placeholder="이메일을 입력해 주세요"
-              onChangeText={(v) => onChange('email', v)}
+              onChangeText={(v) => onChange('emailHost', v)}
             />
             <Text style={styles.atSign}>@</Text>
             <Text style={styles.addressText}>{schoolAddress}</Text>
@@ -323,6 +288,15 @@ export default function CreateUsers({navigation}) {
             />
           </View>
         </View>
+        <View style={styles.buttonContainer}>
+          <Text style={styles.text}>성별</Text>
+          <RadioButton.Group onValueChange={value => {
+            onChange('gender', value === 'true')
+          }} value={gender.toString()}>
+            <RadioButton.Item label="Man" value="false" />
+            <RadioButton.Item label="Girl" value="true" />
+          </RadioButton.Group>
+        </View>
       </View>
       <View style={styles.selectContainer}>
         <Text style={[styles.subTitleText, styles.line]}>선택 입력</Text>
@@ -334,6 +308,7 @@ export default function CreateUsers({navigation}) {
               setShowMbtiModal(true);
             }}
           />
+          <Text>{mbti}</Text>
         </View>
         <View style={styles.buttonContainer}>
           <Button
@@ -343,17 +318,20 @@ export default function CreateUsers({navigation}) {
               setShowStarModal(true);
             }}
           />
+          <Text>{star}</Text>
         </View>
       </View>
       <View style={styles.completeButton}>
         <Button
           color="red"
           title="가입완료"
-          onPress={() => {
-            const userInfo = {
-              "kakao_auth_id" : kakao_auth_id,
-              "name" : name
-            }
+          onPress={async () => {
+            inputs.email = emailHost + "@" + schoolAddress
+            delete inputs.schoolAddress
+            delete inputs.emailHost
+            console.log(inputs)
+            await registerUser(inputs)
+            navigation.navigate('Home')
           }}
         />
       </View>
