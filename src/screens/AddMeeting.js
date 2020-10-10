@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import {ButtonGroup, Button} from 'react-native-elements';
+import {ButtonGroup} from 'react-native-elements';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,9 +9,18 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
+  TextInput,
+  Modal,
   KeyboardAvoidingView,
 } from 'react-native';
-import {TextInput} from 'react-native-gesture-handler';
+import {
+  Avatar,
+  Button,
+  Card,
+  Title,
+  Paragraph,
+  useTheme,
+} from 'react-native-paper';
 import {CONST_VALUE} from '../common/common';
 
 var width = Dimensions.get('window').width;
@@ -58,6 +67,7 @@ export default function AddMeeting({navigation}) {
 }
 
 function DatePick({onChange}) {
+  const {colors} = useTheme();
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDate, setSelectedDate] = useState([]);
 
@@ -97,7 +107,7 @@ function DatePick({onChange}) {
       </View>
       <View style={styles.dateButtonContainer}>
         <TouchableOpacity onPress={showDatePicker}>
-          <Text>날짜추가</Text>
+          <Text style={{color: colors.primary}}>날짜추가</Text>
         </TouchableOpacity>
       </View>
       <DateTimePickerModal
@@ -140,6 +150,8 @@ function PeopleCount({peopleCount, onChange}) {
 function People({peopleCount}) {
   let line;
   let temp = [];
+  const LeftContent = (props) => <Avatar.Icon {...props} icon="folder" />;
+
   if (peopleCount < 3) {
     line = styles.line1;
   } else if (peopleCount >= 3 && peopleCount < 5) {
@@ -148,11 +160,28 @@ function People({peopleCount}) {
     line = styles.line3;
   }
   for (let i = 1; i <= peopleCount; i++) {
-    temp.push(<Text>{i}</Text>);
+    temp.push(
+      <Card style={styles.friendCard}>
+        <Card.Title
+          title="Card Title"
+          subtitle="Card Subtitle"
+          left={LeftContent}
+        />
+        {/* <Card.Content>
+          <Title>Card title</Title>
+          <Paragraph>Card content</Paragraph>
+        </Card.Content>
+        <Card.Cover source={{uri: 'https://picsum.photos/700'}} /> */}
+        <Card.Actions>
+          <Button>Cancel</Button>
+          <Button>Ok</Button>
+        </Card.Actions>
+      </Card>,
+    );
   }
   return (
     <View style={styles.lineContainer}>
-      <View style={line}>{temp}</View>
+      <View style={line}></View>
     </View>
   );
 }

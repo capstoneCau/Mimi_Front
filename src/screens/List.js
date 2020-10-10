@@ -8,7 +8,7 @@ import {
   FlatList,
   Dimensions,
 } from 'react-native';
-
+import {useTheme} from '@react-navigation/native';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -67,6 +67,7 @@ const tempListData = [
 ];
 
 export default function List({navigation}) {
+  const {colors} = useTheme();
   const addBtn = () => {
     return (
       <TouchableOpacity
@@ -86,7 +87,7 @@ export default function List({navigation}) {
         ListHeaderComponent={addBtn}
         renderItem={({item, index}) => (
           <TouchableOpacity
-            style={styles.list_container}
+            style={[styles.list_container, {backgroundColor: colors.card}]}
             onPress={() => {
               //navigation.navigate('미팅요청')
               console.log('press');

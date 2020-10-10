@@ -5,7 +5,6 @@ import {
   TextInput,
   View,
   Modal,
-  Button,
   FlatList,
   SafeAreaView,
   ScrollView,
@@ -20,6 +19,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {registerUserInfoAsync} from '../modules/login';
 import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
+import {FancyButton} from '../common/common';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -49,7 +49,7 @@ export default function CreateUsers({navigation}) {
     address: 'aaaaa',
     mbti: '',
     star: '',
-    gender: false,
+    gender: true,
     // age: '',
     kakao_auth_id: kakao_auth_id,
     birthday: '1996-09-24',
@@ -213,8 +213,7 @@ export default function CreateUsers({navigation}) {
               setInputAuthCode(value);
             }}
           />
-          <Button
-            title="인증하기"
+          <FancyButton
             onPress={() => {
               if (authCode == inputAuthCode) {
                 ToastAndroid.showWithGravity(
@@ -231,14 +230,14 @@ export default function CreateUsers({navigation}) {
                   ToastAndroid.CENTER,
                 );
               }
-            }}
-          />
+            }}>
+            인증하기
+          </FancyButton>
         </View>
         <View style={styles.additionalCertifyContainer}>
           <View style={{marginRight: 10}}>
-            <Button
-              title="재전송하기"
-              color="#64CD3C"
+            <FancyButton
+              //color="#64CD3C"
               onPress={async () => {
                 ToastAndroid.showWithGravity(
                   '인증 메일이 재 전송 되었습니다.',
@@ -246,10 +245,11 @@ export default function CreateUsers({navigation}) {
                   ToastAndroid.CENTER,
                 );
                 setAuthCode(await getAuthCode(emailHost + '@' + schoolAddress));
-              }}
-            />
+              }}>
+              재전송하기
+            </FancyButton>
           </View>
-          <Button
+          <FancyButton
             title="취소"
             color="red"
             onPress={() => {
@@ -278,7 +278,7 @@ export default function CreateUsers({navigation}) {
             value={name}
             placeholder="이름을 입력해 주세요"
           />
-          <View style={styles.genderContainer}>
+          {/* <View style={styles.genderContainer}>
             <Text style={styles.text}>성별</Text>
             <RadioButton.Group
               onValueChange={(value) => {
@@ -288,17 +288,18 @@ export default function CreateUsers({navigation}) {
               <RadioButton.Item label="Man" value="false" />
               <RadioButton.Item label="Girl" value="true" />
             </RadioButton.Group>
-          </View>
+          </View> */}
         </View>
         <View style={styles.buttonContainer}>
           <Text style={styles.text}>학교</Text>
-          <Button
+          <FancyButton
             color="#000069"
-            title="학교선택"
+            mode="contained"
             onPress={() => {
               setShowSchoolModal(true);
-            }}
-          />
+            }}>
+            학교선택
+          </FancyButton>
         </View>
         <View style={styles.emailContainer}>
           <Text style={styles.text}>학교 이메일</Text>
@@ -311,9 +312,9 @@ export default function CreateUsers({navigation}) {
             />
             <Text style={styles.atSign}>@</Text>
             <Text style={styles.addressText}>{schoolAddress}</Text>
-            <Button
-              color="#64CD3C"
-              title={isAuth ? '인증성공' : '인증하기'}
+            <FancyButton
+              color="#000069"
+              mode="contained"
               onPress={async () => {
                 if (schoolAddress === '') {
                   Alert.alert(
@@ -335,45 +336,47 @@ export default function CreateUsers({navigation}) {
                   setShowCertificationModal(true);
                 }
               }}
-              disabled={isAuth}
-            />
+              disabled={isAuth}>
+              {isAuth ? '인증성공' : '인증하기'}
+            </FancyButton>
           </View>
         </View>
       </View>
       <View style={styles.selectContainer}>
         <Text style={[styles.subTitleText, styles.line]}>선택 입력</Text>
         <View style={styles.buttonContainer}>
-          <Button
+          <FancyButton
+            mode="contained"
             color="#000069"
-            title="MBTI"
             onPress={() => {
               setShowMbtiModal(true);
-            }}
-          />
+            }}>
+            MBTI
+          </FancyButton>
           <Text>{mbti}</Text>
         </View>
         <View style={styles.buttonContainer}>
-          <Button
+          <FancyButton
             color="#000069"
-            title="별자리"
+            mode="contained"
             onPress={() => {
               setShowStarModal(true);
-            }}
-          />
+            }}>
+            별자리
+          </FancyButton>
           <Text>{star}</Text>
         </View>
       </View>
       <View style={styles.completeButton}>
-        <Button
-          color="red"
+        <FancyButton
+          mode="contained"
           title="가입완료"
           onPress={async () => {
             if (isAuth) {
               inputs.email = emailHost + '@' + schoolAddress;
               delete inputs.schoolAddress;
               delete inputs.emailHost;
-              console.log(inputs);
-              await registerUser(inputs);
+              // await registerUser(inputs);
               navigation.navigate('Home');
             } else {
               Alert.alert(
@@ -389,8 +392,9 @@ export default function CreateUsers({navigation}) {
                 {cancelable: false},
               );
             }
-          }}
-        />
+          }}>
+          가입완료
+        </FancyButton>
       </View>
     </View>
   );

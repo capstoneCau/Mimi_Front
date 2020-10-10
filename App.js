@@ -1,6 +1,7 @@
 import React from 'react';
 import {SafeAreaView, StyleSheet, View, Text} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
+import merge from 'deepmerge';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import * as name from './src/screens/index';
@@ -8,6 +9,17 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
+const MyTheme = {
+  dark: false,
+  colors: {
+    primary: 'rgb(255, 45, 85)',
+    background: 'rgb(242, 242, 242)',
+    card: 'rgb(255, 255, 255)',
+    text: 'rgb(28, 28, 30)',
+    border: 'rgb(199, 199, 204)',
+    notification: 'rgb(255, 69, 58)',
+  },
+};
 
 function App() {
   const {
@@ -24,7 +36,7 @@ function App() {
   const Navigator = () => {
     const loginStack = () => {
       return (
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="SignUp">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
         </Stack.Navigator>
@@ -121,7 +133,7 @@ function App() {
     };
 
     return (
-      <NavigationContainer>
+      <NavigationContainer theme={MyTheme}>
         <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={loginStack} />
           <Stack.Screen name="Home" component={homeStack} />
