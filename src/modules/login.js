@@ -1,4 +1,4 @@
-const SERVER_DOMAIN = "http://111.118.40.200:8000/"
+const SERVER_DOMAIN = "https://mimi-server-akuui.run.goorm.io/"
 //Action Type
 const LOGIN_USER = 'login/LOGIN_USER';
 const LOGOUT = 'login/LOGOUT'
@@ -21,7 +21,7 @@ export const logoutAsync = () => async (dispatch, getState) => {
 }
 export const registerUserInfoAsync = (userInfo) => async (dispatch, getState) => {
     
-    await fetch('http://111.118.40.200:8000/api/v1/user/users/', {
+    await fetch('https://mimi-server-akuui.run.goorm.io/api/v1/user/users/', {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, cors, *same-origin
         // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached

@@ -1,4 +1,4 @@
-const SERVER_DOMAIN = "http://111.118.40.200:8000/api/v1/user/"
+const SERVER_DOMAIN = "https://mimi-server-akuui.run.goorm.io/api/v1/user/"
 
 export const getInformation = async (param) => {
     const res = await fetch(SERVER_DOMAIN + param + '/')
