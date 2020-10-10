@@ -11,6 +11,10 @@ function GoogleMap() {
     const [_watchId, setWatchId] = useState(null)
     const [testLocation, setTestLocation] = useState('')
 
+    useEffect(() => {
+        getCurrentPosition()
+    }, [])
+
     const getDistaneTime = async (desLatitude, desLongitude) => {
         const APP_KEY = googleApiKey.distance.key
         const BASE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?"
@@ -31,6 +35,15 @@ function GoogleMap() {
     }
 
     const getCurrentPosition = async () => {
+        await requestLocationPermission();
+        Geolocation.getCurrentPosition(position => {
+            const {latitude, longitude} = position.coords;
+            setLatitude(latitude);
+            setLongitude(longitude);
+        })
+    }
+
+    const getCurrentPositionWatch = async () => {
         await requestLocationPermission();
         setWatchId(Geolocation.watchPosition(
             position => {
@@ -117,33 +130,61 @@ function GoogleMap() {
                 // console.log(testLocation)
             }}
             onSubmitEditing={async () => {
-                const {lat, lng} = await getAddressPosition(testLocation)
+                const {lat, lng} = await getCurrentPosition(testLocation)
                 console.log(lat, lng)
                 const {hour, min} = await getDistaneTime(lat, lng)
                 console.log(hour, min)
             }}
             value={testLocation}
             />
-        <TouchableOpacity
-            onPress={() => {
-                getCurrentPosition()
-            }}
-            style={styles.getPositionBtn}>
-        <Text style={styles.getPositionText}>Get</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-            onPress={() => {
-                stopGetPosition()
-            }}
-            style={styles.getPositionStopBtn}>
-        <Text style={styles.getPositionStopText}>Stop</Text>
-        </TouchableOpacity>
+        <View style={styles.container}>
+            <View style={styles.subContainer}>
+                <TouchableOpacity
+                onPress={() => {
+                    getCurrentPositionWatch()
+                }}
+                style={styles.getPositionBtn}>
+                    <Text style={styles.getPositionText}>Get</Text>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.subContainer}>
+                <TouchableOpacity
+                    onPress={() => {
+                        stopGetPosition()
+                    }}
+                style={styles.getPositionStopBtn}>
+                    <Text style={styles.getPositionStopText}>Stop</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+        <View style={styles.container}>
+            <View style={styles.subContainer}>
+                <Text style={styles.coordText}>Latitude : { orgLatitude }</Text>
+            </View>
+            <View style={styles.subContainer}>
+                <Text style={styles.coordText}>Longitute : { orgLongitude }</Text>
+            </View>
+        </View>
     </View>); 
 
 } export default GoogleMap;
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    subContainer: {
+        flex: 0.5,
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    coordText: {
+        fontSize: 30
+    },
+
     getPositionBtn: {
       height: 200,
       width: 300,
@@ -171,4 +212,3 @@ const styles = StyleSheet.create({
         color: 'white'
     }
   });
-  
