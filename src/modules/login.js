@@ -1,4 +1,6 @@
+
 const SERVER_DOMAIN = 'https://mimi-server-akuui.run.goorm.io/';
+
 
 //Action Type
 const LOGIN_USER = 'login/LOGIN_USER';
@@ -20,6 +22,7 @@ export const loginUserAsync = (userInfo, kakaoId) => async (
   dispatch({type: LOGIN_USER, userInfo, kakaoId});
 };
 export const logoutAsync = () => async (dispatch, getState) => {
+
   dispatch({type: LOGOUT});
 };
 export const registerUserInfoAsync = (userInfo) => async (
@@ -41,6 +44,7 @@ export const registerUserInfoAsync = (userInfo) => async (
   });
   dispatch({type: REGISTER_USER_INFO});
 };
+
 
 export const requestKaKaoAuthIdAsync = (kakaoId) => async (
   dispatch,
