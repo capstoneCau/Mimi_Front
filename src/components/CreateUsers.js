@@ -19,10 +19,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {registerUserInfoAsync} from '../modules/login';
 import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
-<<<<<<< HEAD
 import {FancyButton} from '../common/common';
-=======
->>>>>>> 2a1a6ad... Merge branch 'develop' of https://github.com/capstoneCau/Mimi_Front into develop
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -216,12 +213,7 @@ export default function CreateUsers({navigation}) {
               setInputAuthCode(value);
             }}
           />
-<<<<<<< HEAD
           <FancyButton
-=======
-          <Button
-            title="인증하기"
->>>>>>> 2a1a6ad... Merge branch 'develop' of https://github.com/capstoneCau/Mimi_Front into develop
             onPress={() => {
               if (authCode == inputAuthCode) {
                 ToastAndroid.showWithGravity(
@@ -238,7 +230,6 @@ export default function CreateUsers({navigation}) {
                   ToastAndroid.CENTER,
                 );
               }
-<<<<<<< HEAD
             }}>
             인증하기
           </FancyButton>
@@ -247,16 +238,6 @@ export default function CreateUsers({navigation}) {
           <View style={{marginRight: 10}}>
             <FancyButton
               //color="#64CD3C"
-=======
-            }}
-          />
-        </View>
-        <View style={styles.additionalCertifyContainer}>
-          <View style={{marginRight: 10}}>
-            <Button
-              title="재전송하기"
-              color="#64CD3C"
->>>>>>> 2a1a6ad... Merge branch 'develop' of https://github.com/capstoneCau/Mimi_Front into develop
               onPress={async () => {
                 ToastAndroid.showWithGravity(
                   '인증 메일이 재 전송 되었습니다.',
@@ -264,14 +245,9 @@ export default function CreateUsers({navigation}) {
                   ToastAndroid.CENTER,
                 );
                 setAuthCode(await getAuthCode(emailHost + '@' + schoolAddress));
-<<<<<<< HEAD
               }}>
               재전송하기
             </FancyButton>
-=======
-              }}
-            />
->>>>>>> 2a1a6ad... Merge branch 'develop' of https://github.com/capstoneCau/Mimi_Front into develop
           </View>
           <FancyButton
             title="취소"
@@ -302,11 +278,7 @@ export default function CreateUsers({navigation}) {
             value={name}
             placeholder="이름을 입력해 주세요"
           />
-<<<<<<< HEAD
           {/* <View style={styles.genderContainer}>
-=======
-          <View style={styles.genderContainer}>
->>>>>>> 2a1a6ad... Merge branch 'develop' of https://github.com/capstoneCau/Mimi_Front into develop
             <Text style={styles.text}>성별</Text>
             <RadioButton.Group
               onValueChange={(value) => {
@@ -316,11 +288,7 @@ export default function CreateUsers({navigation}) {
               <RadioButton.Item label="Man" value="false" />
               <RadioButton.Item label="Girl" value="true" />
             </RadioButton.Group>
-<<<<<<< HEAD
           </View> */}
-=======
-          </View>
->>>>>>> 2a1a6ad... Merge branch 'develop' of https://github.com/capstoneCau/Mimi_Front into develop
         </View>
         <View style={styles.buttonContainer}>
           <Text style={styles.text}>학교</Text>
@@ -344,15 +312,9 @@ export default function CreateUsers({navigation}) {
             />
             <Text style={styles.atSign}>@</Text>
             <Text style={styles.addressText}>{schoolAddress}</Text>
-<<<<<<< HEAD
             <FancyButton
               color="#000069"
               mode="contained"
-=======
-            <Button
-              color="#64CD3C"
-              title={isAuth ? '인증성공' : '인증하기'}
->>>>>>> 2a1a6ad... Merge branch 'develop' of https://github.com/capstoneCau/Mimi_Front into develop
               onPress={async () => {
                 if (schoolAddress === '') {
                   Alert.alert(
@@ -374,14 +336,9 @@ export default function CreateUsers({navigation}) {
                   setShowCertificationModal(true);
                 }
               }}
-<<<<<<< HEAD
               disabled={isAuth}>
               {isAuth ? '인증성공' : '인증하기'}
             </FancyButton>
-=======
-              disabled={isAuth}
-            />
->>>>>>> 2a1a6ad... Merge branch 'develop' of https://github.com/capstoneCau/Mimi_Front into develop
           </View>
         </View>
       </View>
@@ -419,12 +376,7 @@ export default function CreateUsers({navigation}) {
               inputs.email = emailHost + '@' + schoolAddress;
               delete inputs.schoolAddress;
               delete inputs.emailHost;
-<<<<<<< HEAD
               // await registerUser(inputs);
-=======
-              console.log(inputs);
-              await registerUser(inputs);
->>>>>>> 2a1a6ad... Merge branch 'develop' of https://github.com/capstoneCau/Mimi_Front into develop
               navigation.navigate('Home');
             } else {
               Alert.alert(
@@ -440,14 +392,9 @@ export default function CreateUsers({navigation}) {
                 {cancelable: false},
               );
             }
-<<<<<<< HEAD
           }}>
           가입완료
         </FancyButton>
-=======
-          }}
-        />
->>>>>>> 2a1a6ad... Merge branch 'develop' of https://github.com/capstoneCau/Mimi_Front into develop
       </View>
     </View>
   );
