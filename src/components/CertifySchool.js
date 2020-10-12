@@ -34,6 +34,8 @@ export default function CertifySchool({
   adress,
   onChange,
   setInputs,
+  startMbti,
+  setStartMbti,
 }) {
   const [showSchoolModal, setShowSchoolModal] = useState(false);
   const [showcertificationModal, setShowCertificationModal] = useState(false);
@@ -193,11 +195,11 @@ export default function CertifySchool({
           ? [colors.manBackground[0], colors.manBackground[1]]
           : [colors.womanBackground[0], colors.womanBackground[1]]
       }
-      style={styles.container}>
+      style={[styles.container, startMbti === true ? {display: 'none'} : {}]}>
       {schoolModal}
       {certificationModal}
       <View style={styles.titleContainer}>
-        <Text style={styles.titleText}>회원가입</Text>
+        <Text style={styles.titleText}>학교인증</Text>
       </View>
       <View style={styles.formContainer}>
         <View style={styles.buttonForm}>
@@ -241,6 +243,24 @@ export default function CertifySchool({
               {isAuth ? '인증성공' : '인증하기'}
             </FancyButton>
           </View>
+        </View>
+        <View style={styles.completeContainer}>
+          <FancyButton
+            mode="contained"
+            title="가입완료"
+            onPress={async () => {
+              if (isAuth) {
+                email = emailHost + '@' + schoolAddress;
+                setStartMbti(true);
+                //delete schoolAddress;
+                //delete emailHost;
+                //await registerUser(inputs);
+              } else {
+                failCertify();
+              }
+            }}>
+            다음
+          </FancyButton>
         </View>
       </View>
     </LinearGradient>

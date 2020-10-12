@@ -1,50 +1,29 @@
-import React, {useState, useEffect, Fragment, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
-  TextInput,
   View,
   Modal,
   FlatList,
   SafeAreaView,
-  ScrollView,
-  Alert,
   Dimensions,
   TouchableOpacity,
-  ToastAndroid,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '@react-navigation/native';
 import {CONST_VALUE} from '../common/common';
-import {useSelector, useDispatch} from 'react-redux';
-import {registerUserInfoAsync} from '../modules/login';
 import {getInformation} from '../modules/getInformation';
-import {getAuthCode} from '../modules/getAuthCode';
 import {FancyButton} from '../common/common';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-export default function CreateUsers({route, navigation}) {
+export default function MbtiCheck({mbti, star, onChange, setFinishSignUp}) {
   const [showMbtiModal, setShowMbtiModal] = useState(false);
   const [showStarModal, setShowStarModal] = useState(false);
   const [mbtiSort, setMbtiSort] = useState();
   const [starSort, setStarSort] = useState();
-  const [authCode, setAuthCode] = useState();
-  const [inputAuthCode, setInputAuthCode] = useState();
-  const [isAuth, setAuth] = useState(false);
-  const dispatch = useDispatch();
-  const registerUser = useCallback(
-    (userInfo) => dispatch(registerUserInfoAsync(userInfo)),
-    [dispatch],
-  );
   const {colors} = useTheme();
-  const [inputs, setInputs] = useState({
-    mbti: '',
-    star: '',
-  });
-
-  const {mbti, star} = inputs;
 
   useEffect(() => {
     const infor = async () => {
@@ -53,13 +32,6 @@ export default function CreateUsers({route, navigation}) {
     };
     infor();
   }, []);
-
-  const onChange = (name, value) => {
-    setInputs({
-      ...inputs,
-      [name]: value,
-    });
-  };
 
   const List = (kinds) => {
     const sort = kinds === 'mbti' ? mbtiSort : starSort;
@@ -148,6 +120,21 @@ export default function CreateUsers({route, navigation}) {
               MBTI
             </FancyButton>
             <Text>{mbti}</Text>
+          </View>
+          <View style={styles.buttonForm}>
+            <FancyButton mode="contained" color="#000069" onPress={() => {}}>
+              MBTI Simple Test
+            </FancyButton>
+          </View>
+          <View style={styles.buttonForm}>
+            <FancyButton
+              mode="contained"
+              color="green"
+              onPress={() => {
+                setFinishSignUp(true);
+              }}>
+              임시완료버튼
+            </FancyButton>
           </View>
           {/* <View style={styles.buttonForm}>
             <FancyButton
