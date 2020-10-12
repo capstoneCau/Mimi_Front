@@ -25,11 +25,19 @@ import {FancyButton} from '../common/common';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-export default function CreateUsers({route, navigation}) {
+export default function CertifySchool({
+  gender,
+  school,
+  email,
+  emailHost,
+  schoolAddress,
+  adress,
+  onChange,
+  setInputs,
+}) {
   const [showSchoolModal, setShowSchoolModal] = useState(false);
   const [showcertificationModal, setShowCertificationModal] = useState(false);
   const [schoolSort, setSchoolSort] = useState();
-
   const [authCode, setAuthCode] = useState();
   const [inputAuthCode, setInputAuthCode] = useState();
   const [isAuth, setAuth] = useState(false);
@@ -40,22 +48,14 @@ export default function CreateUsers({route, navigation}) {
   );
   const {colors} = useTheme();
 
-  const [inputs, setInputs] = useState({
-    school: '',
-    email: '',
-    emailHost: '',
-    schoolAddress: '',
-    address: 'aaaaa',
-  });
+  //   const [inputs, setInputs] = useState({
+  //     school: '',
+  //     email: '',
+  //     emailHost: '',
+  //     schoolAddress: '',
+  //     address: 'aaaaa',
+  //   });
 
-  const {school, schoolAddress, emailHost, email, address, gender} = inputs;
-
-  const onChange = (name, value) => {
-    setInputs({
-      ...inputs,
-      [name]: value,
-    });
-  };
   useEffect(() => {
     const infor = async () => {
       setSchoolSort(await getInformation('school'));
@@ -241,24 +241,6 @@ export default function CreateUsers({route, navigation}) {
               {isAuth ? '인증성공' : '인증하기'}
             </FancyButton>
           </View>
-        </View>
-        <View style={styles.completeContainer}>
-          <FancyButton
-            mode="contained"
-            title="가입완료"
-            onPress={async () => {
-              if (isAuth) {
-                inputs.email = emailHost + '@' + schoolAddress;
-                delete inputs.schoolAddress;
-                delete inputs.emailHost;
-                await registerUser(inputs);
-                navigation.navigate('Home');
-              } else {
-                failCertify();
-              }
-            }}>
-            가입완료
-          </FancyButton>
         </View>
       </View>
     </LinearGradient>

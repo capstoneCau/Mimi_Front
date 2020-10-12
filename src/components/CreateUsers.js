@@ -21,6 +21,7 @@ import {registerUserInfoAsync} from '../modules/login';
 import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
 import {FancyButton} from '../common/common';
+import CertifySchool from './CertifySchool';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -393,7 +394,7 @@ export default function CreateUsers({route, navigation}) {
               failCertify();
             }
           }}>
-          가입완료
+          다음
         </FancyButton>
       </View>
     </LinearGradient>
