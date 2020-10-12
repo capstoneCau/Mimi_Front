@@ -26,13 +26,10 @@ var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
 export default function CreateUsers({route, navigation}) {
-  const [showMbtiModal, setShowMbtiModal] = useState(false);
-  const [showStarModal, setShowStarModal] = useState(false);
   const [showSchoolModal, setShowSchoolModal] = useState(false);
   const [showcertificationModal, setShowCertificationModal] = useState(false);
   const [schoolSort, setSchoolSort] = useState();
-  const [mbtiSort, setMbtiSort] = useState();
-  const [starSort, setStarSort] = useState();
+
   const [authCode, setAuthCode] = useState();
   const [inputAuthCode, setInputAuthCode] = useState();
   const [isAuth, setAuth] = useState(false);
@@ -43,46 +40,15 @@ export default function CreateUsers({route, navigation}) {
   );
   const {colors} = useTheme();
 
-  const {kakaoId: kakao_auth_id} = useSelector((state) => state.login);
   const [inputs, setInputs] = useState({
-    name: '',
     school: '',
     email: '',
     emailHost: '',
     schoolAddress: '',
     address: 'aaaaa',
-    mbti: '',
-    star: '',
-    // gender: route.params.gender,
-    gender: true,
-    age: '',
-    kakao_auth_id: kakao_auth_id,
-    // birthday: route.params.birthday,
-    birthday: '1996',
-    profileImg: 1,
-    kakao_id: 'asdf', //????
   });
 
-  const {
-    name,
-    school,
-    schoolAddress,
-    emailHost,
-    email,
-    address,
-    mbti,
-    star,
-    gender,
-    age,
-  } = inputs;
-  useEffect(() => {
-    const infor = async () => {
-      setSchoolSort(await getInformation('school'));
-      setMbtiSort(await getInformation('mbti'));
-      setStarSort(await getInformation('star'));
-    };
-    infor();
-  }, []);
+  const {school, schoolAddress, emailHost, email, address, gender} = inputs;
 
   const onChange = (name, value) => {
     setInputs({
@@ -90,47 +56,13 @@ export default function CreateUsers({route, navigation}) {
       [name]: value,
     });
   };
+  useEffect(() => {
+    const infor = async () => {
+      setSchoolSort(await getInformation('school'));
+    };
+    infor();
+  }, []);
 
-  const List = (kinds) => {
-    const sort = kinds === 'mbti' ? mbtiSort : starSort;
-
-    return (
-      <SafeAreaView style={styles.modalboxContainer}>
-        <FlatList
-          data={sort}
-          renderItem={({item, index}) => (
-            <TouchableOpacity
-              style={[
-                styles.modalbox,
-                {
-                  borderColor: CONST_VALUE.SORT_COLOR[index],
-                },
-              ]}
-              onPress={() => {
-                if (kinds === 'mbti') {
-                  onChange('mbti', item.name);
-                  setShowMbtiModal(false);
-                } else {
-                  onChange('star', item.name);
-                  setShowStarModal(false);
-                }
-              }}>
-              <Text
-                style={[
-                  styles.modalText,
-                  {color: CONST_VALUE.SORT_COLOR[index]},
-                ]}>
-                {item.name}
-              </Text>
-            </TouchableOpacity>
-          )}
-          numColumns={4}
-          keyExtractor={(item, index) => index}
-        />
-      </SafeAreaView>
-    );
-  };
-  console.log(schoolSort);
   const schoolList = (
     <SafeAreaView style={styles.schoolModalboxContainer}>
       <FlatList
@@ -154,28 +86,6 @@ export default function CreateUsers({route, navigation}) {
         keyExtractor={(item, index) => index.toString()}
       />
     </SafeAreaView>
-  );
-
-  const mbtiModal = (
-    <Modal animationType={'slide'} transparent={false} visible={showMbtiModal}>
-      <View style={styles.mbtiContainer}>
-        <Text style={styles.mbtiIntroduceText}>
-          당신의 MBTI를 선택해 주세요!
-        </Text>
-        {List('mbti')}
-      </View>
-    </Modal>
-  );
-
-  const starModal = (
-    <Modal animationType={'slide'} transparent={false} visible={showStarModal}>
-      <View style={styles.mbtiContainer}>
-        <Text style={styles.mbtiIntroduceText}>
-          당신의 별자리를 선택해 주세요!
-        </Text>
-        {List('star')}
-      </View>
-    </Modal>
   );
 
   const schoolModal = (
@@ -284,34 +194,12 @@ export default function CreateUsers({route, navigation}) {
           : [colors.womanBackground[0], colors.womanBackground[1]]
       }
       style={styles.container}>
-      {mbtiModal}
-      {starModal}
       {schoolModal}
       {certificationModal}
       <View style={styles.titleContainer}>
         <Text style={styles.titleText}>회원가입</Text>
       </View>
       <View style={styles.formContainer}>
-        <View style={styles.form}>
-          <TextInputComp
-            onChange={onChange}
-            title="이름"
-            name="name"
-            value={name}
-            maxLength={5}
-            placeholder="이름을 입력해 주세요"
-          />
-        </View>
-        <View style={styles.form}>
-          <TextInputComp
-            onChange={onChange}
-            title="나이"
-            name="age"
-            value={age}
-            maxLength={4}
-            placeholder="태어난 년도를 입력해 주세요(ex: 1996)"
-          />
-        </View>
         <View style={styles.buttonForm}>
           <Text style={styles.text}>학교</Text>
           <FancyButton
@@ -354,64 +242,26 @@ export default function CreateUsers({route, navigation}) {
             </FancyButton>
           </View>
         </View>
-
-        <View style={styles.buttonForm}>
+        <View style={styles.completeContainer}>
           <FancyButton
             mode="contained"
-            color="#000069"
-            onPress={() => {
-              setShowMbtiModal(true);
+            title="가입완료"
+            onPress={async () => {
+              if (isAuth) {
+                inputs.email = emailHost + '@' + schoolAddress;
+                delete inputs.schoolAddress;
+                delete inputs.emailHost;
+                await registerUser(inputs);
+                navigation.navigate('Home');
+              } else {
+                failCertify();
+              }
             }}>
-            MBTI
+            가입완료
           </FancyButton>
-          <Text>{mbti}</Text>
         </View>
-        <View style={styles.buttonForm}>
-          <FancyButton
-            color="#000069"
-            mode="contained"
-            onPress={() => {
-              setShowStarModal(true);
-            }}>
-            별자리
-          </FancyButton>
-          <Text>{star}</Text>
-        </View>
-      </View>
-      <View style={styles.completeContainer}>
-        <FancyButton
-          mode="contained"
-          title="가입완료"
-          onPress={async () => {
-            if (isAuth) {
-              inputs.email = emailHost + '@' + schoolAddress;
-              delete inputs.schoolAddress;
-              delete inputs.emailHost;
-              await registerUser(inputs);
-              navigation.navigate('Home');
-            } else {
-              failCertify();
-            }
-          }}>
-          가입완료
-        </FancyButton>
       </View>
     </LinearGradient>
-  );
-}
-
-function TextInputComp({title, name, value, placeholder, maxLength, onChange}) {
-  return (
-    <View style={styles.textInputContainer}>
-      <Text style={styles.text}>{title}</Text>
-      <TextInput
-        style={styles.input}
-        value={value}
-        placeholder={placeholder}
-        maxLength={maxLength}
-        onChangeText={(v) => onChange(name, v)}
-      />
-    </View>
   );
 }
 
