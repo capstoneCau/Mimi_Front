@@ -10,7 +10,7 @@ import {
 import Animated from 'react-native-reanimated';
 import CreateUsers from '../components/CreateUsers';
 
-export default function SignUp({navigation}) {
+export default function SignUp({route, navigation}) {
   const [startSignUp, setStartSignUp] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const fadeOut = () => {
@@ -26,7 +26,7 @@ export default function SignUp({navigation}) {
     fadeOut();
   });
   const signUp = startSignUp ? (
-    <CreateUsers navigation={navigation}/>
+    <CreateUsers route={route} navigation={navigation} />
   ) : null;
 
   return (

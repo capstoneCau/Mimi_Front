@@ -1,11 +1,10 @@
-import React, {useState, useEffect, Fragment, useCallback} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   StyleSheet,
   Text,
   TextInput,
   View,
   Modal,
-  Button,
   FlatList,
   SafeAreaView,
   ScrollView,
@@ -13,33 +12,46 @@ import {
   Dimensions,
   TouchableOpacity,
   ToastAndroid,
+  Easing,
 } from 'react-native';
-import {Avatar, Card, IconButton, RadioButton} from 'react-native-paper';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Animated from 'react-native-reanimated';
+import LinearGradient from 'react-native-linear-gradient';
+import {useTheme} from '@react-navigation/native';
+import {CONST_VALUE} from '../common/common';
 import {useSelector, useDispatch} from 'react-redux';
 import {registerUserInfoAsync} from '../modules/login';
 import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
+import {FancyButton} from '../common/common';
+import CertifySchool from './CertifySchool';
+import MbtiCheck from './MbtiCheck';
+
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-export default function CreateUsers({navigation}) {
-  const [showMbtiModal, setShowMbtiModal] = useState(false);
-  const [showStarModal, setShowStarModal] = useState(false);
-  const [showSchoolModal, setShowSchoolModal] = useState(false);
-  const [showcertificationModal, setShowCertificationModal] = useState(false);
-  const [schoolSort, setSchoolSort] = useState();
-  const [mbtiSort, setMbtiSort] = useState();
-  const [starSort, setStarSort] = useState();
-  const [authCode, setAuthCode] = useState();
-  const [inputAuthCode, setInputAuthCode] = useState();
-  const [isAuth, setAuth] = useState(false);
+export default function CreateUsers({route, navigation}) {
+  // const [showMbtiModal, setShowMbtiModal] = useState(false);
+  // const [showStarModal, setShowStarModal] = useState(false);
+  // const [showSchoolModal, setShowSchoolModal] = useState(false);
+  // const [showcertificationModal, setShowCertificationModal] = useState(false);
+  // const [schoolSort, setSchoolSort] = useState();
+  // const [mbtiSort, setMbtiSort] = useState();
+  // const [starSort, setStarSort] = useState();
+  // const [authCode, setAuthCode] = useState();
+  // const [inputAuthCode, setInputAuthCode] = useState();
+  // const [isAuth, setAuth] = useState(false);
   const dispatch = useDispatch();
   const registerUser = useCallback(
     (userInfo) => dispatch(registerUserInfoAsync(userInfo)),
     [dispatch],
   );
   const {kakaoId: kakao_auth_id} = useSelector((state) => state.login);
+
+  const {colors} = useTheme();
+  const [startCertify, setStartCertify] = useState(false);
+  const [startMbti, setStartMbti] = useState(false);
+  const [finishSignUp, setFinishSignUp] = useState(false);
+
   const [inputs, setInputs] = useState({
     name: '',
     school: '',
@@ -49,13 +61,23 @@ export default function CreateUsers({navigation}) {
     address: 'aaaaa',
     mbti: '',
     star: '',
-    gender: false,
-    // age: '',
+    // gender: route.params.gender,
+    gender: true,
+    age: '',
     kakao_auth_id: kakao_auth_id,
-    birthday: '1996-09-24',
+    // birthday: route.params.birthday,
+    birthday: '1996',
     profileImg: 1,
-    kakao_id: 'asdf',
+    kakao_id: 'asdf', //????
   });
+
+  useEffect(() => {
+    if (finishSignUp === true) {
+      console.log(inputs);
+      registerUser(inputs);
+      navigation.navigate('Home', {gender: gender});
+    }
+  }, [finishSignUp]);
 
   const {
     name,
@@ -63,22 +85,12 @@ export default function CreateUsers({navigation}) {
     schoolAddress,
     emailHost,
     email,
-    // address,
+    address,
     mbti,
     star,
     gender,
-    // age,
+    age,
   } = inputs;
-
-  useEffect(() => {
-    const infor = async () => {
-      await setSchoolSort(await getInformation('school'));
-      await setMbtiSort(await getInformation('mbti'));
-      await setStarSort(await getInformation('star'));
-    };
-
-    infor();
-  }, []);
 
   const onChange = (name, value) => {
     setInputs({
@@ -86,317 +98,101 @@ export default function CreateUsers({navigation}) {
       [name]: value,
     });
   };
-
-  const List = (kinds) => {
-    const sort = kinds === 'mbti' ? mbtiSort : starSort;
-    // console.log(sort)
-    const sortColor = [
-      '#497649',
-      '#1EAAAA',
-      '#FF6E6E',
-      '#AAFA82',
-      '#C65FF9',
-      '#FF0000',
-      '#FFB432',
-      '#800080',
-      '#0064CD',
-      '#0A6E0A',
-      '#FFFF96',
-      '#CEBEE1',
-      '#A0FA78',
-      '#FF8E99',
-      '#3C5A91',
-      '#D2691E',
-    ];
-    return (
-      <SafeAreaView style={styles.modalboxContainer}>
-        <FlatList
-          data={sort}
-          renderItem={({item, index}) => (
-            <TouchableOpacity
-              style={[styles.modalbox, {backgroundColor: sortColor[index]}]}
-              onPress={() => {
-                if (kinds === 'mbti') {
-                  onChange('mbti', item.name);
-                  setShowMbtiModal(false);
-                } else {
-                  onChange('star', item.name);
-                  setShowStarModal(false);
-                }
-              }}>
-              <Text style={styles.modalText}>{item.name}</Text>
-            </TouchableOpacity>
-          )}
-          numColumns={4}
-          keyExtractor={(item, index) => index}
-        />
-      </SafeAreaView>
-    );
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const fadeIn = () => {
+    // Will change fadeAnim value to 1 in 5 seconds
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 3000,
+    }).start();
   };
 
-  const schoolList = (
-    <SafeAreaView style={styles.schoolModalboxContainer}>
-      <FlatList
-        data={schoolSort}
-        renderItem={({item, index}) => (
-          <TouchableOpacity
-            style={styles.schoolModalbox}
-            onPress={() => {
-              // console.log(schoolSort)
-              setInputs((inputs) => {
-                return {...inputs, ['school']: item.name};
-              });
-              setInputs((inputs) => {
-                return {...inputs, ['schoolAddress']: item.email_info};
-              });
-              setShowSchoolModal(false);
-            }}>
-            <Text style={styles.schoolModalText}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-      />
-    </SafeAreaView>
-  );
-
-  const mbtiModal = (
-    <Modal animationType={'slide'} transparent={false} visible={showMbtiModal}>
-      <View style={styles.mbtiContainer}>
-        <Text style={styles.mbtiIntroduceText}>
-          당신의 MBTI를 선택해 주세요!
-        </Text>
-        {List('mbti')}
-      </View>
-    </Modal>
-  );
-
-  const starModal = (
-    <Modal animationType={'slide'} transparent={false} visible={showStarModal}>
-      <View style={styles.mbtiContainer}>
-        <Text style={styles.mbtiIntroduceText}>
-          당신의 별자리를 선택해 주세요!
-        </Text>
-        {List('star')}
-      </View>
-    </Modal>
-  );
-
-  const schoolModal = (
-    <Modal
-      animationType={'slide'}
-      transparent={false}
-      visible={showSchoolModal}>
-      <View style={styles.mbtiContainer}>
-        <Text style={styles.mbtiIntroduceText}>
-          당신의 학교를 선택해 주세요!
-        </Text>
-        {schoolList}
-      </View>
-    </Modal>
-  );
-
-  const certificationModal = (
-    <Modal
-      animationType={'slide'}
-      transparent={false}
-      visible={showcertificationModal}>
-      <View style={styles.mbtiContainer}>
-        <Text style={styles.mbtiIntroduceText}>
-          해당 메일에 전송된 코드를 입력해 주세요!
-        </Text>
-        <View style={styles.certifyContainer}>
-          <TextInput
-            style={styles.inputCode}
-            title="인증코드"
-            placeholder="전송된 코드를 입력해 주세요"
-            onChangeText={(value) => {
-              setInputAuthCode(value);
-            }}
-          />
-          <Button
-            title="인증하기"
-            onPress={() => {
-              if (authCode == inputAuthCode) {
-                ToastAndroid.showWithGravity(
-                  '인증 성공',
-                  ToastAndroid.SHORT,
-                  ToastAndroid.CENTER,
-                );
-                setShowCertificationModal(false);
-                setAuth(true);
-              } else {
-                ToastAndroid.showWithGravity(
-                  '인증 번호가 틀립니다.',
-                  ToastAndroid.SHORT,
-                  ToastAndroid.CENTER,
-                );
-              }
-            }}
-          />
-        </View>
-        <View style={styles.additionalCertifyContainer}>
-          <View style={{marginRight: 10}}>
-            <Button
-              title="재전송하기"
-              color="#64CD3C"
-              onPress={async () => {
-                ToastAndroid.showWithGravity(
-                  '인증 메일이 재 전송 되었습니다.',
-                  ToastAndroid.SHORT,
-                  ToastAndroid.CENTER,
-                );
-                setAuthCode(await getAuthCode(emailHost + '@' + schoolAddress));
-              }}
-            />
-          </View>
-          <Button
-            title="취소"
-            color="red"
-            onPress={() => {
-              setShowCertificationModal(false);
-            }}
-          />
-        </View>
-      </View>
-    </Modal>
-  );
+  const certifySchool = startCertify ? (
+    <CertifySchool
+      gender={gender}
+      school={school}
+      email={email}
+      emailHost={emailHost}
+      schoolAddress={schoolAddress}
+      address={address}
+      onChange={onChange}
+      setInputs={setInputs}
+      startMbti={startMbti}
+      setStartMbti={setStartMbti}
+    />
+  ) : null;
+  const mbtiCheck = startMbti ? (
+    <MbtiCheck
+      mbti={mbti}
+      star={star}
+      onChange={onChange}
+      setFinishSignUp={setFinishSignUp}
+    />
+  ) : null;
 
   return (
-    <View style={styles.container}>
-      {mbtiModal}
-      {starModal}
-      {schoolModal}
-      {certificationModal}
-      <View style={styles.essentialContainer}>
-        <Text style={styles.subTitleText}>필수 입력</Text>
-        <View style={styles.inputContainer}>
-          <TextInputComp
-            style={styles.name}
-            onChange={onChange}
-            title="이름"
-            name="name"
-            value={name}
-            placeholder="이름을 입력해 주세요"
-          />
-          <View style={styles.genderContainer}>
-            <Text style={styles.text}>성별</Text>
-            <RadioButton.Group
-              onValueChange={(value) => {
-                onChange('gender', value === 'true');
-              }}
-              value={gender.toString()}>
-              <RadioButton.Item label="Man" value="false" />
-              <RadioButton.Item label="Girl" value="true" />
-            </RadioButton.Group>
+    <LinearGradient
+      colors={
+        gender === true
+          ? [colors.manBackground[0], colors.manBackground[1]]
+          : [colors.womanBackground[0], colors.womanBackground[1]]
+      }
+      style={styles.container}>
+      <View style={[{flex: 1}, startCertify ? {display: 'none'} : {}]}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.titleText}>회원가입</Text>
+        </View>
+        <View style={styles.formContainer}>
+          <View style={styles.form}>
+            <TextInputComp
+              onChange={onChange}
+              title="이름"
+              name="name"
+              value={name}
+              maxLength={5}
+              placeholder="이름을 입력해 주세요"
+            />
           </View>
-        </View>
-        <View style={styles.buttonContainer}>
-          <Text style={styles.text}>학교</Text>
-          <Button
-            color="#000069"
-            title="학교선택"
-            onPress={() => {
-              setShowSchoolModal(true);
-            }}
-          />
-        </View>
-        <View style={styles.emailContainer}>
-          <Text style={styles.text}>학교 이메일</Text>
-          <View style={styles.email}>
-            <TextInput
-              style={styles.inputEmail}
-              value={emailHost}
-              placeholder="이메일을 입력해 주세요"
-              onChangeText={(v) => onChange('emailHost', v)}
+          <View style={styles.form}>
+            <TextInputComp
+              onChange={onChange}
+              title="나이"
+              name="age"
+              value={age}
+              maxLength={4}
+              placeholder="태어난 년도를 입력해 주세요(ex: 1996)"
             />
-            <Text style={styles.atSign}>@</Text>
-            <Text style={styles.addressText}>{schoolAddress}</Text>
-            <Button
-              color="#64CD3C"
-              title={isAuth ? '인증성공' : '인증하기'}
-              onPress={async () => {
-                if (schoolAddress === '') {
-                  Alert.alert(
-                    '죄송합니다',
-                    '학교선택을 먼저 해주세요.',
-                    [
-                      {
-                        text: 'Cancel',
-                        style: 'cancel',
-                      },
-                      {text: 'OK'},
-                    ],
-                    {cancelable: false},
-                  );
-                } else {
-                  setAuthCode(
-                    await getAuthCode(emailHost + '@' + schoolAddress),
-                  );
-                  setShowCertificationModal(true);
-                }
-              }}
-              disabled={isAuth}
+          </View>
+          <View style={styles.form}>
+            <TextInputComp
+              onChange={onChange}
+              title="주소"
+              name="address"
+              value={address}
+              maxLength={10}
+              placeholder="주소 도로명을 입력해 주세요(ex: 지곡로)"
             />
+          </View>
+
+          <View style={styles.completeContainer}>
+            <FancyButton
+              mode="contained"
+              title="가입완료"
+              onPress={() => {
+                setStartCertify(true);
+              }}>
+              다음
+            </FancyButton>
           </View>
         </View>
       </View>
-      <View style={styles.selectContainer}>
-        <Text style={[styles.subTitleText, styles.line]}>선택 입력</Text>
-        <View style={styles.buttonContainer}>
-          <Button
-            color="#000069"
-            title="MBTI"
-            onPress={() => {
-              setShowMbtiModal(true);
-            }}
-          />
-          <Text>{mbti}</Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <Button
-            color="#000069"
-            title="별자리"
-            onPress={() => {
-              setShowStarModal(true);
-            }}
-          />
-          <Text>{star}</Text>
-        </View>
-      </View>
-      <View style={styles.completeButton}>
-        <Button
-          color="red"
-          title="가입완료"
-          onPress={async () => {
-            if (isAuth) {
-              inputs.email = emailHost + '@' + schoolAddress;
-              delete inputs.schoolAddress;
-              delete inputs.emailHost;
-              console.log(inputs);
-              await registerUser(inputs);
-              navigation.navigate('Home');
-            } else {
-              Alert.alert(
-                '죄송합니다',
-                '학교인증을 먼저 해주세요.',
-                [
-                  {
-                    text: 'Cancel',
-                    style: 'cancel',
-                  },
-                  {text: 'OK'},
-                ],
-                {cancelable: false},
-              );
-            }
-          }}
-        />
-      </View>
-    </View>
+      {certifySchool}
+      {mbtiCheck}
+    </LinearGradient>
   );
 }
 
-function TextInputComp({title, name, value, placeholder, onChange}) {
+function TextInputComp({title, name, value, placeholder, maxLength, onChange}) {
   return (
     <View style={styles.textInputContainer}>
       <Text style={styles.text}>{title}</Text>
@@ -404,6 +200,7 @@ function TextInputComp({title, name, value, placeholder, onChange}) {
         style={styles.input}
         value={value}
         placeholder={placeholder}
+        maxLength={maxLength}
         onChangeText={(v) => onChange(name, v)}
       />
     </View>
@@ -414,71 +211,64 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    marginLeft: 25,
-    marginRight: 25,
   },
-  subTitleText: {
+  titleContainer: {
+    flex: 1,
+    margin: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleText: {
     fontSize: 30,
-    marginTop: 30,
-    marginBottom: 20,
   },
-  essentialContainer: {
-    flex: 4,
+  formContainer: {
+    flex: 9,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    marginLeft: 30,
   },
-  inputContainer: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  genderContainer: {
-    height: 10,
-    marginRight: 50,
-  },
-  textInputContainer: {
-    flex: 1,
-  },
-  text: {
+
+  form: {
     marginBottom: 10,
   },
   input: {
-    flex: 0.8,
-    width: width * 0.4,
-    borderColor: 'gray',
-    borderWidth: 1,
+    marginTop: 5,
+    width: width * 0.8,
+    borderColor: '#000000',
+    borderWidth: 4,
+    borderRadius: 15,
   },
-  buttonContainer: {
-    width: 100,
-    marginBottom: 20,
+  buttonForm: {
+    marginBottom: 10,
   },
-  emailContainer: {
-    flex: 1,
-  },
-  inputEmail: {
-    width: width * 0.4,
-    borderColor: 'gray',
-    borderWidth: 1,
+  fancyButton: {
+    marginTop: 5,
   },
   email: {
+    marginTop: 5,
     flexDirection: 'row',
     alignItems: 'center',
   },
+  inputEmail: {
+    marginTop: 5,
+    width: width * 0.4,
+    borderColor: '#000000',
+    borderWidth: 4,
+    borderRadius: 15,
+  },
+  completeContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+    marginBottom: 20,
+    marginRight: 20,
+  },
+
   atSign: {
     marginLeft: 10,
     marginRight: 10,
   },
   addressText: {
     marginRight: 15,
-  },
-  selectContainer: {
-    flex: 3,
-  },
-  line: {
-    borderTopColor: 'gray',
-    borderTopWidth: 1,
-  },
-
-  completeButton: {
-    alignItems: 'flex-end',
-    marginBottom: 20,
   },
 
   mbtiContainer: {

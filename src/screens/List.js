@@ -8,7 +8,7 @@ import {
   FlatList,
   Dimensions,
 } from 'react-native';
-
+import {useTheme} from '@react-navigation/native';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -32,25 +32,25 @@ const tempListData = [
     peopleCount: 4,
     school: '중앙대',
     dates: ['10/1\n', '10/2\n', '10/3\n', '10/4\n'],
-    intro: 'No pain No gain',
+    intro: '강남에서 4대4 미팅 하실분!',
   },
   {
     peopleCount: 4,
     school: '성균관대',
     dates: ['10/1\n', '10/2\n'],
-    intro: '성하예프 성하예프 성하예프',
+    intro: '수원에서 미팅하실분 구해요~',
   },
   {
     peopleCount: 4,
     school: '한양대',
     dates: ['10/1\n', '10/2\n'],
-    intro: '맥주싫어요 소주좋아요',
+    intro: '술게임 잘하시는 분 ㅠㅠ',
   },
   {
     peopleCount: 4,
     school: '서울대',
     dates: ['10/1\n', '10/2\n'],
-    intro: '소주좋아요 소주주세요',
+    intro: '시간 겨우 내서 미팅합니당',
   },
   {
     peopleCount: 4,
@@ -67,6 +67,7 @@ const tempListData = [
 ];
 
 export default function List({navigation}) {
+  const {colors} = useTheme();
   const addBtn = () => {
     return (
       <TouchableOpacity
@@ -86,7 +87,7 @@ export default function List({navigation}) {
         ListHeaderComponent={addBtn}
         renderItem={({item, index}) => (
           <TouchableOpacity
-            style={styles.list_container}
+            style={[styles.list_container, {backgroundColor: colors.card}]}
             onPress={() => {
               //navigation.navigate('미팅요청')
               console.log('press');
