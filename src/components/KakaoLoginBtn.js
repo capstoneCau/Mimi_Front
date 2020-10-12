@@ -55,10 +55,14 @@ export default function KakaoLoginBtn({navigation}) {
         `Get Profile Finished:${JSON.stringify(profile)}`,
         setProfileLoading(false),
       );
+
       if (await onLoginUser(profile.id)) {
         navigation.navigate('Home');
       } else {
-        navigation.navigate('SignUp');
+        navigation.navigate('SignUp', {
+          gender: profile.gender,
+          birth: profile.birthday,
+        });
       }
     } catch (err) {
       if (err.code === 'E_CANCELLED_OPERATION') {
