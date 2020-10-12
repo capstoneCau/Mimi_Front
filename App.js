@@ -13,6 +13,8 @@ const MyTheme = {
   dark: false,
   colors: {
     primary: 'rgb(255, 45, 85)',
+    manBackground: ['#fdfbfb', '#ebedee'],
+    womanBackground: ['#fad0c4', '#ffd1ff'],
     background: 'rgb(242, 242, 242)',
     card: 'rgb(255, 255, 255)',
     text: 'rgb(28, 28, 30)',
