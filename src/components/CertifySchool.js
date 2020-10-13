@@ -21,6 +21,7 @@ import {registerUserInfoAsync} from '../modules/login';
 import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
 import {FancyButton} from '../common/common';
+import {SearchSchool} from './SchoolApi';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -31,58 +32,106 @@ export default function CertifySchool({
   email,
   emailHost,
   schoolAddress,
-  adress,
   onChange,
   setInputs,
   startMbti,
   setStartMbti,
 }) {
+  const [schoolName, setSchoolName] = useState('');
+  const [campusName, setCampusName] = useState('');
+  const [schoolLink, setSchoolLink] = useState('');
   const [showSchoolModal, setShowSchoolModal] = useState(false);
   const [showcertificationModal, setShowCertificationModal] = useState(false);
-  const [schoolSort, setSchoolSort] = useState();
   const [authCode, setAuthCode] = useState();
   const [inputAuthCode, setInputAuthCode] = useState();
   const [isAuth, setAuth] = useState(false);
+  const [schoolSort, setSchoolSort] = useState({
+    schoolN: [],
+    campusN: [],
+    schoolL: [],
+  });
   const dispatch = useDispatch();
   const registerUser = useCallback(
     (userInfo) => dispatch(registerUserInfoAsync(userInfo)),
     [dispatch],
   );
   const {colors} = useTheme();
+  const onChangeList = (schoolList, campusList, linkList) => {
+    setSchoolSort({
+      ...schoolSort,
+      ['schoolN']: schoolList,
+      ['campusN']: campusList,
+      ['schoolL']: linkList,
+    });
+  };
 
-  //   const [inputs, setInputs] = useState({
-  //     school: '',
-  //     email: '',
-  //     emailHost: '',
-  //     schoolAddress: '',
-  //     address: 'aaaaa',
-  //   });
+  const requestSchoolAPI = (schoolname) => {
+    SearchSchool(schoolname)
+      .then(
+        (response) => {
+          return response.json();
+        },
+        (error) => {
+          alert(error.message);
+          // props.setShowIndicator(false);
+        },
+      )
+      .then((json) => {
+        let tempSchoolNameList = [];
+        let tempCampusNameList = [];
+        let tempSchoolLinkList = [];
 
-  useEffect(() => {
-    const infor = async () => {
-      setSchoolSort(await getInformation('school'));
-    };
-    infor();
-  }, []);
+        const data = json['dataSearch']['content'];
+        console.log(data);
+
+        for (let i = 0; i < data[0]['totalCount']; i++) {
+          tempSchoolNameList.push(data[i]['schoolName']);
+          tempCampusNameList.push(data[i]['campusName']);
+          tempSchoolLinkList.push(data[i]['link'].split('w.')[1]);
+        }
+        onChangeList(
+          tempSchoolNameList,
+          tempCampusNameList,
+          tempSchoolLinkList,
+        );
+        console.log('1' + JSON.stringify(schoolSort));
+      })
+      .then(() => {
+        console.log('2' + JSON.stringify(schoolSort));
+        setShowSchoolModal(true);
+      })
+      .catch(function (err) {
+        console.log(err);
+        Alert.alert('잘못된 학교명입니다, 다른 이름으로 검색해주세요.');
+      });
+  };
 
   const schoolList = (
     <SafeAreaView style={styles.schoolModalboxContainer}>
       <FlatList
-        data={schoolSort}
+        data={schoolSort.schoolN}
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={styles.schoolModalbox}
             onPress={() => {
               // console.log(schoolSort)
               setInputs((inputs) => {
-                return {...inputs, ['school']: item.name};
+                return {
+                  ...inputs,
+                  ['school']: item + schoolSort.campusN[index],
+                };
               });
               setInputs((inputs) => {
-                return {...inputs, ['schoolAddress']: item.email_info};
+                return {
+                  ...inputs,
+                  ['schoolAddress']: schoolSort.schoolL[index],
+                };
               });
               setShowSchoolModal(false);
             }}>
-            <Text style={styles.schoolModalText}>{item.name}</Text>
+            <Text style={styles.schoolModalText}>
+              {item} {schoolSort.campusN[index]}
+            </Text>
           </TouchableOpacity>
         )}
         keyExtractor={(item, index) => index.toString()}
@@ -96,9 +145,7 @@ export default function CertifySchool({
       transparent={false}
       visible={showSchoolModal}>
       <View style={styles.mbtiContainer}>
-        <Text style={styles.mbtiIntroduceText}>
-          당신의 학교를 선택해 주세요!
-        </Text>
+        <Text style={styles.mbtiIntroduceText}>당신의 학교는?</Text>
         {schoolList}
       </View>
     </Modal>
@@ -132,6 +179,7 @@ export default function CertifySchool({
                   ToastAndroid.SHORT,
                   ToastAndroid.CENTER,
                 );
+                onChange('email', emailHost + '@' + schoolAddress);
                 setShowCertificationModal(false);
                 setAuth(true);
               } else {
@@ -204,16 +252,24 @@ export default function CertifySchool({
       <View style={styles.formContainer}>
         <View style={styles.buttonForm}>
           <Text style={styles.text}>학교</Text>
-          <FancyButton
-            style={styles.fancyButton}
-            color="#000069"
-            mode="contained"
-            icon="school"
-            onPress={() => {
-              setShowSchoolModal(true);
-            }}>
-            학교선택
-          </FancyButton>
+          <View style={styles.email}>
+            <TextInput
+              style={styles.schoolName}
+              value={schoolName}
+              placeholder="학교명을 입력해 주세요"
+              onChangeText={(value) => setSchoolName(value)}
+            />
+            <FancyButton
+              style={styles.fancyButton}
+              color="#000069"
+              mode="contained"
+              icon="school"
+              onPress={() => {
+                requestSchoolAPI(schoolName);
+              }}>
+              학교검색
+            </FancyButton>
+          </View>
         </View>
         <View style={styles.buttonForm}>
           <Text style={styles.text}>학교 이메일</Text>
@@ -303,6 +359,14 @@ const styles = StyleSheet.create({
   },
   fancyButton: {
     marginTop: 5,
+  },
+  schoolName: {
+    marginTop: 5,
+    marginRight: 20,
+    width: width * 0.4,
+    borderColor: '#000000',
+    borderWidth: 4,
+    borderRadius: 15,
   },
   email: {
     marginTop: 5,

@@ -57,7 +57,7 @@ export default function CreateUsers({route, navigation}) {
     school: '',
     email: '',
     birthday: route.params.birthday,
-    address: '',
+    // address: '',
     mbti: '',
     star: '',
     gender: route.params.gender === 'MALE' ? true : false,
@@ -68,24 +68,17 @@ export default function CreateUsers({route, navigation}) {
     schoolAddress: '',
   });
 
-  useEffect(() => {
-    if (finishSignUp === true) {
-      console.log(inputs);
-      registerUser(inputs);
-      navigation.navigate('Home', {gender: gender});
-    }
-  }, [finishSignUp]);
-
   const {
     name,
     school,
     schoolAddress,
     emailHost,
     email,
-    address,
+    // address,
     mbti,
     star,
     gender,
+    birthday,
     age,
   } = inputs;
 
@@ -111,7 +104,6 @@ export default function CreateUsers({route, navigation}) {
       email={email}
       emailHost={emailHost}
       schoolAddress={schoolAddress}
-      address={address}
       onChange={onChange}
       setInputs={setInputs}
       startMbti={startMbti}
@@ -127,6 +119,15 @@ export default function CreateUsers({route, navigation}) {
       setFinishSignUp={setFinishSignUp}
     />
   ) : null;
+
+  useEffect(() => {
+    if (finishSignUp === true) {
+      console.log(inputs);
+      registerUser(inputs);
+      navigation.navigate('Home', {gender: gender});
+    }
+  }, [finishSignUp]);
+  console.log(inputs);
 
   return (
     <LinearGradient
@@ -154,21 +155,11 @@ export default function CreateUsers({route, navigation}) {
           <View style={styles.form}>
             <TextInputComp
               onChange={onChange}
-              title="나이"
+              title="태어난 년도"
               name="age"
               value={age}
               maxLength={4}
               placeholder="태어난 년도를 입력해 주세요(ex: 1996)"
-            />
-          </View>
-          <View style={styles.form}>
-            <TextInputComp
-              onChange={onChange}
-              title="주소"
-              name="address"
-              value={address}
-              maxLength={10}
-              placeholder="주소 도로명을 입력해 주세요(ex: 지곡로)"
             />
           </View>
 
@@ -177,6 +168,14 @@ export default function CreateUsers({route, navigation}) {
               mode="contained"
               title="가입완료"
               onPress={() => {
+                onChange(
+                  'birthday',
+                  age +
+                    '-' +
+                    birthday.substring(0, 2) +
+                    '-' +
+                    birthday.substring(2, 4),
+                );
                 setStartCertify(true);
               }}>
               다음
@@ -259,62 +258,5 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     marginBottom: 20,
     marginRight: 20,
-  },
-
-  atSign: {
-    marginLeft: 10,
-    marginRight: 10,
-  },
-  addressText: {
-    marginRight: 15,
-  },
-
-  mbtiContainer: {
-    flex: 1,
-  },
-  mbtiIntroduceText: {
-    fontSize: 28,
-    padding: 20,
-    textAlign: 'center',
-  },
-  modalboxContainer: {},
-  schoolModalbox: {
-    flex: 1,
-    margin: 3,
-    borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  schoolModalText: {
-    height: 50,
-    fontSize: 20,
-  },
-  certifyContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    height: height * 0.06,
-  },
-  inputCode: {
-    flex: 0.8,
-    width: width * 0.4,
-    borderColor: 'gray',
-    borderWidth: 1,
-  },
-  additionalCertifyContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    margin: 10,
-  },
-  modalbox: {
-    flex: 1,
-    margin: 1,
-    borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalText: {
-    height: 120,
-    fontSize: 20,
-    textAlign: 'center',
   },
 });

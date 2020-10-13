@@ -150,7 +150,7 @@ export default function MbtiCheck({
             }}>
             {testList[stage].map((item, index) => {
               return (
-                <View>
+                <View key={item}>
                   <Text style={index === 0 ? styles.textTitle : styles.text}>
                     {item}
                   </Text>
@@ -171,7 +171,7 @@ export default function MbtiCheck({
             }}>
             {testList[stage + 1].map((item, index) => {
               return (
-                <View>
+                <View key={item}>
                   <Text style={index === 0 ? styles.textTitle : styles.text}>
                     {item}
                   </Text>
@@ -228,8 +228,7 @@ export default function MbtiCheck({
               mode="contained"
               color="green"
               onPress={() => {
-                // setFinishSignUp(true);
-                console.log(mbti);
+                setFinishSignUp(true);
               }}>
               임시완료버튼
             </FancyButton>
