@@ -249,7 +249,7 @@ export default function CertifySchool({
             mode="contained"
             title="가입완료"
             onPress={async () => {
-              if (isAuth) {
+              if (!isAuth) {
                 email = emailHost + '@' + schoolAddress;
                 setStartMbti(true);
                 //delete schoolAddress;

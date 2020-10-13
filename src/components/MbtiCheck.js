@@ -18,13 +18,21 @@ import {FancyButton} from '../common/common';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-export default function MbtiCheck({mbti, star, onChange, setFinishSignUp}) {
+export default function MbtiCheck({
+  mbti,
+  star,
+  gender,
+  onChange,
+  setFinishSignUp,
+}) {
   const [showMbtiModal, setShowMbtiModal] = useState(false);
+  const [showMbtiTestModal, setShowMbtiTestModal] = useState(false);
   const [showStarModal, setShowStarModal] = useState(false);
   const [mbtiSort, setMbtiSort] = useState();
   const [starSort, setStarSort] = useState();
+  const [stage, setStage] = useState(0);
   const {colors} = useTheme();
-
+  const [tempMbti, setTempMbti] = useState('');
   useEffect(() => {
     const infor = async () => {
       setMbtiSort(await getInformation('mbti'));
@@ -84,17 +92,98 @@ export default function MbtiCheck({mbti, star, onChange, setFinishSignUp}) {
     </Modal>
   );
 
-  const starModal = (
-    <Modal animationType={'slide'} transparent={false} visible={showStarModal}>
-      <View style={styles.mbtiContainer}>
-        <Text style={styles.mbtiIntroduceText}>
-          당신의 별자리를 선택해 주세요!
-        </Text>
-        {List('star')}
-      </View>
-    </Modal>
-  );
-  const gender = true;
+  // const starModal = (
+  //   <Modal animationType={'slide'} transparent={false} visible={showStarModal}>
+  //     <View style={styles.mbtiContainer}>
+  //       <Text style={styles.mbtiIntroduceText}>
+  //         당신의 별자리를 선택해 주세요!
+  //       </Text>
+  //       {List('star')}
+  //     </View>
+  //   </Modal>
+  // );
+  const testList = [
+    ['외향형', '단체 활동 선호', '생각을 표출하며 말하기를 선호'],
+    ['내향형', '혼자 하는 활동 선호', '내면에 담고 글쓰는 것을 선호'],
+    ['감각형', '실용적이고 현실적', '이미 일이난 적이 있는 일에 초점'],
+    ['직관형', '미래를 추구하고 이상적', '두루뭉술하고 자기만의 방식 있음'],
+    [
+      '사고형',
+      '객관성과 합리성에 초점',
+      '논리적인 성향',
+      '일과 목표, 효율성 중시',
+    ],
+    ['감정형', '감정 표현에 예민, 공감적인 성향', '대인관계와 사람 중시'],
+    [
+      '판단형',
+      '결단력 있고, 철저하며 조직적',
+      '명확성, 예측 가능성 및 계획 중시',
+      '결과의 올바름 중시',
+    ],
+    [
+      '인식형',
+      '융통성 있고 편안함 중시',
+      '자유롭고 즉흥적',
+      '과정의 올바름 중시',
+    ],
+  ];
+
+  const testResult = ['E', 'I', 'S', 'N', 'T', 'F', 'J', 'P'];
+  const mbtiTestModal = () => {
+    return (
+      <Modal
+        animationType={'slide'}
+        transparent={false}
+        visible={showMbtiTestModal}>
+        <View style={styles.mbtiTestContainer}>
+          <TouchableOpacity
+            style={styles.mbtiSelectOne}
+            onPress={() => {
+              onChange('mbti', mbti + testResult[stage]);
+              if (stage === 6) {
+                setStage(0);
+
+                setShowMbtiTestModal(false);
+              } else {
+                setStage(stage + 2);
+              }
+            }}>
+            {testList[stage].map((item, index) => {
+              return (
+                <View>
+                  <Text style={index === 0 ? styles.textTitle : styles.text}>
+                    {item}
+                  </Text>
+                </View>
+              );
+            })}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.mbtiSelectTwo}
+            onPress={() => {
+              onChange('mbti', mbti + testResult[stage + 1]);
+              if (stage === 6) {
+                setStage(0);
+                setShowMbtiTestModal(false);
+              } else {
+                setStage(stage + 2);
+              }
+            }}>
+            {testList[stage + 1].map((item, index) => {
+              return (
+                <View>
+                  <Text style={index === 0 ? styles.textTitle : styles.text}>
+                    {item}
+                  </Text>
+                </View>
+              );
+            })}
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    );
+  };
+
   return (
     <LinearGradient
       colors={
@@ -104,6 +193,7 @@ export default function MbtiCheck({mbti, star, onChange, setFinishSignUp}) {
       }
       style={styles.container}>
       {mbtiModal}
+      {mbtiTestModal()}
       {/* {starModal} */}
       <View style={styles.titleContainer}>
         <Text style={styles.titleText}>MBTI</Text>
@@ -115,6 +205,7 @@ export default function MbtiCheck({mbti, star, onChange, setFinishSignUp}) {
               mode="contained"
               color="#000069"
               onPress={() => {
+                onChange('mbti', '');
                 setShowMbtiModal(true);
               }}>
               MBTI
@@ -122,7 +213,13 @@ export default function MbtiCheck({mbti, star, onChange, setFinishSignUp}) {
             <Text>{mbti}</Text>
           </View>
           <View style={styles.buttonForm}>
-            <FancyButton mode="contained" color="#000069" onPress={() => {}}>
+            <FancyButton
+              mode="contained"
+              color="#000069"
+              onPress={() => {
+                onChange('mbti', '');
+                setShowMbtiTestModal(true);
+              }}>
               MBTI Simple Test
             </FancyButton>
           </View>
@@ -131,10 +228,12 @@ export default function MbtiCheck({mbti, star, onChange, setFinishSignUp}) {
               mode="contained"
               color="green"
               onPress={() => {
-                setFinishSignUp(true);
+                // setFinishSignUp(true);
+                console.log(mbti);
               }}>
               임시완료버튼
             </FancyButton>
+            <Text>{mbti}</Text>
           </View>
           {/* <View style={styles.buttonForm}>
             <FancyButton
@@ -177,13 +276,7 @@ const styles = StyleSheet.create({
   form: {
     marginBottom: 10,
   },
-  input: {
-    marginTop: 5,
-    width: width * 0.8,
-    borderColor: '#000000',
-    borderWidth: 4,
-    borderRadius: 15,
-  },
+
   buttonForm: {
     marginBottom: 10,
   },
@@ -202,20 +295,6 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderRadius: 15,
   },
-  completeContainer: {
-    flex: 1,
-    alignItems: 'flex-end',
-    marginBottom: 20,
-    marginRight: 20,
-  },
-
-  atSign: {
-    marginLeft: 10,
-    marginRight: 10,
-  },
-  addressText: {
-    marginRight: 15,
-  },
 
   mbtiContainer: {
     flex: 1,
@@ -226,33 +305,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modalboxContainer: {},
-  schoolModalbox: {
-    flex: 1,
-    margin: 3,
-    borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  schoolModalText: {
-    height: 50,
-    fontSize: 20,
-  },
-  certifyContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    height: height * 0.06,
-  },
-  inputCode: {
-    flex: 0.8,
-    width: width * 0.4,
-    borderColor: 'gray',
-    borderWidth: 1,
-  },
-  additionalCertifyContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    margin: 10,
-  },
+
   modalbox: {
     flex: 1,
     margin: 1,
@@ -264,5 +317,24 @@ const styles = StyleSheet.create({
     height: 120,
     fontSize: 20,
     textAlign: 'center',
+  },
+
+  mbtiTestContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mbtiSelectOne: {
+    flex: 1,
+  },
+  mbtiSelectTwo: {
+    flex: 1,
+  },
+  textTitle: {
+    fontSize: 40,
+  },
+  text: {
+    fontSize: 20,
   },
 });

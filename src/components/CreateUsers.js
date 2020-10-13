@@ -56,19 +56,16 @@ export default function CreateUsers({route, navigation}) {
     name: '',
     school: '',
     email: '',
-    emailHost: '',
-    schoolAddress: '',
-    address: 'aaaaa',
+    birthday: route.params.birthday,
+    address: '',
     mbti: '',
     star: '',
-    // gender: route.params.gender,
-    gender: true,
-    age: '',
+    gender: route.params.gender === 'MALE' ? true : false,
     kakao_auth_id: kakao_auth_id,
-    // birthday: route.params.birthday,
-    birthday: '1996',
+    age: '',
     profileImg: 1,
-    kakao_id: 'asdf', //????
+    emailHost: '',
+    schoolAddress: '',
   });
 
   useEffect(() => {
@@ -125,6 +122,7 @@ export default function CreateUsers({route, navigation}) {
     <MbtiCheck
       mbti={mbti}
       star={star}
+      gender={gender}
       onChange={onChange}
       setFinishSignUp={setFinishSignUp}
     />
