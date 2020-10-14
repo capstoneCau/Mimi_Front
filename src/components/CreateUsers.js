@@ -165,8 +165,8 @@ export default function CreateUsers({route, navigation}) {
 
           <View style={styles.completeContainer}>
             <FancyButton
+              icon="arrow-right-bold"
               mode="contained"
-              title="가입완료"
               onPress={() => {
                 onChange(
                   'birthday',
@@ -235,9 +235,6 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderRadius: 15,
   },
-  buttonForm: {
-    marginBottom: 10,
-  },
   fancyButton: {
     marginTop: 5,
   },
@@ -246,13 +243,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  inputEmail: {
-    marginTop: 5,
-    width: width * 0.4,
-    borderColor: '#000000',
-    borderWidth: 4,
-    borderRadius: 15,
-  },
+
   completeContainer: {
     flex: 1,
     alignItems: 'flex-end',

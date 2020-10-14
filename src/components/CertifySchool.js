@@ -303,7 +303,6 @@ export default function CertifySchool({
         <View style={styles.completeContainer}>
           <FancyButton
             mode="contained"
-            title="가입완료"
             onPress={async () => {
               if (!isAuth) {
                 email = emailHost + '@' + schoolAddress;
