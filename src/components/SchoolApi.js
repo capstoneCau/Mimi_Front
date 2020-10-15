@@ -1,6 +1,6 @@
 export function SearchSchool(_schoolName) {
   const requestParam = {
-    apiKEY: '7aa0e0e9a7762e8a8e4aeb2dd3e61a5e',
+    apiKEY: '552ae097bbb6071ec73f76c56c6a5543',
     schoolName: _schoolName,
   };
 

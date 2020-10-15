@@ -162,25 +162,26 @@ export default function CreateUsers({route, navigation}) {
               placeholder="태어난 년도를 입력해 주세요(ex: 1996)"
             />
           </View>
+        </View>
 
-          <View style={styles.completeContainer}>
-            <FancyButton
-              icon="arrow-right-bold"
-              mode="contained"
-              onPress={() => {
-                onChange(
-                  'birthday',
-                  age +
-                    '-' +
-                    birthday.substring(0, 2) +
-                    '-' +
-                    birthday.substring(2, 4),
-                );
-                setStartCertify(true);
-              }}>
-              다음
-            </FancyButton>
-          </View>
+        <View style={styles.completeContainer}>
+          <FancyButton
+            icon="arrow-right-bold"
+            mode="outlined"
+            color="#000069"
+            onPress={() => {
+              onChange(
+                'birthday',
+                age +
+                  '-' +
+                  birthday.substring(0, 2) +
+                  '-' +
+                  birthday.substring(2, 4),
+              );
+              setStartCertify(true);
+            }}>
+            <Text style={styles.nextButtonText}>다음</Text>
+          </FancyButton>
         </View>
       </View>
       {certifySchool}
@@ -211,37 +212,30 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flex: 1,
-    margin: 20,
+    marginTop: 50,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   titleText: {
     fontSize: 30,
   },
   formContainer: {
     flex: 9,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    marginLeft: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   form: {
-    marginBottom: 10,
+    marginBottom: 20,
   },
   input: {
     marginTop: 5,
+    paddingLeft: 10,
     width: width * 0.8,
-    borderColor: '#000000',
-    borderWidth: 4,
-    borderRadius: 15,
+    borderColor: 'gray',
+    borderBottomWidth: 2,
   },
   fancyButton: {
     marginTop: 5,
-  },
-  email: {
-    marginTop: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
   },
 
   completeContainer: {
@@ -249,5 +243,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     marginBottom: 20,
     marginRight: 20,
+  },
+  nextButtonText: {
+    color: '#000000',
   },
 });

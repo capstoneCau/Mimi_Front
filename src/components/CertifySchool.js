@@ -87,7 +87,13 @@ export default function CertifySchool({
         for (let i = 0; i < data[0]['totalCount']; i++) {
           tempSchoolNameList.push(data[i]['schoolName']);
           tempCampusNameList.push(data[i]['campusName']);
-          tempSchoolLinkList.push(data[i]['link'].split('w.')[1]);
+          if (data[i]['link'].split('//')[1].indexOf('www') != -1) {
+            tempSchoolLinkList.push(
+              data[i]['link'].split('w.')[1].split('/')[0],
+            );
+          } else {
+            tempSchoolLinkList.push(data[i]['link'].split('//')[1]);
+          }
         }
         onChangeList(
           tempSchoolNameList,
@@ -115,6 +121,7 @@ export default function CertifySchool({
             style={styles.schoolModalbox}
             onPress={() => {
               // console.log(schoolSort)
+              setSchoolName(item + ' ' + schoolSort.campusN[index]);
               setInputs((inputs) => {
                 return {
                   ...inputs,
@@ -261,8 +268,8 @@ export default function CertifySchool({
             />
             <FancyButton
               style={styles.fancyButton}
+              mode="outlined"
               color="#000069"
-              mode="contained"
               icon="school"
               onPress={() => {
                 requestSchoolAPI(schoolName);
@@ -283,8 +290,8 @@ export default function CertifySchool({
             <Text style={styles.atSign}>@</Text>
             <Text style={styles.addressText}>{schoolAddress}</Text>
             <FancyButton
+              mode="outlined"
               color="#000069"
-              mode="contained"
               onPress={async () => {
                 if (schoolAddress === '') {
                   failCertify();
@@ -300,23 +307,26 @@ export default function CertifySchool({
             </FancyButton>
           </View>
         </View>
-        <View style={styles.completeContainer}>
-          <FancyButton
-            mode="contained"
-            onPress={async () => {
-              if (!isAuth) {
-                email = emailHost + '@' + schoolAddress;
-                setStartMbti(true);
-                //delete schoolAddress;
-                //delete emailHost;
-                //await registerUser(inputs);
-              } else {
-                failCertify();
-              }
-            }}>
-            다음
-          </FancyButton>
-        </View>
+      </View>
+
+      <View style={styles.completeContainer}>
+        <FancyButton
+          icon="arrow-right-bold"
+          mode="outlined"
+          color="#000069"
+          onPress={async () => {
+            if (!isAuth) {
+              email = emailHost + '@' + schoolAddress;
+              setStartMbti(true);
+              //delete schoolAddress;
+              //delete emailHost;
+              //await registerUser(inputs);
+            } else {
+              failCertify();
+            }
+          }}>
+          <Text style={styles.nextButtonText}>다음</Text>
+        </FancyButton>
       </View>
     </LinearGradient>
   );
@@ -329,43 +339,35 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flex: 1,
-    margin: 20,
+    marginTop: 50,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   titleText: {
     fontSize: 30,
   },
   formContainer: {
     flex: 9,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     alignItems: 'flex-start',
-    marginLeft: 30,
   },
 
   form: {
     marginBottom: 10,
   },
-  input: {
-    marginTop: 5,
-    width: width * 0.8,
-    borderColor: '#000000',
-    borderWidth: 4,
-    borderRadius: 15,
-  },
   buttonForm: {
+    marginLeft: width * 0.12,
     marginBottom: 10,
   },
   fancyButton: {
     marginTop: 5,
+    marginLeft: 30,
   },
   schoolName: {
     marginTop: 5,
-    marginRight: 20,
+    paddingLeft: 10,
     width: width * 0.4,
-    borderColor: '#000000',
-    borderWidth: 4,
-    borderRadius: 15,
+    borderColor: 'gray',
+    borderBottomWidth: 2,
   },
   email: {
     marginTop: 5,
@@ -375,9 +377,8 @@ const styles = StyleSheet.create({
   inputEmail: {
     marginTop: 5,
     width: width * 0.4,
-    borderColor: '#000000',
-    borderWidth: 4,
-    borderRadius: 15,
+    borderColor: 'gray',
+    borderBottomWidth: 2,
   },
   completeContainer: {
     flex: 1,
@@ -386,10 +387,7 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
 
-  atSign: {
-    marginLeft: 10,
-    marginRight: 10,
-  },
+  atSign: {},
   addressText: {
     marginRight: 15,
   },
@@ -413,6 +411,9 @@ const styles = StyleSheet.create({
   schoolModalText: {
     height: 50,
     fontSize: 20,
+  },
+  nextButtonText: {
+    color: '#000000',
   },
   certifyContainer: {
     flexDirection: 'row',
