@@ -114,6 +114,7 @@ export default function CertifySchool({
 
   const schoolList = (
     <SafeAreaView style={styles.schoolModalboxContainer}>
+      <Text style={styles.modalTitleText}>당신의 학교는?</Text>
       <FlatList
         data={schoolSort.schoolN}
         renderItem={({item, index}) => (
@@ -147,14 +148,8 @@ export default function CertifySchool({
   );
 
   const schoolModal = (
-    <Modal
-      animationType={'slide'}
-      transparent={false}
-      visible={showSchoolModal}>
-      <View style={styles.mbtiContainer}>
-        <Text style={styles.mbtiIntroduceText}>당신의 학교는?</Text>
-        {schoolList}
-      </View>
+    <Modal animationType={'slide'} transparent={true} visible={showSchoolModal}>
+      <View style={styles.schoolModalContainer}>{schoolList}</View>
     </Modal>
   );
 
@@ -246,9 +241,9 @@ export default function CertifySchool({
   return (
     <LinearGradient
       colors={
-        gender === true
-          ? [colors.manBackground[0], colors.manBackground[1]]
-          : [colors.womanBackground[0], colors.womanBackground[1]]
+        showSchoolModal === true
+          ? [colors.modalBackground, colors.modalBackground]
+          : [colors.manBackground[0], colors.manBackground[1]]
       }
       style={[styles.container, startMbti === true ? {display: 'none'} : {}]}>
       {schoolModal}
@@ -265,6 +260,7 @@ export default function CertifySchool({
               value={schoolName}
               placeholder="학교명을 입력해 주세요"
               onChangeText={(value) => setSchoolName(value)}
+              autoFocus={true}
             />
             <FancyButton
               style={styles.fancyButton}
@@ -344,18 +340,21 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 30,
+    textAlign: 'center',
+    margin: 10,
   },
   formContainer: {
     flex: 9,
     justifyContent: 'center',
     alignItems: 'flex-start',
+    marginBottom: height * 0.25,
   },
 
   form: {
     marginBottom: 10,
   },
   buttonForm: {
-    marginLeft: width * 0.12,
+    marginLeft: width * 0.1,
     marginBottom: 10,
   },
   fancyButton: {
@@ -387,10 +386,16 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
 
-  atSign: {},
-  addressText: {
-    marginRight: 15,
+  schoolModalContainer: {
+    width: width * 0.8,
+    height: height * 0.5,
+    marginTop: height * 0.2,
+    alignSelf: 'center',
+    borderWidth: 1,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
   },
+  schoolModalboxContainer: {},
 
   mbtiContainer: {
     flex: 1,
@@ -402,14 +407,13 @@ const styles = StyleSheet.create({
   },
   modalboxContainer: {},
   schoolModalbox: {
-    flex: 1,
     margin: 3,
-    borderWidth: 2,
-    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderColor: 'gray',
     alignItems: 'center',
   },
   schoolModalText: {
-    height: 50,
+    height: 30,
     fontSize: 20,
   },
   nextButtonText: {
@@ -429,6 +433,15 @@ const styles = StyleSheet.create({
   additionalCertifyContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    margin: 10,
+  },
+  atSign: {},
+  addressText: {
+    marginRight: 15,
+  },
+  modalTitleText: {
+    fontSize: 30,
+    textAlign: 'center',
     margin: 10,
   },
   modalbox: {

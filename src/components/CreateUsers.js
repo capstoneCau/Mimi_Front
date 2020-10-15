@@ -144,6 +144,7 @@ export default function CreateUsers({route, navigation}) {
         <View style={styles.formContainer}>
           <View style={styles.form}>
             <TextInputComp
+              autoFocus={true}
               onChange={onChange}
               title="이름"
               name="name"
@@ -190,7 +191,15 @@ export default function CreateUsers({route, navigation}) {
   );
 }
 
-function TextInputComp({title, name, value, placeholder, maxLength, onChange}) {
+function TextInputComp({
+  title,
+  name,
+  value,
+  placeholder,
+  maxLength,
+  onChange,
+  autoFocus,
+}) {
   return (
     <View style={styles.textInputContainer}>
       <Text style={styles.text}>{title}</Text>
@@ -200,6 +209,7 @@ function TextInputComp({title, name, value, placeholder, maxLength, onChange}) {
         placeholder={placeholder}
         maxLength={maxLength}
         onChangeText={(v) => onChange(name, v)}
+        autoFocus={autoFocus}
       />
     </View>
   );
@@ -222,6 +232,7 @@ const styles = StyleSheet.create({
     flex: 9,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: height * 0.25,
   },
 
   form: {

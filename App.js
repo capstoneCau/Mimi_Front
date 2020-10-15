@@ -15,6 +15,7 @@ const MyTheme = {
     primary: 'rgb(255, 45, 85)',
     manBackground: ['#fdfbfb', '#ebedee'],
     womanBackground: ['#fad0c4', '#ffd1ff'],
+    modalBackground: 'rgba(80,80,80,0.3)',
     background: 'rgb(242, 242, 242)',
     card: 'rgb(255, 255, 255)',
     text: 'rgb(28, 28, 30)',
