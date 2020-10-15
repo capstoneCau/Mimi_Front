@@ -196,56 +196,47 @@ export default function MbtiCheck({
       {mbtiTestModal()}
       {/* {starModal} */}
       <View style={styles.titleContainer}>
-        <Text style={styles.titleText}>MBTI</Text>
+        <Text style={styles.titleText}>본인의 MBTI를 아시나요?</Text>
       </View>
-      <View style={styles.formContainer}>
+      <View style={styles.checkContainer}>
         <View style={styles.form}>
           <View style={styles.buttonForm}>
             <FancyButton
-              mode="contained"
+              mode="outlined"
               color="#000069"
               onPress={() => {
                 onChange('mbti', '');
                 setShowMbtiModal(true);
               }}>
-              MBTI
+              <Text>네, MBTI 선택하기</Text>
             </FancyButton>
-            <Text>{mbti}</Text>
           </View>
           <View style={styles.buttonForm}>
             <FancyButton
-              mode="contained"
+              mode="outlined"
               color="#000069"
               onPress={() => {
                 onChange('mbti', '');
                 setShowMbtiTestModal(true);
               }}>
-              MBTI Simple Test
+              아니오, 간단 테스트
             </FancyButton>
           </View>
-          <View style={styles.buttonForm}>
-            <FancyButton
-              mode="contained"
-              color="green"
-              onPress={() => {
-                setFinishSignUp(true);
-              }}>
-              임시완료버튼
-            </FancyButton>
-            <Text>{mbti}</Text>
-          </View>
-          {/* <View style={styles.buttonForm}>
-            <FancyButton
-              color="#000069"
-              mode="contained"
-              onPress={() => {
-                setShowStarModal(true);
-              }}>
-              별자리
-            </FancyButton>
-            <Text>{star}</Text>
-          </View> */}
         </View>
+      </View>
+      <View style={styles.myMbtiContainer}>
+        <Text style={styles.myMbtiText}>{mbti}</Text>
+      </View>
+      <View style={styles.completeContainer}>
+        <FancyButton
+          icon="arrow-right-bold"
+          mode="outlined"
+          color="#000069"
+          onPress={() => {
+            setFinishSignUp(true);
+          }}>
+          <Text style={styles.nextButtonText}>다음</Text>
+        </FancyButton>
       </View>
     </LinearGradient>
   );
@@ -258,41 +249,35 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flex: 1,
-    margin: 20,
+    margin: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },
   titleText: {
-    fontSize: 30,
+    fontSize: 25,
   },
-  formContainer: {
-    flex: 9,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    marginLeft: 30,
+  checkContainer: {
+    flex: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   form: {
-    marginBottom: 10,
+    flexDirection: 'column',
   },
 
   buttonForm: {
-    marginBottom: 10,
+    marginBottom: 40,
   },
   fancyButton: {
     marginTop: 5,
   },
-  email: {
-    marginTop: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  inputEmail: {
-    marginTop: 5,
-    width: width * 0.4,
-    borderColor: '#000000',
-    borderWidth: 4,
-    borderRadius: 15,
+
+  completeContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+    marginBottom: 20,
+    marginRight: 20,
   },
 
   mbtiContainer: {
@@ -321,19 +306,33 @@ const styles = StyleSheet.create({
   mbtiTestContainer: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   mbtiSelectOne: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffafb0',
   },
   mbtiSelectTwo: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#aee4ff',
   },
   textTitle: {
     fontSize: 40,
   },
   text: {
     fontSize: 20,
+  },
+
+  myMbtiContainer: {
+    flex: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  myMbtiText: {
+    fontSize: width * 0.3,
+    fontWeight: 'bold',
   },
 });

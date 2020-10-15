@@ -124,10 +124,9 @@ export default function CreateUsers({route, navigation}) {
     if (finishSignUp === true) {
       console.log(inputs);
       registerUser(inputs);
-      navigation.navigate('Home', {gender: gender});
+      navigation.navigate('Home');
     }
   }, [finishSignUp]);
-  console.log(inputs);
 
   return (
     <LinearGradient
