@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {Button} from 'react-native-paper';
+import {StyleSheet} from 'react-native';
 
 export function FancyButton(props) {
   return <Button {...props}>{props.children}</Button>;
@@ -24,4 +25,8 @@ export const CONST_VALUE = {
     '#3C5A91',
     '#D2691E',
   ],
+};
+
+export const FancyFonts = {
+  BMDOHYEON: 'BMDOHYEON',
 };

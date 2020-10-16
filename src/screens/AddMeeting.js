@@ -21,7 +21,7 @@ import {
   Paragraph,
   useTheme,
 } from 'react-native-paper';
-import {CONST_VALUE} from '../common/common';
+import {CONST_VALUE, FancyButton, FancyFonts} from '../common/common';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -46,21 +46,21 @@ export default function AddMeeting({navigation}) {
       <View style={styles.titleContainer}>
         <Text style={styles.titleText}>새로운 미팅</Text>
       </View>
-      <View style={styles.myInfoContainer}>
+      <View style={styles.formContainer}>
         <View style={styles.datePickContainer}>
           <DatePick onChange={changeMeetingInfo} />
         </View>
-        <View style={styles.shortIntroduceContainer}>
+        <View style={styles.addFriednContainer}>
+          <AddFriend onChange={changeMeetingInfo} />
+        </View>
+        {/* <View style={styles.shortIntroduceContainer}>
           <ShortIntroduce onChange={changeMeetingInfo} />
-        </View>
+        </View> */}
       </View>
-      <View style={styles.friendInfoContainer}>
-        <View style={styles.peopleCountContainer}>
-          <PeopleCount peopleCount={peopleCount} onChange={changeMeetingInfo} />
-        </View>
-        <View style={styles.peopleContainer}>
-          <People peopleCount={peopleCount} />
-        </View>
+      <View style={styles.completeContainer}>
+        <FancyButton icon="arrow-right-bold" mode="outlined" color="#000069">
+          <Text style={styles.nextButtonText}>다음</Text>
+        </FancyButton>
       </View>
     </View>
   );
@@ -102,13 +102,14 @@ function DatePick({onChange}) {
 
   return (
     <View style={styles.datePick}>
-      <View style={styles.datesTextContainer}>
-        <Text style={styles.datesText}>{selectedDate}</Text>
-      </View>
       <View style={styles.dateButtonContainer}>
-        <TouchableOpacity onPress={showDatePicker}>
-          <Text style={{color: colors.primary}}>날짜추가</Text>
-        </TouchableOpacity>
+        <FancyButton
+          icon="calendar-month"
+          mode="outlined"
+          color="#000069"
+          onPress={showDatePicker}>
+          <Text>날짜추가</Text>
+        </FancyButton>
       </View>
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
@@ -116,6 +117,16 @@ function DatePick({onChange}) {
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />
+    </View>
+  );
+}
+
+function AddFriend({onChange}) {
+  return (
+    <View style={styles.addFriendButtonContainer}>
+      <FancyButton icon="account-plus" mode="outlined" color="#000069">
+        <Text>멤버추가</Text>
+      </FancyButton>
     </View>
   );
 }
@@ -147,45 +158,6 @@ function PeopleCount({peopleCount, onChange}) {
   );
 }
 
-function People({peopleCount}) {
-  let line;
-  let temp = [];
-  const LeftContent = (props) => <Avatar.Icon {...props} icon="folder" />;
-
-  if (peopleCount < 3) {
-    line = styles.line1;
-  } else if (peopleCount >= 3 && peopleCount < 5) {
-    line = styles.line2;
-  } else {
-    line = styles.line3;
-  }
-  for (let i = 1; i <= peopleCount; i++) {
-    temp.push(
-      <Card style={styles.friendCard}>
-        <Card.Title
-          title="Card Title"
-          subtitle="Card Subtitle"
-          left={LeftContent}
-        />
-        {/* <Card.Content>
-          <Title>Card title</Title>
-          <Paragraph>Card content</Paragraph>
-        </Card.Content>
-        <Card.Cover source={{uri: 'https://picsum.photos/700'}} /> */}
-        <Card.Actions>
-          <Button>Cancel</Button>
-          <Button>Ok</Button>
-        </Card.Actions>
-      </Card>,
-    );
-  }
-  return (
-    <View style={styles.lineContainer}>
-      <View style={line}></View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   continer: {
     flex: 1,
@@ -198,27 +170,37 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   titleText: {
-    fontSize: 30,
+    fontSize: 36,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
-  myInfoContainer: {
-    flex: 1,
+  formContainer: {
+    flex: 5,
+    flexDirection: 'column',
   },
   datePickContainer: {
-    flex: 1,
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   datePick: {
-    flexDirection: 'row',
-    width: width * 0.95,
-    justifyContent: 'flex-end',
+    flex: 1,
+
+    width: width * 0.5,
   },
-  datesTextContainer: {
-    flex: 6,
-  },
+  datesTextContainer: {},
   dateButtonContainer: {
     flex: 1,
   },
+  addFriednContainer: {
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addFriendButtonContainer: {
+    width: width * 0.5,
+  },
   shortIntroduceContainer: {
-    flex: 1,
+    flex: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -246,18 +228,11 @@ const styles = StyleSheet.create({
   peopleContainer: {
     flex: 1,
   },
-  lineContainer: {
+  completeContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  line1: {
-    flex: 1,
-  },
-  line2: {
-    flex: 1,
-  },
-  line3: {
-    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    marginBottom: 20,
+    marginRight: 20,
   },
 });

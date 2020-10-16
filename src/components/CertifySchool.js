@@ -20,7 +20,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {registerUserInfoAsync} from '../modules/login';
 import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
-import {FancyButton} from '../common/common';
+import {FancyButton, FancyFonts} from '../common/common';
 import {SearchSchool} from './SchoolApi';
 
 var width = Dimensions.get('window').width;
