@@ -20,14 +20,13 @@ var height = Dimensions.get('window').height;
 
 export default function MbtiCheck({
   mbti,
-  star,
   gender,
   onChange,
   setFinishSignUp,
 }) {
   const [showMbtiModal, setShowMbtiModal] = useState(false);
   const [showMbtiTestModal, setShowMbtiTestModal] = useState(false);
-  const [showStarModal, setShowStarModal] = useState(false);
+  // const [showStarModal, setShowStarModal] = useState(false);
   const [mbtiSort, setMbtiSort] = useState();
   const [starSort, setStarSort] = useState();
   const [stage, setStage] = useState(0);
@@ -36,7 +35,7 @@ export default function MbtiCheck({
   useEffect(() => {
     const infor = async () => {
       setMbtiSort(await getInformation('mbti'));
-      setStarSort(await getInformation('star'));
+      // setStarSort(await getInformation('star'));
     };
     infor();
   }, []);
@@ -61,8 +60,8 @@ export default function MbtiCheck({
                   onChange('mbti', item.name);
                   setShowMbtiModal(false);
                 } else {
-                  onChange('star', item.name);
-                  setShowStarModal(false);
+                  // onChange('star', item.name);
+                  // setShowStarModal(false);
                 }
               }}>
               <Text
