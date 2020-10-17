@@ -41,10 +41,7 @@ export default function CreateUsers({route, navigation}) {
   // const [inputAuthCode, setInputAuthCode] = useState();
   // const [isAuth, setAuth] = useState(false);
   const dispatch = useDispatch();
-  const registerUser = useCallback(
-    (userInfo) => dispatch(registerUserInfoAsync(userInfo)),
-    [dispatch],
-  );
+  const registerUser = useCallback((userInfo) => dispatch(registerUserInfoAsync(userInfo)),[dispatch],);
   const {kakaoId: kakao_auth_id} = useSelector((state) => state.login);
 
   const {colors} = useTheme();
@@ -56,13 +53,12 @@ export default function CreateUsers({route, navigation}) {
     name: '',
     school: '',
     email: '',
-    birthday: route.params.birthday,
+    birthday: route.params.birthday == null ? '0924' : route.params.birthday,
     // address: '',
     mbti: '',
-    star: '',
-    gender: route.params.gender === 'MALE' ? true : false,
+    gender: route.params.gender == null ? 'male' : route.params.gender,
     kakao_auth_id: kakao_auth_id,
-    age: '',
+    birthYear: '',
     profileImg: 1,
     emailHost: '',
     schoolAddress: '',
@@ -76,10 +72,9 @@ export default function CreateUsers({route, navigation}) {
     email,
     // address,
     mbti,
-    star,
     gender,
     birthday,
-    age,
+    birthYear,
   } = inputs;
 
   const onChange = (name, value) => {
@@ -113,7 +108,6 @@ export default function CreateUsers({route, navigation}) {
   const mbtiCheck = startMbti ? (
     <MbtiCheck
       mbti={mbti}
-      star={star}
       gender={gender}
       onChange={onChange}
       setFinishSignUp={setFinishSignUp}
@@ -122,8 +116,13 @@ export default function CreateUsers({route, navigation}) {
 
   useEffect(() => {
     if (finishSignUp === true) {
-      console.log(inputs);
+      inputs.email = emailHost + '@' + schoolAddress
+      delete inputs.emailHost
+      delete inputs.schoolAddress
+      delete inputs.birthYear
+
       registerUser(inputs);
+
       navigation.navigate('Home');
     }
   }, [finishSignUp]);
@@ -156,8 +155,8 @@ export default function CreateUsers({route, navigation}) {
             <TextInputComp
               onChange={onChange}
               title="태어난 년도"
-              name="age"
-              value={age}
+              name="birthYear"
+              value={birthYear}
               maxLength={4}
               placeholder="태어난 년도를 입력해 주세요(ex: 1996)"
             />
@@ -172,7 +171,7 @@ export default function CreateUsers({route, navigation}) {
             onPress={() => {
               onChange(
                 'birthday',
-                age +
+                birthYear +
                   '-' +
                   birthday.substring(0, 2) +
                   '-' +
