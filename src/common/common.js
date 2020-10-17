@@ -27,6 +27,10 @@ export const CONST_VALUE = {
   ],
 };
 
+
 export const FancyFonts = {
   BMDOHYEON: 'BMDOHYEON',
 };
+
+export const SERVER_DOMAIN = 'https://mimi-server-akuui.run.goorm.io/';
+
