@@ -9,6 +9,9 @@ import {
   Dimensions,
 } from 'react-native';
 import {useTheme} from '@react-navigation/native';
+import {FancyFonts} from '../common/common';
+import LinearGradient from 'react-native-linear-gradient';
+
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -62,7 +65,7 @@ const tempListData = [
     peopleCount: 4,
     school: '고려대',
     dates: ['10/1\n', '10/2\n'],
-    intro: '재밌어요',
+    intro: '놀고싶어요',
   },
 ];
 
@@ -75,7 +78,12 @@ export default function List({navigation}) {
         onPress={() => {
           navigation.navigate('AddMeeting');
         }}>
-        <Text>Add</Text>
+        <Text
+          style={{
+            fontFamily: FancyFonts.BMDOHYEON,
+          }}>
+          Add
+        </Text>
       </TouchableOpacity>
     );
   };
@@ -134,6 +142,7 @@ const styles = StyleSheet.create({
     fontSize: 50,
     alignSelf: 'center',
     textAlign: 'center',
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   content: {
     flex: 5,
@@ -143,14 +152,17 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     fontSize: 30,
     padding: 10,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   intro: {
     alignSelf: 'flex-start',
     fontSize: 17,
     padding: 15,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   dates: {
     fontSize: 15,
     padding: 10,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
 });

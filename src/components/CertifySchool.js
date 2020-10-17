@@ -20,7 +20,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {registerUserInfoAsync} from '../modules/login';
 import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
-import {FancyButton} from '../common/common';
+import {FancyButton, FancyFonts} from '../common/common';
 import {SearchSchool} from './SchoolApi';
 
 var width = Dimensions.get('window').width;
@@ -41,9 +41,9 @@ export default function CertifySchool({
   const [campusName, setCampusName] = useState('');
   const [schoolLink, setSchoolLink] = useState('');
   const [showSchoolModal, setShowSchoolModal] = useState(false);
-  const [showcertificationModal, setShowCertificationModal] = useState(false);
   const [authCode, setAuthCode] = useState();
   const [inputAuthCode, setInputAuthCode] = useState();
+  const [isPressSubmit, setIsPressSubmit] = useState(false);
   const [isAuth, setAuth] = useState(false);
   const [schoolSort, setSchoolSort] = useState({
     schoolN: [],
@@ -136,6 +136,7 @@ export default function CertifySchool({
                 };
               });
               setShowSchoolModal(false);
+              setIsPressSubmit(false);
             }}>
             <Text style={styles.schoolModalText}>
               {item} {schoolSort.campusN[index]}
@@ -154,74 +155,44 @@ export default function CertifySchool({
   );
 
   const certificationModal = (
-    <Modal
-      animationType={'slide'}
-      transparent={false}
-      visible={showcertificationModal}>
-      <View style={styles.mbtiContainer}>
-        <Text style={styles.mbtiIntroduceText}>
-          해당 메일에 전송된 코드를 입력해 주세요!
-        </Text>
-        <View style={styles.certifyContainer}>
-          <TextInput
-            style={styles.inputCode}
-            title="인증코드"
-            placeholder="전송된 코드를 입력해 주세요"
-            onChangeText={(value) => {
-              setInputAuthCode(value);
-            }}
-          />
-          <FancyButton
-            mode="contained"
-            color="#000069"
-            onPress={() => {
-              if (authCode == inputAuthCode) {
-                ToastAndroid.showWithGravity(
-                  '인증 성공',
-                  ToastAndroid.SHORT,
-                  ToastAndroid.CENTER,
-                );
-                onChange('email', emailHost + '@' + schoolAddress);
-                setShowCertificationModal(false);
-                setAuth(true);
-              } else {
-                ToastAndroid.showWithGravity(
-                  '인증 번호가 틀립니다.',
-                  ToastAndroid.SHORT,
-                  ToastAndroid.CENTER,
-                );
-              }
-            }}>
-            인증하기
-          </FancyButton>
-        </View>
-        <View style={styles.additionalCertifyContainer}>
-          <View style={{marginRight: 10}}>
-            <FancyButton
-              mode="contained"
-              color="#64CD3C"
-              onPress={async () => {
-                ToastAndroid.showWithGravity(
-                  '인증 메일이 재 전송 되었습니다.',
-                  ToastAndroid.SHORT,
-                  ToastAndroid.CENTER,
-                );
-                setAuthCode(await getAuthCode(emailHost + '@' + schoolAddress));
-              }}>
-              재전송하기
-            </FancyButton>
-          </View>
-          <FancyButton
-            mode="contained"
-            color="red"
-            onPress={() => {
-              setShowCertificationModal(false);
-            }}>
-            취소
-          </FancyButton>
-        </View>
+    <View style={styles.certifyContainer}>
+      <Text style={styles.text}>인증</Text>
+      <View style={styles.certify}>
+        <TextInput
+          style={styles.inputCode}
+          title="인증코드"
+          placeholder="코드를 입력해 주세요"
+          onChangeText={(value) => {
+            setInputAuthCode(value);
+          }}
+        />
+        <FancyButton
+          mode="outlined"
+          color="#000069"
+          icon={isAuth ? 'shield-check' : ''}
+          style={{marginLeft: 20}}
+          disabled={isAuth}
+          onPress={() => {
+            if (authCode == inputAuthCode) {
+              ToastAndroid.showWithGravity(
+                '인증 성공',
+                ToastAndroid.SHORT,
+                ToastAndroid.CENTER,
+              );
+              onChange('email', emailHost + '@' + schoolAddress);
+              setAuth(true);
+            } else {
+              ToastAndroid.showWithGravity(
+                '인증 번호가 틀립니다.',
+                ToastAndroid.SHORT,
+                ToastAndroid.CENTER,
+              );
+            }
+          }}>
+          {isAuth ? '인증성공' : '인증하기'}
+        </FancyButton>
       </View>
-    </Modal>
+    </View>
   );
 
   const failCertify = () =>
@@ -247,7 +218,6 @@ export default function CertifySchool({
       }
       style={[styles.container, startMbti === true ? {display: 'none'} : {}]}>
       {schoolModal}
-      {certificationModal}
       <View style={styles.titleContainer}>
         <Text style={styles.titleText}>학교인증</Text>
       </View>
@@ -270,7 +240,7 @@ export default function CertifySchool({
               onPress={() => {
                 requestSchoolAPI(schoolName);
               }}>
-              학교검색
+              <Text style={styles.text}>학교검색</Text>
             </FancyButton>
           </View>
         </View>
@@ -288,20 +258,38 @@ export default function CertifySchool({
             <FancyButton
               mode="outlined"
               color="#000069"
-              onPress={async () => {
-                if (schoolAddress === '') {
-                  failCertify();
-                } else {
-                  setAuthCode(
-                    await getAuthCode(emailHost + '@' + schoolAddress),
-                  );
-                  setShowCertificationModal(true);
-                }
-              }}
-              disabled={isAuth}>
-              {isAuth ? '인증성공' : '인증하기'}
+              onPress={
+                isPressSubmit
+                  ? async () => {
+                      ToastAndroid.showWithGravity(
+                        '인증 메일이 재 전송 되었습니다.',
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER,
+                      );
+                      setAuthCode(
+                        await getAuthCode(emailHost + '@' + schoolAddress),
+                      );
+                    }
+                  : async () => {
+                      if (schoolAddress === '') {
+                        failCertify();
+                      } else {
+                        setIsPressSubmit(true);
+
+                        setAuthCode(
+                          await getAuthCode(emailHost + '@' + schoolAddress),
+                        );
+                      }
+                    }
+              }>
+              <Text style={styles.text}>
+                {isPressSubmit ? '재전송' : '코드전송'}
+              </Text>
             </FancyButton>
           </View>
+        </View>
+        <View style={isPressSubmit == true ? styles.buttonForm : {opacity: 0}}>
+          {certificationModal}
         </View>
       </View>
 
@@ -334,7 +322,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   titleContainer: {
-    flex: 1,
+    flex: 2,
     marginTop: 50,
     alignItems: 'center',
   },
@@ -342,9 +330,13 @@ const styles = StyleSheet.create({
     fontSize: 30,
     textAlign: 'center',
     margin: 10,
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
+  text: {
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   formContainer: {
-    flex: 9,
+    flex: 6,
     justifyContent: 'center',
     alignItems: 'flex-start',
     marginBottom: height * 0.25,
@@ -354,6 +346,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   buttonForm: {
+    flex: 1,
     marginLeft: width * 0.1,
     marginBottom: 10,
   },
@@ -397,14 +390,6 @@ const styles = StyleSheet.create({
   },
   schoolModalboxContainer: {},
 
-  mbtiContainer: {
-    flex: 1,
-  },
-  mbtiIntroduceText: {
-    fontSize: 28,
-    padding: 20,
-    textAlign: 'center',
-  },
   modalboxContainer: {},
   schoolModalbox: {
     margin: 3,
@@ -415,20 +400,25 @@ const styles = StyleSheet.create({
   schoolModalText: {
     height: 30,
     fontSize: 20,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   nextButtonText: {
     color: '#000000',
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   certifyContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     height: height * 0.06,
   },
+  certify: {
+    flexDirection: 'row',
+  },
   inputCode: {
-    flex: 0.8,
     width: width * 0.4,
     borderColor: 'gray',
-    borderWidth: 1,
+    borderBottomWidth: 2,
+    marginRight: 10,
   },
   additionalCertifyContainer: {
     flexDirection: 'row',
@@ -438,11 +428,13 @@ const styles = StyleSheet.create({
   atSign: {},
   addressText: {
     marginRight: 15,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   modalTitleText: {
     fontSize: 30,
     textAlign: 'center',
     margin: 10,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   modalbox: {
     flex: 1,
@@ -454,6 +446,7 @@ const styles = StyleSheet.create({
   modalText: {
     height: 120,
     fontSize: 20,
+    fontFamily: FancyFonts.BMDOHYEON,
     textAlign: 'center',
   },
 });

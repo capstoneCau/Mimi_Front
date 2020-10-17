@@ -22,7 +22,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {registerUserInfoAsync} from '../modules/login';
 import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
-import {FancyButton} from '../common/common';
+import {FancyButton, FancyFonts} from '../common/common';
 import CertifySchool from './CertifySchool';
 import MbtiCheck from './MbtiCheck';
 
@@ -124,10 +124,9 @@ export default function CreateUsers({route, navigation}) {
     if (finishSignUp === true) {
       console.log(inputs);
       registerUser(inputs);
-      navigation.navigate('Home', {gender: gender});
+      navigation.navigate('Home');
     }
   }, [finishSignUp]);
-  console.log(inputs);
 
   return (
     <LinearGradient
@@ -227,6 +226,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 30,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   formContainer: {
     flex: 9,
@@ -234,7 +234,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: height * 0.25,
   },
-
+  text: {
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
   form: {
     marginBottom: 20,
   },
@@ -257,5 +259,6 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     color: '#000000',
+    fontFamily: FancyFonts.BMDOHYEON,
   },
 });

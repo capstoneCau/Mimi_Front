@@ -13,7 +13,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '@react-navigation/native';
 import {CONST_VALUE} from '../common/common';
 import {getInformation} from '../modules/getInformation';
-import {FancyButton} from '../common/common';
+import {FancyButton, FancyFonts} from '../common/common';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -196,56 +196,47 @@ export default function MbtiCheck({
       {mbtiTestModal()}
       {/* {starModal} */}
       <View style={styles.titleContainer}>
-        <Text style={styles.titleText}>MBTI</Text>
+        <Text style={styles.titleText}>본인의 MBTI를 아시나요?</Text>
       </View>
-      <View style={styles.formContainer}>
+      <View style={styles.checkContainer}>
         <View style={styles.form}>
           <View style={styles.buttonForm}>
             <FancyButton
-              mode="contained"
+              mode="outlined"
               color="#000069"
               onPress={() => {
                 onChange('mbti', '');
                 setShowMbtiModal(true);
               }}>
-              MBTI
+              <Text style={styles.text}>네, MBTI 선택하기</Text>
             </FancyButton>
-            <Text>{mbti}</Text>
           </View>
           <View style={styles.buttonForm}>
             <FancyButton
-              mode="contained"
+              mode="outlined"
               color="#000069"
               onPress={() => {
                 onChange('mbti', '');
                 setShowMbtiTestModal(true);
               }}>
-              MBTI Simple Test
+              <Text style={styles.text}>아니오, 간단 테스트</Text>
             </FancyButton>
           </View>
-          <View style={styles.buttonForm}>
-            <FancyButton
-              mode="contained"
-              color="green"
-              onPress={() => {
-                setFinishSignUp(true);
-              }}>
-              임시완료버튼
-            </FancyButton>
-            <Text>{mbti}</Text>
-          </View>
-          {/* <View style={styles.buttonForm}>
-            <FancyButton
-              color="#000069"
-              mode="contained"
-              onPress={() => {
-                setShowStarModal(true);
-              }}>
-              별자리
-            </FancyButton>
-            <Text>{star}</Text>
-          </View> */}
         </View>
+      </View>
+      <View style={styles.myMbtiContainer}>
+        <Text style={styles.myMbtiText}>{mbti}</Text>
+      </View>
+      <View style={styles.completeContainer}>
+        <FancyButton
+          icon="arrow-right-bold"
+          mode="outlined"
+          color="#000069"
+          onPress={() => {
+            setFinishSignUp(true);
+          }}>
+          <Text style={styles.nextButtonText}>다음</Text>
+        </FancyButton>
       </View>
     </LinearGradient>
   );
@@ -258,50 +249,46 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flex: 1,
-    margin: 20,
+    margin: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },
   titleText: {
-    fontSize: 30,
+    fontSize: 25,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
-  formContainer: {
-    flex: 9,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    marginLeft: 30,
+  checkContainer: {
+    flex: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   form: {
-    marginBottom: 10,
+    flexDirection: 'column',
   },
 
   buttonForm: {
-    marginBottom: 10,
+    marginBottom: 40,
   },
   fancyButton: {
     marginTop: 5,
   },
-  email: {
-    marginTop: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  inputEmail: {
-    marginTop: 5,
-    width: width * 0.4,
-    borderColor: '#000000',
-    borderWidth: 4,
-    borderRadius: 15,
+
+  completeContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+    marginBottom: 20,
+    marginRight: 20,
   },
 
   mbtiContainer: {
     flex: 1,
   },
   mbtiIntroduceText: {
-    fontSize: 28,
-    padding: 20,
+    fontSize: 27,
+    margin: 25,
     textAlign: 'center',
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   modalboxContainer: {},
 
@@ -316,24 +303,44 @@ const styles = StyleSheet.create({
     height: 120,
     fontSize: 20,
     textAlign: 'center',
+    fontFamily: FancyFonts.BMDOHYEON,
   },
 
   mbtiTestContainer: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   mbtiSelectOne: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffafb0',
   },
   mbtiSelectTwo: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#aee4ff',
   },
   textTitle: {
     fontSize: 40,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   text: {
-    fontSize: 20,
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
+
+  myMbtiContainer: {
+    flex: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  myMbtiText: {
+    fontSize: width * 0.3,
+    fontWeight: 'bold',
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
+  nextButtonText: {
+    fontFamily: FancyFonts.BMDOHYEON,
   },
 });
