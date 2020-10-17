@@ -1,4 +1,4 @@
-import SERVER_DOMAIN from '../common/common'
+import {SERVER_DOMAIN} from '../common/common'
 
 //Action Type
 const GET_INVITER_PARTICIPATE_REQUEST = 'request/GET_INVITER_PARTICIPATE_REQUESST';
@@ -148,11 +148,11 @@ export const participateAtRoom = (participation_user_list, room_id, token) => as
 
 //Initial State
 const initialState = {
-  inviteeCreateList = [],
-  inviteeParticiateList = [],
+  inviteeCreateList : [],
+  inviteeParticiateList : [],
   
-  inviterCreateList = [],
-  inviterParticiatList = [],
+  inviterCreateList : [],
+  inviterParticiatList : [],
 };
 
 //Reducer
@@ -161,22 +161,22 @@ export default function meetingInfo(state = initialState, action) {
     case GET_INVITER_PARTICIPATE_REQUEST:
       return {
         ...state,
-        inviterParticiatList = action.inviterParticipateRequestList
+        inviterParticiatList : action.inviterParticipateRequestList
       };
     case GET_INVITER_CREATE_REQUEST:
       return {
         ...state,
-        inviterCreateList = action.inviterCreateRequestList
+        inviterCreateList : action.inviterCreateRequestList
       };
     case GET_INVITEE_PARTICIPATE_REQUESST:
       return {
         ...state,
-        inviteeParticiateList = action.inviteeParticipateRequestList
+        inviteeParticiateList : action.inviteeParticipateRequestList
       };
     case GET_INVITEE_CREATE_REQUEST:
       return {
         ...state,
-        inviteeCreateList = action.inviteeCreateRequestList
+        inviteeCreateList : action.inviteeCreateRequestList
       };
     case GET_REQUEST_USER_INFO:
         return {

@@ -1,4 +1,4 @@
-import SERVER_DOMAIN from '../common/common'
+import {SERVER_DOMAIN} from '../common/common'
 
 //Action Type
 
@@ -86,8 +86,8 @@ export const getOwnsRoomList = (user = null, token) => async (dispach, getState)
 
 //Initial State
 const initialState = {
-  allRoomList = [],
-  myRoomList = [],
+  allRoomList : [],
+  myRoomList : [],
 };
 
 //Reducer
@@ -101,7 +101,7 @@ export default function meetingInfo(state = initialState, action) {
     case GET_ROOM:
       return {
         ...state,
-        allRoomList = action.allRoomList
+        allRoomList : action.allRoomList
       }
     case GET_MY_ROOM:
       if(action.user != null) {
@@ -111,7 +111,7 @@ export default function meetingInfo(state = initialState, action) {
       } else {
         return {
           ...state,
-          myRoomList = action.myRoomList
+          myRoomList : action.myRoomList
         }
       }
     default:

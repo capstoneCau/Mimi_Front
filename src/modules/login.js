@@ -1,5 +1,5 @@
 
-import SERVER_DOMAIN from '../common/common'
+import {SERVER_DOMAIN} from '../common/common'
 
 //Action Type
 const LOGIN_USER = 'login/LOGIN_USER';
@@ -8,18 +8,11 @@ const REGISTER_USER_INFO = 'login/REGISTER_USER_INFO';
 const REQUEST_KAKAO_AUTH_ID = 'login/REQUEST_KAKAO_AUTH_ID';
 
 //Action Function
-export const loginUser = (kakaoId) => ({type: LOGIN_USER}, userInfo);
 export const logout = () => ({type: LOGOUT});
 export const registerUserInfo = () => ({type: REGISTER_USER_INFO});
 export const requestKaKaoAuthId = () => ({type: REQUEST_KAKAO_AUTH_ID});
 
 //Thunk
-export const loginUserAsync = (userInfo, kakaoId) => async (
-  dispatch,
-  getState,
-) => {
-  dispatch({type: LOGIN_USER, userInfo, kakaoId});
-};
 export const logoutAsync = (token) => async (dispatch, getState) => {
   await fetch(SERVER_DOMAIN + 'api/auth/logout/', {
     method: 'POST',
@@ -30,11 +23,8 @@ export const logoutAsync = (token) => async (dispatch, getState) => {
   })
   dispatch({type: LOGOUT});
 };
-export const registerUserInfoAsync = (userInfo) => async (
-  dispatch,
-  getState,
-) => {
-  await fetch(SERVER_DOMAIN + 'api/auth/register/', {
+export const registerUserInfoAsync = (userInfo) => async (dispatch, getState) => {
+  const res = await fetch(SERVER_DOMAIN + 'api/auth/register/', {
     method: 'POST',
     mode: 'cors',
     headers: {
@@ -42,23 +32,27 @@ export const registerUserInfoAsync = (userInfo) => async (
     },
     body: JSON.stringify(userInfo), 
   });
-  dispatch({type: REGISTER_USER_INFO});
+  const registerdUserInfo = await res.json()
+  const token = registerdUserInfo.token
+  delete registerdUserInfo.token
+  dispatch({type: REGISTER_USER_INFO, userInfo: registerdUserInfo, token});
 };
 
 
 export const requestKaKaoAuthIdAsync = (kakaoId) => async ( dispatch, getState ) => {
-  const res = await fetch(SERVER_DOMAIN + `api/auth/login/`, {
+  const res = await fetch(SERVER_DOMAIN + 'api/auth/login/', {
+    method: "POST",
+    mode: 'cors',
     body : JSON.stringify({
       "kakao_auth_id" : kakaoId
     }),
-    method: "POST"
   });
-  const userInfo = await res.json();
-  if (userInfo['kakao_id'] == null) {
+  const result = await res.json();
+  if (result['kakao_id'] == null) {
     dispatch({type: REQUEST_KAKAO_AUTH_ID, kakaoId});
     return false;
   } else {
-    dispatch({type: LOGIN_USER, userInfo});
+    dispatch({type: LOGIN_USER, userInfo: result.user, token: result.token});
     return true;
   }
 };
@@ -75,8 +69,8 @@ export default function login(state = initialState, action) {
       return {
         ...state,
         isLogin: true,
-        userInfo: action.userInfo.user,
-        token : action.userInfo.token
+        userInfo: action.userInfo,
+        token : action.token
       };
     case LOGOUT:
       return {
@@ -85,6 +79,8 @@ export default function login(state = initialState, action) {
     case REGISTER_USER_INFO:
       return {
         ...state,
+        userInfo: action.userInfo,
+        token: action.token
       };
     case REQUEST_KAKAO_AUTH_ID:
       return {

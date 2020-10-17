@@ -1,4 +1,4 @@
-import SERVER_DOMAIN from '../common/common'
+import {SERVER_DOMAIN} from '../common/common'
 
 
 export const getAuthCode = async (address) => {
