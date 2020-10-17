@@ -25,3 +25,5 @@ export const CONST_VALUE = {
     '#D2691E',
   ],
 };
+
+export const SERVER_DOMAIN = 'https://mimi-server-akuui.run.goorm.io/';
