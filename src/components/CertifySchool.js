@@ -240,7 +240,7 @@ export default function CertifySchool({
               onPress={() => {
                 requestSchoolAPI(schoolName);
               }}>
-              학교검색
+              <Text style={styles.text}>학교검색</Text>
             </FancyButton>
           </View>
         </View>
@@ -282,7 +282,9 @@ export default function CertifySchool({
                       }
                     }
               }>
-              {isPressSubmit ? '재전송' : '코드전송'}
+              <Text style={styles.text}>
+                {isPressSubmit ? '재전송' : '코드전송'}
+              </Text>
             </FancyButton>
           </View>
         </View>
@@ -297,7 +299,7 @@ export default function CertifySchool({
           mode="outlined"
           color="#000069"
           onPress={async () => {
-            if (isAuth) {
+            if (!isAuth) {
               email = emailHost + '@' + schoolAddress;
               setStartMbti(true);
               //delete schoolAddress;
@@ -328,6 +330,10 @@ const styles = StyleSheet.create({
     fontSize: 30,
     textAlign: 'center',
     margin: 10,
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
+  text: {
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   formContainer: {
     flex: 6,
@@ -394,9 +400,11 @@ const styles = StyleSheet.create({
   schoolModalText: {
     height: 30,
     fontSize: 20,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   nextButtonText: {
     color: '#000000',
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   certifyContainer: {
     flexDirection: 'column',
@@ -420,11 +428,13 @@ const styles = StyleSheet.create({
   atSign: {},
   addressText: {
     marginRight: 15,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   modalTitleText: {
     fontSize: 30,
     textAlign: 'center',
     margin: 10,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   modalbox: {
     flex: 1,
@@ -436,6 +446,7 @@ const styles = StyleSheet.create({
   modalText: {
     height: 120,
     fontSize: 20,
+    fontFamily: FancyFonts.BMDOHYEON,
     textAlign: 'center',
   },
 });

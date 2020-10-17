@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import {useTheme} from '@react-navigation/native';
 import {FancyFonts} from '../common/common';
+import LinearGradient from 'react-native-linear-gradient';
+
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 

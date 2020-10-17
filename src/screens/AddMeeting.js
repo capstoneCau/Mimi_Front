@@ -5,7 +5,6 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
-  Text,
   TouchableOpacity,
   FlatList,
   Dimensions,
@@ -15,11 +14,15 @@ import {
 } from 'react-native';
 import {
   Avatar,
+  Text,
   Button,
   Card,
   Title,
   Paragraph,
+  Portal,
+  Dialog,
   useTheme,
+  RadioButton,
 } from 'react-native-paper';
 import {CONST_VALUE, FancyButton, FancyFonts} from '../common/common';
 
@@ -34,6 +37,7 @@ export default function AddMeeting({navigation}) {
     intro: '',
   });
   const {peopleCount, school, dates, intro} = meetingInfo;
+  const [showFriendModal, setShowFriendModal] = useState(false);
   const changeMeetingInfo = (name, value) => {
     setMeetingInfo({
       ...meetingInfo,
@@ -41,8 +45,18 @@ export default function AddMeeting({navigation}) {
     });
   };
 
+  const showFriends = () => {
+    setShowFriendModal(true);
+  };
+  const hideFriends = () => {
+    setShowFriendModal(false);
+  };
+
   return (
     <View style={styles.continer}>
+      {showFriendModal && (
+        <Friends showFriendModal={showFriendModal} hideFriends={hideFriends} />
+      )}
       <View style={styles.titleContainer}>
         <Text style={styles.titleText}>새로운 미팅</Text>
       </View>
@@ -51,7 +65,7 @@ export default function AddMeeting({navigation}) {
           <DatePick onChange={changeMeetingInfo} />
         </View>
         <View style={styles.addFriednContainer}>
-          <AddFriend onChange={changeMeetingInfo} />
+          <AddFriend onChange={changeMeetingInfo} showFriends={showFriends} />
         </View>
         {/* <View style={styles.shortIntroduceContainer}>
           <ShortIntroduce onChange={changeMeetingInfo} />
@@ -121,12 +135,73 @@ function DatePick({onChange}) {
   );
 }
 
-function AddFriend({onChange}) {
+function AddFriend({onChange, showFriends}) {
   return (
     <View style={styles.addFriendButtonContainer}>
-      <FancyButton icon="account-plus" mode="outlined" color="#000069">
+      <FancyButton
+        icon="account-plus"
+        mode="outlined"
+        color="#000069"
+        onPress={() => {
+          showFriends();
+          console.log('HO');
+        }}>
         <Text>멤버추가</Text>
       </FancyButton>
+    </View>
+  );
+}
+
+function Friends({showFriendModal, hideFriends}) {
+  const [friends, setFriends] = useState([]);
+  const [isAdd1, setIsAdd1] = useState(false);
+  const [isAdd2, setIsAdd2] = useState(false);
+  const [isAdd3, setIsAdd3] = useState(false);
+
+  return (
+    <View>
+      <Portal>
+        <Dialog visible={showFriendModal} onDismiss={hideFriends}>
+          <Dialog.Title style={styles.text}>멤버추가</Dialog.Title>
+          <Dialog.Content>
+            <View style={styles.memberContainer}>
+              <RadioButton
+                onPress={() => {
+                  setIsAdd1(!isAdd1);
+                }}
+                value="권현빈"
+                status={isAdd1 ? 'checked' : 'unchecked'}
+              />
+              <Text style={styles.memberText}>권현빈</Text>
+            </View>
+            <View style={styles.memberContainer}>
+              <RadioButton
+                onPress={() => {
+                  setIsAdd2(!isAdd2);
+                }}
+                value="이종아"
+                status={isAdd2 ? 'checked' : 'unchecked'}
+              />
+              <Text style={styles.memberText}>이종아</Text>
+            </View>
+            <View style={styles.memberContainer}>
+              <RadioButton
+                onPress={() => {
+                  setIsAdd3(!isAdd3);
+                }}
+                value="전승민"
+                status={isAdd3 ? 'checked' : 'unchecked'}
+              />
+              <Text style={styles.memberText}>전승민</Text>
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <FancyButton mode="outlined" color="#000069" onPress={hideFriends}>
+              완료
+            </FancyButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 }
@@ -225,8 +300,16 @@ const styles = StyleSheet.create({
   friendInfoContainer: {
     flex: 3,
   },
-  peopleContainer: {
-    flex: 1,
+  text: {
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
+  memberText: {
+    fontFamily: FancyFonts.BMDOHYEON,
+    marginTop: 8,
+  },
+
+  memberContainer: {
+    flexDirection: 'row',
   },
   completeContainer: {
     flex: 1,

@@ -13,7 +13,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '@react-navigation/native';
 import {CONST_VALUE} from '../common/common';
 import {getInformation} from '../modules/getInformation';
-import {FancyButton} from '../common/common';
+import {FancyButton, FancyFonts} from '../common/common';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -208,7 +208,7 @@ export default function MbtiCheck({
                 onChange('mbti', '');
                 setShowMbtiModal(true);
               }}>
-              <Text>네, MBTI 선택하기</Text>
+              <Text style={styles.text}>네, MBTI 선택하기</Text>
             </FancyButton>
           </View>
           <View style={styles.buttonForm}>
@@ -219,7 +219,7 @@ export default function MbtiCheck({
                 onChange('mbti', '');
                 setShowMbtiTestModal(true);
               }}>
-              아니오, 간단 테스트
+              <Text style={styles.text}>아니오, 간단 테스트</Text>
             </FancyButton>
           </View>
         </View>
@@ -255,6 +255,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 25,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   checkContainer: {
     flex: 4,
@@ -284,9 +285,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mbtiIntroduceText: {
-    fontSize: 28,
-    padding: 20,
+    fontSize: 27,
+    margin: 25,
     textAlign: 'center',
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   modalboxContainer: {},
 
@@ -301,6 +303,7 @@ const styles = StyleSheet.create({
     height: 120,
     fontSize: 20,
     textAlign: 'center',
+    fontFamily: FancyFonts.BMDOHYEON,
   },
 
   mbtiTestContainer: {
@@ -321,9 +324,10 @@ const styles = StyleSheet.create({
   },
   textTitle: {
     fontSize: 40,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   text: {
-    fontSize: 20,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
 
   myMbtiContainer: {
@@ -334,5 +338,9 @@ const styles = StyleSheet.create({
   myMbtiText: {
     fontSize: width * 0.3,
     fontWeight: 'bold',
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
+  nextButtonText: {
+    fontFamily: FancyFonts.BMDOHYEON,
   },
 });

@@ -7,6 +7,7 @@ import App from './App';
 import React from 'react';
 import {name as appName} from './app.json';
 import {Provider as StoreProvieder} from 'react-redux';
+import {Provider as PaperProvider} from 'react-native-paper';
 import {createStore, applyMiddleware} from 'redux';
 import rootReducer from './src/modules/index';
 import ReduxThunk from 'redux-thunk';
@@ -15,7 +16,9 @@ const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 const Root = () => (
   <StoreProvieder store={store}>
-    <App />
+    <PaperProvider>
+      <App />
+    </PaperProvider>
   </StoreProvieder>
 );
 

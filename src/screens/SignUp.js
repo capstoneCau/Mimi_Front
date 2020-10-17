@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import CreateUsers from '../components/CreateUsers';
+import {FancyFonts} from '../common/common';
 
 export default function SignUp({route, navigation}) {
   const [startSignUp, setStartSignUp] = useState(false);
@@ -59,8 +60,9 @@ const styles = StyleSheet.create({
   text1: {
     fontSize: 30,
     marginBottom: 10,
+    fontFamily: FancyFonts.BMDOHYEON,
   },
   text2: {
-    fontFamily: 'Geogia',
+    fontFamily: FancyFonts.BMDOHYEON,
   },
 });
