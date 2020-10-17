@@ -9,26 +9,36 @@ import {
 } from 'react-native';
 // import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import Geolocation from 'react-native-geolocation-service';
-import googleApiKey from '../../googleApiKey.json';
+import {google, naver, odysay} from '../../apiKey.json';
 
 function GoogleMap() {
-  // console.log(getDistane())
+  // console.log(google, naver)
   const [orgLatitude, setLatitude] = useState(0.0);
   const [orgLongitude, setLongitude] = useState(0.0);
   const [_watchId, setWatchId] = useState(null);
   const [testLocation, setTestLocation] = useState('');
+  const [googleTime, setGoogleTime] = useState({
+    "hour" : 0,
+    "min" : 0
+  })
+  const [naverTime, setNaverTime] = useState({
+    "hour" : 0,
+    "min" : 0
+  })
+  const [odysayTime, setOdysayTime] = useState({
+    "hour" : 0,
+    "min" : 0
+  })
 
   useEffect(() => {
     getCurrentPosition();
   }, []);
 
-  const getDistaneTime = async (desLatitude, desLongitude) => {
-    const APP_KEY = googleApiKey.distance.key;
+  const getDistanceTimeByGoogle = async (desLatitude, desLongitude) => {
+    const APP_KEY = google.distance;
     const BASE_URL =
       'https://maps.googleapis.com/maps/api/distancematrix/json?';
     const params = `units=metric&mode=transit&origins=${orgLatitude},${orgLongitude}&destinations=${desLatitude},${desLongitude}&region=KR&key=${APP_KEY}`;
-
-    console.log(BASE_URL + params);
 
     const res = await fetch(BASE_URL + params);
     const json = await res.json();
@@ -37,10 +47,43 @@ function GoogleMap() {
     const hour = parseInt(time / 3600);
     const min = parseInt((time - hour * 3600) / 60);
 
-    console.log(hour, 'hour', min, 'min');
-
     return {hour, min};
   };
+
+  const getDistanceTimeByNaver = async (desLatitude, desLongitude) => {
+    const CLIENT_ID = naver.client_id
+    const CLIENT_SECRET = naver.client_secret
+    const BASE_URL = 'https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?'
+    const params = `start=${orgLongitude},${orgLatitude}&goal=${desLongitude},${desLatitude}`
+
+    const headers = {
+      "X-NCP-APIGW-API-KEY-ID": CLIENT_ID,
+      "X-NCP-APIGW-API-KEY": CLIENT_SECRET
+    }
+
+    const res = await fetch(BASE_URL + params, {
+      headers: headers
+    })
+    const json = await res.json()
+    const time = parseInt(json.route.traoptimal[0].summary.duration)
+    const hour = parseInt((time / 1000) / 3600);
+    const min = parseInt(((time / 1000) - hour * 3600) / 60);
+    return {hour, min};
+  }
+
+  const getDistanceTimeByOdySay = async (desLatitude, desLongitude) => {
+    const SERVER = odysay.server
+    const WEB = odysay.web
+    const ANDROID = odysay.android
+    const BASE_URL = 'https://api.odsay.com/v1/api/searchPubTransPathT?'
+    const params = `SX=${orgLongitude}&SY=${orgLatitude}&EX=${desLongitude}&EY=${desLatitude}&apiKey=${SERVER}`
+
+    const res = await fetch(BASE_URL + params)
+    const json = await res.json()
+    const min = parseInt(json.result.path[0].info.totalTime)
+    const hour = parseInt(min/60);
+    return {hour, min};
+  }
 
   const getCurrentPosition = async () => {
     await requestLocationPermission();
@@ -59,10 +102,9 @@ function GoogleMap() {
           const {latitude, longitude} = position.coords;
           setLatitude(latitude);
           setLongitude(longitude);
-          console.log(latitude, longitude);
         },
         (error) => {
-          console.log(error);
+          // console.log(error);
         },
         {
           enableHighAccuracy: true,
@@ -75,50 +117,31 @@ function GoogleMap() {
   };
 
   const getAddressPosition = async (address) => {
-    const APP_KEY = googleApiKey.geocoding.key;
+    const APP_KEY = google.geocoding;
     const BASE_URL = 'https://maps.googleapis.com/maps/api/geocode/json?';
     const params = `address=${address}&key=${APP_KEY}`;
 
-    // console.log(BASE_URL+params)
-    // const res = await fetch(BASE_URL+params)
-    // const json = await res.json()
     const res = await fetch(BASE_URL + params);
     const json = await res.json();
-    console.log(json.results[0].geometry.location);
     return json.results[0].geometry.location;
-    // Geocoder.init(APP_KEY); // use a valid API key
-    // Geocoder.from(address)
-    // .then(json => {
-    //     var location = json.results[0].geometry.location;
-    //     console.log(location);
-    //     return location
-    // })
-    // .catch(error => console.warn(error));
   };
 
   const stopGetPosition = () => {
-    // console.log(_watchid)
-    // Geolocation.stopObserving()
     if (_watchId !== null) {
       Geolocation.clearWatch(_watchId);
-      console.log('stop');
       setWatchId(null);
-      // 종료 기능
     }
-    console.log();
   };
 
   const requestLocationPermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'Example App',
-          message: 'Example App access to your location ',
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, {
+          title: 'Mimi',
+          message: 'To use the safe home service, you need to obtain location information.',
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('You can use the location');
         // alert("You can use the location");
       } else {
         console.log('location permission denied');
@@ -146,10 +169,16 @@ function GoogleMap() {
           // console.log(testLocation)
         }}
         onSubmitEditing={async () => {
-          const {lat, lng} = await getCurrentPosition(testLocation);
-          console.log(lat, lng);
-          const {hour, min} = await getDistaneTime(lat, lng);
-          console.log(hour, min);
+          const {lat, lng} = await getAddressPosition(testLocation);
+          setGoogleTime(await getDistanceTimeByGoogle(lat, lng));
+          setNaverTime(await getDistanceTimeByNaver(lat, lng));
+          setOdysayTime(await getDistanceTimeByOdySay(lat, lng));
+          // const {hour:ghour, min:gmin} = await getDistanceTimeByGoogle(lat, lng);
+          // console.log('Google Api :', ghour, 'hour', gmin, 'min');
+          // const {hour:nhour, min:nmin} = await getDistanceTimeByNaver(lat, lng);
+          // console.log('Naver Api :', nhour, 'hour', nmin, 'min');
+          // const {hour:ohour, min:omin} = await getDistanceTimeByOdySay(lat, lng);
+          // console.log('Odysay Api :', ohour, 'hour', omin, 'min')
         }}
         value={testLocation}
       />
@@ -181,6 +210,17 @@ function GoogleMap() {
           <Text style={styles.coordText}>Longitute : {orgLongitude}</Text>
         </View>
       </View>
+      <View style={styles.container}>
+        <View style={styles.thirdContainer}>
+          <Text style={styles.coordText}>Google : {googleTime.hour}h {googleTime.min}m</Text>
+        </View>
+        <View style={styles.thirdContainer}>
+          <Text style={styles.coordText}>Naver : {naverTime.hour}h {naverTime.min}m</Text>
+        </View>
+        <View style={styles.thirdContainer}>
+          <Text style={styles.coordText}>Odysay : {odysayTime.hour}h {odysayTime.min}m</Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -195,6 +235,11 @@ const styles = StyleSheet.create({
   },
   subContainer: {
     flex: 0.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  thirdContainer: {
+    flex: 0.33,
     justifyContent: 'center',
     alignItems: 'center',
   },
