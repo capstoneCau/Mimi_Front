@@ -60,5 +60,5 @@ buck-out/
 
 
 # api key
-googleApiKey.json
+apiKey.json
 api_strings.xml
