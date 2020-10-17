@@ -1,6 +1,5 @@
 
-const SERVER_DOMAIN = 'https://mimi-server-akuui.run.goorm.io/';
-
+import SERVER_DOMAIN from '../common/common'
 
 //Action Type
 const LOGIN_USER = 'login/LOGIN_USER';
@@ -21,37 +20,39 @@ export const loginUserAsync = (userInfo, kakaoId) => async (
 ) => {
   dispatch({type: LOGIN_USER, userInfo, kakaoId});
 };
-export const logoutAsync = () => async (dispatch, getState) => {
-
+export const logoutAsync = (token) => async (dispatch, getState) => {
+  await fetch(SERVER_DOMAIN + 'api/auth/logout/', {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Authorization': `Token ${token}`,
+    }
+  })
   dispatch({type: LOGOUT});
 };
 export const registerUserInfoAsync = (userInfo) => async (
   dispatch,
   getState,
 ) => {
-  await fetch('https://mimi-server-akuui.run.goorm.io/api/v1/user/users/', {
-    method: 'POST', // *GET, POST, PUT, DELETE, etc.
-    mode: 'cors', // no-cors, cors, *same-origin
-    // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-    // credentials: 'same-origin', // include, *same-origin, omit
+  await fetch(SERVER_DOMAIN + 'api/auth/register/', {
+    method: 'POST',
+    mode: 'cors',
     headers: {
       'Content-Type': 'application/json',
-      // 'Content-Type': 'application/x-www-form-urlencoded',
     },
-    // redirect: 'follow', // manual, *follow, error
-    // referrer: 'no-referrer', // no-referrer, *client
-    body: JSON.stringify(userInfo), // body data type must match "Content-Type" header
+    body: JSON.stringify(userInfo), 
   });
   dispatch({type: REGISTER_USER_INFO});
 };
 
 
-export const requestKaKaoAuthIdAsync = (kakaoId) => async (
-  dispatch,
-  getState,
-) => {
-  1;
-  const res = await fetch(SERVER_DOMAIN + `api/v1/user/users/${kakaoId}`);
+export const requestKaKaoAuthIdAsync = (kakaoId) => async ( dispatch, getState ) => {
+  const res = await fetch(SERVER_DOMAIN + `api/auth/login/`, {
+    body : JSON.stringify({
+      "kakao_auth_id" : kakaoId
+    }),
+    method: "POST"
+  });
   const userInfo = await res.json();
   if (userInfo['kakao_id'] == null) {
     dispatch({type: REQUEST_KAKAO_AUTH_ID, kakaoId});
@@ -75,13 +76,11 @@ export default function login(state = initialState, action) {
         ...state,
         isLogin: true,
         userInfo: action.userInfo,
+        token : action.userInfo.token
       };
     case LOGOUT:
       return {
-        ...state,
-        isLogin: false,
-        kakaoId: null,
-        userInfo: {},
+        ...state
       };
     case REGISTER_USER_INFO:
       return {
