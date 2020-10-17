@@ -130,7 +130,7 @@ export const updateRequest = (type, is_acctepted, request_id, token) => async (d
     // getState().requestInfo.inviteeCreateIdList
 }
 
-export const participateAtRoomgAsync = (participation_user_list, room_id, token) => async (dispach, getState) => {
+export const participateAtRoom = (participation_user_list, room_id, token) => async (dispach, getState) => {
     const res = await fetch(SERVER_DOMAIN + 'request/inviter/participate/', {
         method:"POST",
         mode:'cors',
