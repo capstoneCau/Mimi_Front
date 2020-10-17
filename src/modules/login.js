@@ -75,7 +75,7 @@ export default function login(state = initialState, action) {
       return {
         ...state,
         isLogin: true,
-        userInfo: action.userInfo,
+        userInfo: action.userInfo.user,
         token : action.userInfo.token
       };
     case LOGOUT:
