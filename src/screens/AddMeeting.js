@@ -3,17 +3,18 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {ButtonGroup} from 'react-native-elements';
 import {
   SafeAreaView,
+  Alert,
   StyleSheet,
   View,
   TouchableOpacity,
   FlatList,
   Dimensions,
-  TextInput,
   Modal,
   KeyboardAvoidingView,
 } from 'react-native';
 import {
   Avatar,
+  TextInput,
   Text,
   Button,
   Card,
@@ -30,8 +31,11 @@ var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
 export default function AddMeeting({navigation}) {
+  const myInfo = {
+    school: '중앙대학교',
+  };
   const [meetingInfo, setMeetingInfo] = useState({
-    peopleCount: 4,
+    peopleCount: 1,
     school: '',
     dates: [],
     intro: '',
@@ -55,24 +59,61 @@ export default function AddMeeting({navigation}) {
   return (
     <View style={styles.continer}>
       {showFriendModal && (
-        <Friends showFriendModal={showFriendModal} hideFriends={hideFriends} />
+        <Friends
+          showFriendModal={showFriendModal}
+          hideFriends={hideFriends}
+          onChange={changeMeetingInfo}
+          peopleCount={peopleCount}
+        />
       )}
       <View style={styles.titleContainer}>
         <Text style={styles.titleText}>새로운 미팅</Text>
       </View>
+      <View style={styles.addFriednContainer}>
+        <View style={styles.list}>
+          <Text style={styles.peopleCount}>{peopleCount}</Text>
+          <View style={styles.content}>
+            <Text style={styles.school}>{myInfo.school}</Text>
+            <Text style={styles.intro}>{intro}</Text>
+          </View>
+          <Text style={styles.dates}>{dates}</Text>
+        </View>
+      </View>
       <View style={styles.formContainer}>
         <View style={styles.datePickContainer}>
           <DatePick onChange={changeMeetingInfo} />
-        </View>
-        <View style={styles.addFriednContainer}>
           <AddFriend onChange={changeMeetingInfo} showFriends={showFriends} />
+          <ShortIntroduce onChange={changeMeetingInfo} />
         </View>
+
         {/* <View style={styles.shortIntroduceContainer}>
           <ShortIntroduce onChange={changeMeetingInfo} />
         </View> */}
       </View>
       <View style={styles.completeContainer}>
-        <FancyButton icon="arrow-right-bold" mode="outlined" color="#000069">
+        <FancyButton
+          icon="arrow-right-bold"
+          mode="outlined"
+          color="#000069"
+          onPress={() => {
+            Alert.alert(
+              '확인해주세요',
+              '권현빈,이종아,전승민에게 참가요청 메세지를 보냅니다.',
+              [
+                {
+                  text: 'Cancel',
+                  style: 'cancel',
+                },
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    navigation.navigate('List');
+                  },
+                },
+              ],
+              {cancelable: false},
+            );
+          }}>
           <Text style={styles.nextButtonText}>다음</Text>
         </FancyButton>
       </View>
@@ -102,7 +143,8 @@ function DatePick({onChange}) {
       date.getDate() +
       '(' +
       CONST_VALUE.WEEK[date.getDay()] +
-      ') ';
+      ') ' +
+      '\n';
     setSelectedDate(selectedDate.concat(dates));
   };
 
@@ -122,7 +164,7 @@ function DatePick({onChange}) {
           mode="outlined"
           color="#000069"
           onPress={showDatePicker}>
-          <Text>날짜추가</Text>
+          <Text style={styles.text}>날짜추가</Text>
         </FancyButton>
       </View>
       <DateTimePickerModal
@@ -144,19 +186,21 @@ function AddFriend({onChange, showFriends}) {
         color="#000069"
         onPress={() => {
           showFriends();
-          console.log('HO');
         }}>
-        <Text>멤버추가</Text>
+        <Text style={styles.text}>멤버추가</Text>
       </FancyButton>
     </View>
   );
 }
 
-function Friends({showFriendModal, hideFriends}) {
+function Friends({showFriendModal, hideFriends, onChange, peopleCount}) {
   const [friends, setFriends] = useState([]);
   const [isAdd1, setIsAdd1] = useState(false);
   const [isAdd2, setIsAdd2] = useState(false);
   const [isAdd3, setIsAdd3] = useState(false);
+  const [isAdd4, setIsAdd4] = useState(false);
+  const [isAdd5, setIsAdd5] = useState(false);
+  const [isAdd6, setIsAdd6] = useState(false);
 
   return (
     <View>
@@ -167,6 +211,12 @@ function Friends({showFriendModal, hideFriends}) {
             <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {
+                  if (isAdd1 === false) {
+                    onChange('peopleCount', peopleCount + 1);
+                  } else {
+                    onChange('peopleCount', peopleCount - 1);
+                  }
+                  /* 3항연산자로 하면 왜 안될까? */
                   setIsAdd1(!isAdd1);
                 }}
                 value="권현빈"
@@ -177,6 +227,11 @@ function Friends({showFriendModal, hideFriends}) {
             <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {
+                  if (isAdd2 === false) {
+                    onChange('peopleCount', peopleCount + 1);
+                  } else {
+                    onChange('peopleCount', peopleCount - 1);
+                  }
                   setIsAdd2(!isAdd2);
                 }}
                 value="이종아"
@@ -187,12 +242,62 @@ function Friends({showFriendModal, hideFriends}) {
             <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {
+                  if (isAdd3 === false) {
+                    onChange('peopleCount', peopleCount + 1);
+                  } else {
+                    onChange('peopleCount', peopleCount - 1);
+                  }
                   setIsAdd3(!isAdd3);
                 }}
                 value="전승민"
                 status={isAdd3 ? 'checked' : 'unchecked'}
               />
               <Text style={styles.memberText}>전승민</Text>
+            </View>
+            <View style={styles.memberContainer}>
+              <RadioButton
+                onPress={() => {
+                  if (isAdd4 === false) {
+                    onChange('peopleCount', peopleCount + 1);
+                  } else {
+                    onChange('peopleCount', peopleCount - 1);
+                  }
+                  setIsAdd4(!isAdd4);
+                }}
+                value="서영운"
+                status={isAdd4 ? 'checked' : 'unchecked'}
+              />
+              <Text style={styles.memberText}>서영운</Text>
+            </View>
+            <View style={styles.memberContainer}>
+              <RadioButton
+                onPress={() => {
+                  if (isAdd5 === false) {
+                    onChange('peopleCount', peopleCount + 1);
+                  } else {
+                    onChange('peopleCount', peopleCount - 1);
+                  }
+                  setIsAdd5(!isAdd5);
+                }}
+                value="김정빈"
+                status={isAdd5 ? 'checked' : 'unchecked'}
+              />
+              <Text style={styles.memberText}>김정빈</Text>
+            </View>
+            <View style={styles.memberContainer}>
+              <RadioButton
+                onPress={() => {
+                  if (isAdd6 === false) {
+                    onChange('peopleCount', peopleCount + 1);
+                  } else {
+                    onChange('peopleCount', peopleCount - 1);
+                  }
+                  setIsAdd5(!isAdd6);
+                }}
+                value="김정빈"
+                status={isAdd6 ? 'checked' : 'unchecked'}
+              />
+              <Text style={styles.memberText}>김준오</Text>
             </View>
           </Dialog.Content>
           <Dialog.Actions>
@@ -208,10 +313,12 @@ function Friends({showFriendModal, hideFriends}) {
 
 function ShortIntroduce({onChange}) {
   return (
-    <View>
+    <View style={styles.shortIntroduceContainer}>
       <TextInput
         style={styles.shortIntroduceInput}
-        placeholder="한줄소개"
+        label="한줄소개"
+        placeholder="간략하게 소개해 주세요"
+        mode="outlined"
         onChangeText={(value) => onChange('intro', value)}
       />
     </View>
@@ -253,13 +360,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   datePickContainer: {
-    flex: 2,
+    flex: 3,
     justifyContent: 'center',
     alignItems: 'center',
   },
   datePick: {
     flex: 1,
-
     width: width * 0.5,
   },
   datesTextContainer: {},
@@ -267,23 +373,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   addFriednContainer: {
-    flex: 2,
+    flex: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },
   addFriendButtonContainer: {
+    flex: 1,
     width: width * 0.5,
+    marginBottom: 20,
   },
   shortIntroduceContainer: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1,
   },
   shortIntroduceInput: {
     height: 40,
     width: width * 0.9,
-    borderColor: 'gray',
-    borderWidth: 1,
     padding: 10,
   },
   peopleCountContainer: {
@@ -311,8 +415,44 @@ const styles = StyleSheet.create({
   memberContainer: {
     flexDirection: 'row',
   },
+  list: {
+    height: 130,
+    width: width * 0.8,
+    borderRadius: 5,
+    borderColor: 'gray',
+    borderWidth: 2,
+    flexDirection: 'row',
+  },
+  peopleCount: {
+    flex: 1.5,
+    fontSize: 50,
+    alignSelf: 'center',
+    textAlign: 'center',
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
+  content: {
+    flex: 5,
+    flexDirection: 'column',
+  },
+  school: {
+    alignSelf: 'flex-start',
+    fontSize: 25,
+    padding: 10,
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
+  intro: {
+    alignSelf: 'flex-start',
+    fontSize: 12,
+    padding: 15,
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
+  dates: {
+    fontSize: 12,
+    padding: 10,
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
   completeContainer: {
-    flex: 1,
+    flex: 2,
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
     marginBottom: 20,
