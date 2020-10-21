@@ -214,7 +214,7 @@ export default function CertifySchool({
       colors={
         showSchoolModal === true
           ? [colors.modalBackground, colors.modalBackground]
-          : [colors.manBackground[0], colors.manBackground[1]]
+          : ['#ffffff', '#ffffff']
       }
       style={[styles.container, startMbti === true ? {display: 'none'} : {}]}>
       {schoolModal}
@@ -295,9 +295,11 @@ export default function CertifySchool({
 
       <View style={styles.completeContainer}>
         <FancyButton
-          icon="arrow-right-bold"
-          mode="outlined"
-          color="#000069"
+          style={{
+            width: width * 0.8,
+          }}
+          mode="contained"
+          color={isAuth ? '#000069' : 'gray'}
           onPress={async () => {
             if (!isAuth) {
               email = emailHost + '@' + schoolAddress;
@@ -374,9 +376,8 @@ const styles = StyleSheet.create({
   },
   completeContainer: {
     flex: 1,
-    alignItems: 'flex-end',
-    marginBottom: 20,
-    marginRight: 20,
+    alignItems: 'center',
+    marginBottom: 40,
   },
 
   schoolModalContainer: {
@@ -403,7 +404,7 @@ const styles = StyleSheet.create({
     fontFamily: FancyFonts.BMDOHYEON,
   },
   nextButtonText: {
-    color: '#000000',
+    color: '#ffffff',
     fontFamily: FancyFonts.BMDOHYEON,
   },
   certifyContainer: {

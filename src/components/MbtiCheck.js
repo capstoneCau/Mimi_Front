@@ -18,12 +18,7 @@ import {FancyButton, FancyFonts} from '../common/common';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-export default function MbtiCheck({
-  mbti,
-  gender,
-  onChange,
-  setFinishSignUp,
-}) {
+export default function MbtiCheck({mbti, gender, onChange, setFinishSignUp}) {
   const [showMbtiModal, setShowMbtiModal] = useState(false);
   const [showMbtiTestModal, setShowMbtiTestModal] = useState(false);
   // const [showStarModal, setShowStarModal] = useState(false);
@@ -187,8 +182,8 @@ export default function MbtiCheck({
     <LinearGradient
       colors={
         gender === true
-          ? [colors.manBackground[0], colors.manBackground[1]]
-          : [colors.womanBackground[0], colors.womanBackground[1]]
+          ? [colors.womanBackground[0], colors.womanBackground[1]]
+          : [colors.manBackground[0], colors.manBackground[1]]
       }
       style={styles.container}>
       {mbtiModal}
@@ -228,13 +223,15 @@ export default function MbtiCheck({
       </View>
       <View style={styles.completeContainer}>
         <FancyButton
-          icon="arrow-right-bold"
-          mode="outlined"
-          color="#000069"
+          style={{
+            width: width * 0.8,
+          }}
+          mode="contained"
+          color={mbti ? '#000069' : 'gray'}
           onPress={() => {
             setFinishSignUp(true);
           }}>
-          <Text style={styles.nextButtonText}>다음</Text>
+          <Text style={styles.nextButtonText}>작성완료</Text>
         </FancyButton>
       </View>
     </LinearGradient>
@@ -275,9 +272,8 @@ const styles = StyleSheet.create({
 
   completeContainer: {
     flex: 1,
-    alignItems: 'flex-end',
-    marginBottom: 20,
-    marginRight: 20,
+    alignItems: 'center',
+    marginBottom: 40,
   },
 
   mbtiContainer: {
@@ -340,6 +336,7 @@ const styles = StyleSheet.create({
     fontFamily: FancyFonts.BMDOHYEON,
   },
   nextButtonText: {
+    color: '#ffffff',
     fontFamily: FancyFonts.BMDOHYEON,
   },
 });

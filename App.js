@@ -13,8 +13,8 @@ const MyTheme = {
   dark: false,
   colors: {
     primary: 'rgb(255, 45, 85)',
-    manBackground: ['#fdfbfb', '#ebedee'],
-    womanBackground: ['#fad0c4', '#ffd1ff'],
+    manBackground: ['#fad0c4', '#ffd1ff'],
+    womanBackground: ['#c2e9fb', '#a1c4fd'],
     modalBackground: 'rgba(80,80,80,0.3)',
     background: 'rgb(242, 242, 242)',
     card: 'rgb(255, 255, 255)',
@@ -137,7 +137,7 @@ function App() {
 
     return (
       <NavigationContainer theme={MyTheme}>
-        <Stack.Navigator initialRouteName="Home" headerMode="false">
+        <Stack.Navigator initialRouteName="Login" headerMode="false">
           <Stack.Screen name="Login" component={loginStack} />
           <Stack.Screen name="Home" component={homeStack} />
         </Stack.Navigator>
