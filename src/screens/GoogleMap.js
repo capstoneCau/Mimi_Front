@@ -1,15 +1,31 @@
 import React, {useState, useEffect} from 'react';
 import {
   View,
-  Text,
   PermissionsAndroid,
   TouchableOpacity,
   StyleSheet,
-  TextInput,
+  Dimensions,
 } from 'react-native';
+import {
+  Avatar,
+  TextInput,
+  Text,
+  Button,
+  Card,
+  Title,
+  Paragraph,
+  Portal,
+  Dialog,
+  useTheme,
+  RadioButton,
+} from 'react-native-paper';
 // import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import Geolocation from 'react-native-geolocation-service';
 import {google, naver, odysay} from '../../apiKey.json';
+import {FancyButton, FancyFonts} from '../common/common';
+
+var width = Dimensions.get('window').width;
+var height = Dimensions.get('window').height;
 
 function GoogleMap() {
   // console.log(google, naver)
@@ -18,17 +34,17 @@ function GoogleMap() {
   const [_watchId, setWatchId] = useState(null);
   const [testLocation, setTestLocation] = useState('');
   const [googleTime, setGoogleTime] = useState({
-    "hour" : 0,
-    "min" : 0
-  })
+    hour: 0,
+    min: 0,
+  });
   const [naverTime, setNaverTime] = useState({
-    "hour" : 0,
-    "min" : 0
-  })
+    hour: 0,
+    min: 0,
+  });
   const [odysayTime, setOdysayTime] = useState({
-    "hour" : 0,
-    "min" : 0
-  })
+    hour: 0,
+    min: 0,
+  });
 
   useEffect(() => {
     getCurrentPosition();
@@ -51,39 +67,40 @@ function GoogleMap() {
   };
 
   const getDistanceTimeByNaver = async (desLatitude, desLongitude) => {
-    const CLIENT_ID = naver.client_id
-    const CLIENT_SECRET = naver.client_secret
-    const BASE_URL = 'https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?'
-    const params = `start=${orgLongitude},${orgLatitude}&goal=${desLongitude},${desLatitude}`
+    const CLIENT_ID = naver.client_id;
+    const CLIENT_SECRET = naver.client_secret;
+    const BASE_URL =
+      'https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?';
+    const params = `start=${orgLongitude},${orgLatitude}&goal=${desLongitude},${desLatitude}`;
 
     const headers = {
-      "X-NCP-APIGW-API-KEY-ID": CLIENT_ID,
-      "X-NCP-APIGW-API-KEY": CLIENT_SECRET
-    }
+      'X-NCP-APIGW-API-KEY-ID': CLIENT_ID,
+      'X-NCP-APIGW-API-KEY': CLIENT_SECRET,
+    };
 
     const res = await fetch(BASE_URL + params, {
-      headers: headers
-    })
-    const json = await res.json()
-    const time = parseInt(json.route.traoptimal[0].summary.duration)
-    const hour = parseInt((time / 1000) / 3600);
-    const min = parseInt(((time / 1000) - hour * 3600) / 60);
+      headers: headers,
+    });
+    const json = await res.json();
+    const time = parseInt(json.route.traoptimal[0].summary.duration);
+    const hour = parseInt(time / 1000 / 3600);
+    const min = parseInt((time / 1000 - hour * 3600) / 60);
     return {hour, min};
-  }
+  };
 
   const getDistanceTimeByOdySay = async (desLatitude, desLongitude) => {
-    const SERVER = odysay.server
-    const WEB = odysay.web
-    const ANDROID = odysay.android
-    const BASE_URL = 'https://api.odsay.com/v1/api/searchPubTransPathT?'
-    const params = `SX=${orgLongitude}&SY=${orgLatitude}&EX=${desLongitude}&EY=${desLatitude}&apiKey=${SERVER}`
+    const SERVER = odysay.server;
+    const WEB = odysay.web;
+    const ANDROID = odysay.android;
+    const BASE_URL = 'https://api.odsay.com/v1/api/searchPubTransPathT?';
+    const params = `SX=${orgLongitude}&SY=${orgLatitude}&EX=${desLongitude}&EY=${desLatitude}&apiKey=${SERVER}`;
 
-    const res = await fetch(BASE_URL + params)
-    const json = await res.json()
-    const min = parseInt(json.result.path[0].info.totalTime)
-    const hour = parseInt(min/60);
+    const res = await fetch(BASE_URL + params);
+    const json = await res.json();
+    const min = parseInt(json.result.path[0].info.totalTime);
+    const hour = parseInt(min / 60);
     return {hour, min};
-  }
+  };
 
   const getCurrentPosition = async () => {
     await requestLocationPermission();
@@ -123,6 +140,7 @@ function GoogleMap() {
 
     const res = await fetch(BASE_URL + params);
     const json = await res.json();
+    console.log(json);
     return json.results[0].geometry.location;
   };
 
@@ -136,9 +154,11 @@ function GoogleMap() {
   const requestLocationPermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, {
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
           title: 'Mimi',
-          message: 'To use the safe home service, you need to obtain location information.',
+          message:
+            'To use the safe home service, you need to obtain location information.',
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -162,63 +182,87 @@ function GoogleMap() {
                 longitudeDelta: 0.0421, 
             }}
         />  */}
-      <TextInput
-        style={{height: 40, borderColor: 'gray', borderWidth: 1}}
-        onChangeText={(text) => {
-          setTestLocation(text);
-          // console.log(testLocation)
-        }}
-        onSubmitEditing={async () => {
-          const {lat, lng} = await getAddressPosition(testLocation);
-          setGoogleTime(await getDistanceTimeByGoogle(lat, lng));
-          setNaverTime(await getDistanceTimeByNaver(lat, lng));
-          setOdysayTime(await getDistanceTimeByOdySay(lat, lng));
-          // const {hour:ghour, min:gmin} = await getDistanceTimeByGoogle(lat, lng);
-          // console.log('Google Api :', ghour, 'hour', gmin, 'min');
-          // const {hour:nhour, min:nmin} = await getDistanceTimeByNaver(lat, lng);
-          // console.log('Naver Api :', nhour, 'hour', nmin, 'min');
-          // const {hour:ohour, min:omin} = await getDistanceTimeByOdySay(lat, lng);
-          // console.log('Odysay Api :', ohour, 'hour', omin, 'min')
-        }}
-        value={testLocation}
-      />
-      <View style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Text style={styles.titleText}>안전 귀가 서비스</Text>
+      </View>
+      <View style={styles.firstContainer}>
         <View style={styles.subContainer}>
-          <TouchableOpacity
+          <FancyButton
+            icon="navigation"
+            mode="outlined"
+            color="#000069"
             onPress={() => {
               getCurrentPositionWatch();
-            }}
-            style={styles.getPositionBtn}>
-            <Text style={styles.getPositionText}>Get</Text>
-          </TouchableOpacity>
+            }}>
+            <Text style={styles.text}>주소GET</Text>
+          </FancyButton>
         </View>
         <View style={styles.subContainer}>
-          <TouchableOpacity
+          <FancyButton
+            icon="stop"
+            mode="outlined"
+            color="#000069"
             onPress={() => {
               stopGetPosition();
-            }}
-            style={styles.getPositionStopBtn}>
-            <Text style={styles.getPositionStopText}>Stop</Text>
-          </TouchableOpacity>
+            }}>
+            <Text style={styles.text}>Stop</Text>
+          </FancyButton>
         </View>
       </View>
-      <View style={styles.container}>
-        <View style={styles.subContainer}>
+      <View style={styles.secContainer}>
+        <View>
           <Text style={styles.coordText}>Latitude : {orgLatitude}</Text>
         </View>
-        <View style={styles.subContainer}>
+        <View>
           <Text style={styles.coordText}>Longitute : {orgLongitude}</Text>
         </View>
       </View>
-      <View style={styles.container}>
-        <View style={styles.thirdContainer}>
-          <Text style={styles.coordText}>Google : {googleTime.hour}h {googleTime.min}m</Text>
+      <View style={styles.inputContainer}>
+        <TextInput
+          label="목적지"
+          mode="outlined"
+          style={styles.input}
+          onChangeText={(text) => {
+            setTestLocation(text);
+            // console.log(testLocation)
+          }}
+          value={testLocation}
+        />
+        <FancyButton
+          icon="arrow-right-bold"
+          mode="outlined"
+          color="#000069"
+          style={styles.startButton}
+          onPress={async () => {
+            const {lat, lng} = await getAddressPosition(testLocation);
+            setGoogleTime(await getDistanceTimeByGoogle(lat, lng));
+            setNaverTime(await getDistanceTimeByNaver(lat, lng));
+            setOdysayTime(await getDistanceTimeByOdySay(lat, lng));
+            // const {hour:ghour, min:gmin} = await getDistanceTimeByGoogle(lat, lng);
+            // console.log('Google Api :', ghour, 'hour', gmin, 'min');
+            // const {hour:nhour, min:nmin} = await getDistanceTimeByNaver(lat, lng);
+            // console.log('Naver Api :', nhour, 'hour', nmin, 'min');
+            // const {hour:ohour, min:omin} = await getDistanceTimeByOdySay(lat, lng);
+            // console.log('Odysay Api :', ohour, 'hour', omin, 'min')
+          }}>
+          <Text style={styles.text}>거리계산</Text>
+        </FancyButton>
+      </View>
+      <View style={styles.thirdContainer}>
+        {/* <View>
+          <Text style={styles.coordText}>
+            Google : {googleTime.hour}h {googleTime.min}m
+          </Text>
+        </View> */}
+        <View>
+          <Text style={styles.coordText}>
+            Naver : {naverTime.hour}h {naverTime.min}m
+          </Text>
         </View>
-        <View style={styles.thirdContainer}>
-          <Text style={styles.coordText}>Naver : {naverTime.hour}h {naverTime.min}m</Text>
-        </View>
-        <View style={styles.thirdContainer}>
-          <Text style={styles.coordText}>Odysay : {odysayTime.hour}h {odysayTime.min}m</Text>
+        <View>
+          <Text style={styles.coordText}>
+            Odsay : {odysayTime.hour}h {odysayTime.min}m
+          </Text>
         </View>
       </View>
     </View>
@@ -233,37 +277,53 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  titleContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  titleText: {
+    fontSize: 40,
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
+  firstContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  secContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  inputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  input: {
+    width: width * 0.5,
+  },
+  startButton: {
+    marginLeft: 20,
+  },
+  coordText: {
+    fontSize: 25,
+    fontFamily: FancyFonts.BMDOHYEON,
+  },
   subContainer: {
     flex: 0.5,
     justifyContent: 'center',
     alignItems: 'center',
   },
   thirdContainer: {
-    flex: 0.33,
+    flex: 3,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  coordText: {
-    fontSize: 30,
-  },
 
-  getPositionBtn: {
-    height: 100,
-    width: 100,
-    backgroundColor: 'red',
-  },
-  getPositionText: {
-    fontSize: 50,
-  },
-  getPositionStopBtn: {
-    height: 100,
-    width: 100,
-    backgroundColor: 'blue',
-  },
-  getPositionStopText: {
-    fontSize: 40,
-    color: 'white',
-  },
   serverTestBtn: {
     height: 100,
     width: 100,
@@ -271,6 +331,10 @@ const styles = StyleSheet.create({
   },
   serverTestText: {
     fontSize: 100,
+    fontFamily: FancyFonts.BMDOHYEON,
     color: 'white',
+  },
+  text: {
+    fontFamily: FancyFonts.BMDOHYEON,
   },
 });

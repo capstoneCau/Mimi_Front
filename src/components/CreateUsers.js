@@ -41,7 +41,10 @@ export default function CreateUsers({route, navigation}) {
   // const [inputAuthCode, setInputAuthCode] = useState();
   // const [isAuth, setAuth] = useState(false);
   const dispatch = useDispatch();
-  const registerUser = useCallback((userInfo) => dispatch(registerUserInfoAsync(userInfo)),[dispatch],);
+  const registerUser = useCallback(
+    (userInfo) => dispatch(registerUserInfoAsync(userInfo)),
+    [dispatch],
+  );
   const {kakaoId: kakao_auth_id} = useSelector((state) => state.login);
 
   const {colors} = useTheme();
@@ -116,10 +119,10 @@ export default function CreateUsers({route, navigation}) {
 
   useEffect(() => {
     if (finishSignUp === true) {
-      inputs.email = emailHost + '@' + schoolAddress
-      delete inputs.emailHost
-      delete inputs.schoolAddress
-      delete inputs.birthYear
+      inputs.email = emailHost + '@' + schoolAddress;
+      delete inputs.emailHost;
+      delete inputs.schoolAddress;
+      delete inputs.birthYear;
 
       registerUser(inputs);
 
@@ -132,7 +135,7 @@ export default function CreateUsers({route, navigation}) {
       colors={
         gender === true
           ? [colors.manBackground[0], colors.manBackground[1]]
-          : [colors.womanBackground[0], colors.womanBackground[1]]
+          : ['#ffffff', '#ffffff']
       }
       style={styles.container}>
       <View style={[{flex: 1}, startCertify ? {display: 'none'} : {}]}>
@@ -165,9 +168,11 @@ export default function CreateUsers({route, navigation}) {
 
         <View style={styles.completeContainer}>
           <FancyButton
-            icon="arrow-right-bold"
-            mode="outlined"
-            color="#000069"
+            style={{
+              width: width * 0.8,
+            }}
+            mode="contained"
+            color={name && birthYear ? '#000069' : 'gray'}
             onPress={() => {
               onChange(
                 'birthday',
@@ -252,12 +257,11 @@ const styles = StyleSheet.create({
 
   completeContainer: {
     flex: 1,
-    alignItems: 'flex-end',
-    marginBottom: 20,
-    marginRight: 20,
+    alignItems: 'center',
+    marginBottom: 40,
   },
   nextButtonText: {
-    color: '#000000',
+    color: '#ffffff',
     fontFamily: FancyFonts.BMDOHYEON,
   },
 });
