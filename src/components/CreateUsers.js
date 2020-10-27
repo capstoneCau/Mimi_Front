@@ -4,15 +4,8 @@ import {
   Text,
   TextInput,
   View,
-  Modal,
-  FlatList,
-  SafeAreaView,
-  ScrollView,
-  Alert,
   Dimensions,
-  TouchableOpacity,
-  ToastAndroid,
-  Easing,
+  BackHandler,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
@@ -104,6 +97,7 @@ export default function CreateUsers({route, navigation}) {
       schoolAddress={schoolAddress}
       onChange={onChange}
       setInputs={setInputs}
+      setStartCertify={setStartCertify}
       startMbti={startMbti}
       setStartMbti={setStartMbti}
     />
@@ -113,6 +107,7 @@ export default function CreateUsers({route, navigation}) {
       mbti={mbti}
       gender={gender}
       onChange={onChange}
+      setStartMbti={setStartMbti}
       setFinishSignUp={setFinishSignUp}
     />
   ) : null;

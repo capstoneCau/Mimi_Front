@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Dimensions,
   TouchableOpacity,
+  BackHandler,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '@react-navigation/native';
@@ -18,7 +19,13 @@ import {FancyButton, FancyFonts} from '../common/common';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-export default function MbtiCheck({mbti, gender, onChange, setFinishSignUp}) {
+export default function MbtiCheck({
+  mbti,
+  gender,
+  onChange,
+  setStartMbti,
+  setFinishSignUp,
+}) {
   const [showMbtiModal, setShowMbtiModal] = useState(false);
   const [showMbtiTestModal, setShowMbtiTestModal] = useState(false);
   // const [showStarModal, setShowStarModal] = useState(false);
@@ -27,6 +34,21 @@ export default function MbtiCheck({mbti, gender, onChange, setFinishSignUp}) {
   const [stage, setStage] = useState(0);
   const {colors} = useTheme();
   const [tempMbti, setTempMbti] = useState('');
+
+  useEffect(() => {
+    const backAction = () => {
+      setStartMbti(false);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   useEffect(() => {
     const infor = async () => {
       setMbtiSort(await getInformation('mbti'));

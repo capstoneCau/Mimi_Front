@@ -12,6 +12,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ToastAndroid,
+  BackHandler,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '@react-navigation/native';
@@ -34,6 +35,7 @@ export default function CertifySchool({
   schoolAddress,
   onChange,
   setInputs,
+  setStartCertify,
   startMbti,
   setStartMbti,
 }) {
@@ -64,6 +66,20 @@ export default function CertifySchool({
       ['schoolL']: linkList,
     });
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      setStartCertify(false);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   const requestSchoolAPI = (schoolname) => {
     SearchSchool(schoolname)
