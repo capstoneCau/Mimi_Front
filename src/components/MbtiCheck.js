@@ -183,7 +183,7 @@ export default function MbtiCheck({mbti, gender, onChange, setFinishSignUp}) {
       colors={
         gender === true
           ? [colors.womanBackground[0], colors.womanBackground[1]]
-          : [colors.manBackground[0], colors.manBackground[1]]
+          : ['#ffffff', '#ffffff']
       }
       style={styles.container}>
       {mbtiModal}

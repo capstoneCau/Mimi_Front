@@ -8,27 +8,12 @@ import {
   FlatList,
   Dimensions,
 } from 'react-native';
+import {Appbar} from 'react-native-paper';
 import {useTheme} from '@react-navigation/native';
 import {FancyFonts} from '../common/common';
-import LinearGradient from 'react-native-linear-gradient';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
-
-const tempMyData = {
-  kakaoAuthId: 123456789,
-  name: '권현빈',
-  gender: 'M',
-  birthday: 960823,
-  school: '중앙대학교',
-  email: 'bini0823@cau.ac.kr',
-  address: {
-    latitude: 100,
-    longitude: 100,
-  },
-  profileImg: '',
-  mbti: 'ABCD',
-};
 
 const tempListData = [
   {
@@ -71,28 +56,24 @@ const tempListData = [
 
 export default function List({navigation}) {
   const {colors} = useTheme();
-  const addBtn = () => {
-    return (
-      <TouchableOpacity
-        style={[styles.list_container, styles.addBtn_container]}
-        onPress={() => {
-          navigation.navigate('AddMeeting');
-        }}>
-        <Text
-          style={{
-            fontFamily: FancyFonts.BMDOHYEON,
-          }}>
-          Add
-        </Text>
-      </TouchableOpacity>
-    );
+
+  const handleAdd = () => {
+    navigation.navigate('AddMeeting');
+  };
+
+  const handleSearch = () => {
+    console.log('Search!');
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <Appbar.Header style={{backgroundColor: 'white'}}>
+        <Appbar.Content title="미팅목록" />
+        <Appbar.Action icon="comment-search-outline" onPress={handleAdd} />
+        <Appbar.Action icon="comment-plus-outline" onPress={handleAdd} />
+      </Appbar.Header>
       <FlatList
         data={tempListData}
-        ListHeaderComponent={addBtn}
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[styles.list_container, {backgroundColor: colors.card}]}

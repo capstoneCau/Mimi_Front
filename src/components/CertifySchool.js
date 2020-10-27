@@ -41,7 +41,7 @@ export default function CertifySchool({
   const [campusName, setCampusName] = useState('');
   const [schoolLink, setSchoolLink] = useState('');
   const [showSchoolModal, setShowSchoolModal] = useState(false);
-  const [authCode, setAuthCode] = useState();
+  const [authCode, setAuthCode] = useState(12345678);
   const [inputAuthCode, setInputAuthCode] = useState();
   const [isPressSubmit, setIsPressSubmit] = useState(false);
   const [isAuth, setAuth] = useState(false);
@@ -162,6 +162,7 @@ export default function CertifySchool({
           style={styles.inputCode}
           title="인증코드"
           placeholder="코드를 입력해 주세요"
+          maxLength={6}
           onChangeText={(value) => {
             setInputAuthCode(value);
           }}
@@ -173,7 +174,7 @@ export default function CertifySchool({
           style={{marginLeft: 20}}
           disabled={isAuth}
           onPress={() => {
-            if (authCode === inputAuthCode) {
+            if (authCode == inputAuthCode) {
               ToastAndroid.showWithGravity(
                 '인증 성공',
                 ToastAndroid.SHORT,
@@ -287,10 +288,10 @@ export default function CertifySchool({
                       if (schoolAddress === '') {
                         failSchool();
                       } else {
+                        setIsPressSubmit(true);
                         setAuthCode(
                           await getAuthCode(emailHost + '@' + schoolAddress),
                         );
-                        setIsPressSubmit(true);
                       }
                     }
               }>
@@ -313,7 +314,7 @@ export default function CertifySchool({
           mode="contained"
           color={isAuth ? '#000069' : 'gray'}
           onPress={async () => {
-            if (isAuth) {
+            if (!isAuth) {
               email = emailHost + '@' + schoolAddress;
               setStartMbti(true);
               //delete schoolAddress;
