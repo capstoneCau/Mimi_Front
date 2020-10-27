@@ -173,7 +173,7 @@ export default function CertifySchool({
           style={{marginLeft: 20}}
           disabled={isAuth}
           onPress={() => {
-            if (authCode == inputAuthCode) {
+            if (authCode === inputAuthCode) {
               ToastAndroid.showWithGravity(
                 '인증 성공',
                 ToastAndroid.SHORT,
@@ -194,11 +194,24 @@ export default function CertifySchool({
       </View>
     </View>
   );
+  const failSchool = () =>
+    Alert.alert(
+      '죄송합니다',
+      '학교선택을 먼저 해주세요.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {text: 'OK'},
+      ],
+      {cancelable: false},
+    );
 
   const failCertify = () =>
     Alert.alert(
       '죄송합니다',
-      '학교선택을 먼저 해주세요.',
+      '학교인증을 해주세요.',
       [
         {
           text: 'Cancel',
@@ -272,13 +285,12 @@ export default function CertifySchool({
                     }
                   : async () => {
                       if (schoolAddress === '') {
-                        failCertify();
+                        failSchool();
                       } else {
-                        setIsPressSubmit(true);
-
                         setAuthCode(
                           await getAuthCode(emailHost + '@' + schoolAddress),
                         );
+                        setIsPressSubmit(true);
                       }
                     }
               }>
@@ -301,7 +313,7 @@ export default function CertifySchool({
           mode="contained"
           color={isAuth ? '#000069' : 'gray'}
           onPress={async () => {
-            if (!isAuth) {
+            if (isAuth) {
               email = emailHost + '@' + schoolAddress;
               setStartMbti(true);
               //delete schoolAddress;
