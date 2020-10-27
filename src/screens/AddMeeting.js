@@ -11,6 +11,7 @@ import {
   Dimensions,
   Modal,
   KeyboardAvoidingView,
+  BackHandler,
 } from 'react-native';
 import {
   Avatar,
@@ -25,12 +26,22 @@ import {
   useTheme,
   RadioButton,
 } from 'react-native-paper';
-import {CONST_VALUE, FancyButton, FancyFonts} from '../common/common';
+import {
+  CONST_VALUE,
+  FancyButton,
+  FancyFonts,
+  backAction,
+} from '../common/common';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
 export default function AddMeeting({navigation}) {
+  useEffect(() => {
+    BackHandler.removeEventListener('hardwareBackPress', backAction);
+
+    return () => BackHandler.addEventListener('hardwareBackPress', backAction);
+  }, []);
   const myInfo = {
     school: '중앙대학교',
   };

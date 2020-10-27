@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -7,10 +7,12 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
+  BackHandler,
+  Alert,
 } from 'react-native';
 import {Appbar} from 'react-native-paper';
 import {useTheme} from '@react-navigation/native';
-import {FancyFonts} from '../common/common';
+import {FancyFonts, backAction} from '../common/common';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -56,6 +58,13 @@ const tempListData = [
 
 export default function List({navigation}) {
   const {colors} = useTheme();
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () =>
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+  }, []);
 
   const handleAdd = () => {
     navigation.navigate('AddMeeting');

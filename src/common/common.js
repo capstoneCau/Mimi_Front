@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Button} from 'react-native-paper';
-import {StyleSheet} from 'react-native';
+import {Alert, BackHandler} from 'react-native';
 
 export function FancyButton(props) {
   return <Button {...props}>{props.children}</Button>;
@@ -30,6 +30,18 @@ export const CONST_VALUE = {
 export const FancyFonts = {
   BMDOHYEON: 'BMDOHYEON',
   BMYEONSUNG: 'BMYEONSUNG',
+};
+
+export const backAction = () => {
+  Alert.alert('MIMI', '정말 어플을 종료하시겠어요?', [
+    {
+      text: 'Cancel',
+      onPress: () => null,
+      style: 'cancel',
+    },
+    {text: 'YES', onPress: () => BackHandler.exitApp()},
+  ]);
+  return true;
 };
 
 export const SERVER_DOMAIN = 'https://mimi-server-akuui.run.goorm.io/';
