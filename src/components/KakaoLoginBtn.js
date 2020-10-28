@@ -56,11 +56,11 @@ export default function KakaoLoginBtn({navigation}) {
         setProfileLoading(false),
       );
 
-      if (await onLoginUser(profile.id)) {
+      if (onLoginUser(profile.id)) {
         navigation.navigate('Home');
       } else {
         navigation.navigate('SignUp', {
-          gender: profile.gender,
+          gender: profile.gender.toLowerCase(),
           birthday: profile.birthday,
         });
       }
