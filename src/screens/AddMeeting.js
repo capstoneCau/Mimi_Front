@@ -37,11 +37,11 @@ var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
 export default function AddMeeting({navigation}) {
-  useEffect(() => {
-    BackHandler.removeEventListener('hardwareBackPress', backAction);
+  // useEffect(() => {
+  //   BackHandler.removeEventListener('hardwareBackPress', backAction);
 
-    return () => BackHandler.addEventListener('hardwareBackPress', backAction);
-  }, []);
+  //   return () => BackHandler.addEventListener('hardwareBackPress', backAction);
+  // }, []);
   const myInfo = {
     school: '중앙대학교',
   };

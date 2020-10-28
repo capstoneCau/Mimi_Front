@@ -71,7 +71,7 @@ function App() {
 
     const homeTab = () => {
       return (
-        <BottomTabs.Navigator initialRouteName="List">
+        <BottomTabs.Navigator initialRouteName="List" backBehavior="none">
           <BottomTabs.Screen
             name="List"
             component={ListStack}
@@ -143,7 +143,7 @@ function App() {
 
     const topTab = () => {
       return (
-        <TopTabs.Navigator initialRouteName="State">
+        <TopTabs.Navigator initialRouteName="State" backBehavior="none">
           <TopTabs.Screen name="대기" component={State} />
           <TopTabs.Screen name="요청한" component={StateGive} />
           <TopTabs.Screen name="요청받은" component={StateTake} />
@@ -153,7 +153,7 @@ function App() {
 
     return (
       <NavigationContainer theme={MyTheme}>
-        <Stack.Navigator initialRouteName="Login" headerMode="false">
+        <Stack.Navigator initialRouteName="Home" headerMode="false">
           <Stack.Screen name="Login" component={loginStack} />
           <Stack.Screen name="Home" component={homeStack} />
         </Stack.Navigator>

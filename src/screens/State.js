@@ -10,12 +10,12 @@ import {
 import {FancyFonts, backAction} from '../common/common';
 
 export default function State() {
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', backAction);
+  // useEffect(() => {
+  //   BackHandler.addEventListener('hardwareBackPress', backAction);
 
-    return () =>
-      BackHandler.removeEventListener('hardwareBackPress', backAction);
-  }, []);
+  //   return () =>
+  //     BackHandler.removeEventListener('hardwareBackPress', backAction);
+  // }, []);
   return (
     <View>
       <TouchableOpacity>
