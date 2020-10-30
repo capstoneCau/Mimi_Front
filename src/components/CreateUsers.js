@@ -55,7 +55,6 @@ export default function CreateUsers({route, navigation}) {
     gender: route.params.gender == null ? 'male' : route.params.gender,
     kakao_auth_id: kakao_auth_id,
     birthYear: '',
-    profileImg: 1,
     emailHost: '',
     schoolAddress: '',
   });

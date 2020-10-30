@@ -153,7 +153,7 @@ function App() {
 
     return (
       <NavigationContainer theme={MyTheme}>
-        <Stack.Navigator initialRouteName="Home" headerMode="false">
+        <Stack.Navigator initialRouteName="Login" headerMode="false">
           <Stack.Screen name="Login" component={loginStack} />
           <Stack.Screen name="Home" component={homeStack} />
         </Stack.Navigator>

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {ButtonGroup} from 'react-native-elements';
 import {
@@ -26,6 +26,9 @@ import {
   useTheme,
   RadioButton,
 } from 'react-native-paper';
+import {useSelector, useDispatch, shallowEqual} from 'react-redux';
+import {requestKaKaoAuthIdAsync} from '../modules/login';
+import {myFriendList} from '../modules/myFriend';
 import {
   CONST_VALUE,
   FancyButton,
@@ -37,13 +40,30 @@ var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
 export default function AddMeeting({navigation}) {
-  // useEffect(() => {
-  //   BackHandler.removeEventListener('hardwareBackPress', backAction);
+  const dispatch = useDispatch();
+  const getUser = useCallback(
+    (kakaoId) => dispatch(requestKaKaoAuthIdAsync(kakaoId)),
+    [dispatch],
+  );
+  const myFriend = useCallback((token) => dispatch(myFriendList(token)), [
+    dispatch,
+  ]);
+  const _myInfo = useSelector((state) => state.login);
+  const _friendInfo = useSelector((state) => state.myFriend);
+  console.log(JSON.stringify(_friendInfo.myFriend[0].to_user));
 
-  //   return () => BackHandler.addEventListener('hardwareBackPress', backAction);
-  // }, []);
+  useEffect(() => {
+    BackHandler.removeEventListener('hardwareBackPress', backAction);
+
+    return () => BackHandler.addEventListener('hardwareBackPress', backAction);
+  }, []);
   const myInfo = {
-    school: '중앙대학교',
+    name: _myInfo.userInfo.name,
+    school: _myInfo.userInfo.school.split('학교')[0],
+    gender: _myInfo.userInfo.gender,
+    birthDay: _myInfo.userInfo.birthDay,
+    profileImg: _myInfo.userInfo.profileImg,
+    mbti: _myInfo.userInfo.mbti,
   };
   const [meetingInfo, setMeetingInfo] = useState({
     peopleCount: 1,
