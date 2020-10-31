@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {SafeAreaView, StyleSheet, View, Text} from 'react-native';
 import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import merge from 'deepmerge';
@@ -6,6 +6,8 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import * as name from './src/screens/index';
 import Icon from 'react-native-vector-icons/Ionicons';
+import messaging from '@react-native-firebase/messaging';
+import { Alert } from 'react-native';
 
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -36,6 +38,15 @@ function App() {
     GoogleMap,
   } = name;
 
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      const { body, title } = remoteMessage.notification
+      Alert.alert(title, body);
+    });
+
+    return unsubscribe;
+  }, []);
+
   const Navigator = () => {
     const loginStack = () => {
       return (
@@ -65,7 +76,7 @@ function App() {
 
     const homeTab = () => {
       return (
-        <BottomTabs.Navigator initialRouteName="List">
+        <BottomTabs.Navigator initialRouteName="Map">
           <BottomTabs.Screen
             name="List"
             component={ListStack}

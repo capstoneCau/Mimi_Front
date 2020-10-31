@@ -11,6 +11,11 @@ import {Provider as PaperProvider} from 'react-native-paper';
 import {createStore, applyMiddleware} from 'redux';
 import rootReducer from './src/modules/index';
 import ReduxThunk from 'redux-thunk';
+import messaging from '@react-native-firebase/messaging';
+
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('Message handled in the background!', remoteMessage);
+});
 
 const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
@@ -23,3 +28,4 @@ const Root = () => (
 );
 
 AppRegistry.registerComponent(appName, () => Root);
+// AppRegistry.registerComponent(appName, () => App);
