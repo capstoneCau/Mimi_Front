@@ -12,6 +12,10 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.dooboolab.kakaologins.RNKakaoLoginsPackage;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -19,9 +23,12 @@ import android.content.pm.Signature;
 import android.util.Base64;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static android.content.ContentValues.TAG;
 
 
 public class MainApplication extends Application implements ReactApplication {
@@ -66,6 +73,24 @@ public class MainApplication extends Application implements ReactApplication {
         md.update(signature.toByteArray());
         Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
       }
+      FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+                @Override
+                public void onComplete(@NonNull Task<String> task) {
+                  if (!task.isSuccessful()) {
+                    Log.w("firefire", "Fetching FCM registration token failed", task.getException());
+                    return;
+                  }
+
+                  // Get new FCM registration token
+                  String token = task.getResult();
+                  Log.d("firefire", "aaaaa");
+                  // Log and toast
+                  String msg = getString(R.string.msg_token_fmt, token);
+                  Log.d("firefire", msg);
+                }
+              });
+
+
     } catch (PackageManager.NameNotFoundException e) {
 
     } catch (NoSuchAlgorithmException e) {
