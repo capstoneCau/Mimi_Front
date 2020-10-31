@@ -49,7 +49,10 @@ export default function KakaoLoginBtn({navigation}) {
         `Login Finished:${JSON.stringify(result)}`,
         setLoginLoading(false),
       );
+
       const profile = await KakaoLogins.getProfile();
+      console.log('hi');
+
       setProfile(profile);
       logCallback(
         `Get Profile Finished:${JSON.stringify(profile)}`,

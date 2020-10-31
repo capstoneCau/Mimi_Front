@@ -28,6 +28,8 @@ import {
 } from 'react-native-paper';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {requestKaKaoAuthIdAsync} from '../modules/login';
+import {createRoomAsync} from '../modules/meetingInfo';
+
 import {myFriendList} from '../modules/myFriend';
 import {
   CONST_VALUE,
@@ -45,12 +47,21 @@ export default function AddMeeting({navigation}) {
     (kakaoId) => dispatch(requestKaKaoAuthIdAsync(kakaoId)),
     [dispatch],
   );
-  const myFriend = useCallback((token) => dispatch(myFriendList(token)), [
-    dispatch,
-  ]);
+  const createRoom = useCallback(
+    (init_users, available_dates, user_limit, introduction, token) =>
+      dispatch(
+        createRoomAsync(
+          init_users,
+          available_dates,
+          user_limit,
+          introduction,
+          token,
+        ),
+      ),
+    [dispatch],
+  );
   const _myInfo = useSelector((state) => state.login);
   const _friendInfo = useSelector((state) => state.myFriend);
-  console.log(JSON.stringify(_friendInfo.myFriend[0].to_user));
 
   useEffect(() => {
     BackHandler.removeEventListener('hardwareBackPress', backAction);
@@ -71,8 +82,13 @@ export default function AddMeeting({navigation}) {
     dates: [],
     intro: '',
   });
+  const [friends, setFriends] = useState([]);
+
   const {peopleCount, school, dates, intro} = meetingInfo;
   const [showFriendModal, setShowFriendModal] = useState(false);
+  const [removeDate, setRemoveDate] = useState(false);
+  const [removeFriend, setRemoveFriend] = useState(false);
+
   const changeMeetingInfo = (name, value) => {
     setMeetingInfo({
       ...meetingInfo,
@@ -80,7 +96,21 @@ export default function AddMeeting({navigation}) {
     });
   };
 
+  const resetFriend = () => {
+    setFriends([]);
+    changeMeetingInfo('peopleCount', 1);
+  };
+
+  useEffect(() => {
+    if (removeFriend) {
+      resetFriend();
+      setRemoveFriend(false);
+    }
+  }, [removeFriend]);
+
   const showFriends = () => {
+    changeMeetingInfo('peopleCount', 1);
+    setFriends([]);
     setShowFriendModal(true);
   };
   const hideFriends = () => {
@@ -95,6 +125,11 @@ export default function AddMeeting({navigation}) {
           hideFriends={hideFriends}
           onChange={changeMeetingInfo}
           peopleCount={peopleCount}
+          friendInfo={_friendInfo.myFriend}
+          removeFriend={removeFriend}
+          setRemove={setRemoveFriend}
+          friends={friends}
+          setFriends={setFriends}
         />
       )}
       <View style={styles.titleContainer}>
@@ -102,17 +137,28 @@ export default function AddMeeting({navigation}) {
       </View>
       <View style={styles.addFriednContainer}>
         <View style={styles.list}>
-          <Text style={styles.peopleCount}>{peopleCount}</Text>
+          <Text style={styles.peopleCount}>
+            {peopleCount}
+            <Reset setRemove={setRemoveFriend} />
+          </Text>
           <View style={styles.content}>
             <Text style={styles.school}>{myInfo.school}</Text>
             <Text style={styles.intro}>{intro}</Text>
           </View>
-          <Text style={styles.dates}>{dates}</Text>
+          <Text style={styles.dates}>
+            <Reset setRemove={setRemoveDate} />
+
+            {dates}
+          </Text>
         </View>
       </View>
       <View style={styles.formContainer}>
         <View style={styles.datePickContainer}>
-          <DatePick onChange={changeMeetingInfo} />
+          <DatePick
+            onChange={changeMeetingInfo}
+            removeDate={removeDate}
+            setRemove={setRemoveDate}
+          />
           <AddFriend onChange={changeMeetingInfo} showFriends={showFriends} />
           <ShortIntroduce onChange={changeMeetingInfo} />
         </View>
@@ -129,7 +175,9 @@ export default function AddMeeting({navigation}) {
           onPress={() => {
             Alert.alert(
               '확인해주세요',
-              '권현빈,이종아,전승민에게 참가요청 메세지를 보냅니다.',
+              `${_friendInfo.myFriend.map((val) => {
+                return val.to_user.name;
+              })}에게 참가요청 메세지를 보냅니다.`,
               [
                 {
                   text: 'Cancel',
@@ -138,6 +186,13 @@ export default function AddMeeting({navigation}) {
                 {
                   text: 'OK',
                   onPress: () => {
+                    createRoom(
+                      friends,
+                      dates,
+                      peopleCount,
+                      intro,
+                      _myInfo.token,
+                    );
                     navigation.navigate('List');
                   },
                 },
@@ -152,7 +207,22 @@ export default function AddMeeting({navigation}) {
   );
 }
 
-function DatePick({onChange}) {
+function Reset({setRemove}) {
+  return (
+    <View>
+      <FancyButton
+        mode="outlined"
+        color="#000069"
+        onPress={() => {
+          setRemove(true);
+        }}>
+        <Text style={styles.text}>X</Text>
+      </FancyButton>
+    </View>
+  );
+}
+
+function DatePick({onChange, removeDate, setRemove}) {
   const {colors} = useTheme();
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDate, setSelectedDate] = useState([]);
@@ -182,6 +252,13 @@ function DatePick({onChange}) {
   const resetDate = () => {
     setSelectedDate('');
   };
+
+  useEffect(() => {
+    if (removeDate) {
+      resetDate();
+      setRemove(false);
+    }
+  });
 
   useEffect(() => {
     onChange('dates', selectedDate);
@@ -224,14 +301,27 @@ function AddFriend({onChange, showFriends}) {
   );
 }
 
-function Friends({showFriendModal, hideFriends, onChange, peopleCount}) {
-  const [friends, setFriends] = useState([]);
+function Friends({
+  showFriendModal,
+  hideFriends,
+  onChange,
+  peopleCount,
+  friendInfo,
+  friends,
+  setFriends,
+}) {
   const [isAdd1, setIsAdd1] = useState(false);
   const [isAdd2, setIsAdd2] = useState(false);
   const [isAdd3, setIsAdd3] = useState(false);
   const [isAdd4, setIsAdd4] = useState(false);
   const [isAdd5, setIsAdd5] = useState(false);
   const [isAdd6, setIsAdd6] = useState(false);
+  let friendName = [];
+  let friendId = [];
+  friendInfo.forEach((val) => {
+    friendName.push(val.to_user.name);
+    friendId.push(val.to_user.kakao_auth_id);
+  });
 
   return (
     <View>
@@ -244,48 +334,54 @@ function Friends({showFriendModal, hideFriends, onChange, peopleCount}) {
                 onPress={() => {
                   if (isAdd1 === false) {
                     onChange('peopleCount', peopleCount + 1);
+                    setFriends((old) => [...old, friendId[0]]);
                   } else {
                     onChange('peopleCount', peopleCount - 1);
+                    setFriends(friends.filter((e) => e !== '6666666666'));
                   }
                   /* 3항연산자로 하면 왜 안될까? */
                   setIsAdd1(!isAdd1);
                 }}
-                value="권현빈"
+                value={friendName[0]}
                 status={isAdd1 ? 'checked' : 'unchecked'}
               />
-              <Text style={styles.memberText}>권현빈</Text>
+              <Text style={styles.memberText}>{friendName[0]}</Text>
             </View>
             <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {
                   if (isAdd2 === false) {
                     onChange('peopleCount', peopleCount + 1);
+                    setFriends((old) => [...old, friendId[1]]);
                   } else {
                     onChange('peopleCount', peopleCount - 1);
+                    setFriends(friends.filter((e) => e !== '5555555555'));
                   }
                   setIsAdd2(!isAdd2);
                 }}
-                value="이종아"
+                value={friendName[1]}
                 status={isAdd2 ? 'checked' : 'unchecked'}
               />
-              <Text style={styles.memberText}>이종아</Text>
+              <Text style={styles.memberText}>{friendName[1]}</Text>
             </View>
             <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {
                   if (isAdd3 === false) {
                     onChange('peopleCount', peopleCount + 1);
+                    setFriends((old) => [...old, friendId[2]]);
                   } else {
                     onChange('peopleCount', peopleCount - 1);
+                    setFriends(friends.filter((e) => e !== '7777777777'));
                   }
                   setIsAdd3(!isAdd3);
                 }}
-                value="전승민"
+                value={friendName[2]}
                 status={isAdd3 ? 'checked' : 'unchecked'}
               />
-              <Text style={styles.memberText}>전승민</Text>
+              <Text style={styles.memberText}>{friendName[2]}</Text>
             </View>
-            <View style={styles.memberContainer}>
+            {/* <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {
                   if (isAdd4 === false) {
@@ -295,10 +391,10 @@ function Friends({showFriendModal, hideFriends, onChange, peopleCount}) {
                   }
                   setIsAdd4(!isAdd4);
                 }}
-                value="서영운"
+                value="김준오"
                 status={isAdd4 ? 'checked' : 'unchecked'}
               />
-              <Text style={styles.memberText}>서영운</Text>
+              <Text style={styles.memberText}>김준오</Text>
             </View>
             <View style={styles.memberContainer}>
               <RadioButton
@@ -323,13 +419,13 @@ function Friends({showFriendModal, hideFriends, onChange, peopleCount}) {
                   } else {
                     onChange('peopleCount', peopleCount - 1);
                   }
-                  setIsAdd5(!isAdd6);
+                  setIsAdd6(!isAdd6);
                 }}
-                value="김정빈"
+                value="서재훈"
                 status={isAdd6 ? 'checked' : 'unchecked'}
               />
-              <Text style={styles.memberText}>김준오</Text>
-            </View>
+              <Text style={styles.memberText}>서재훈</Text>
+            </View> */}
           </Dialog.Content>
           <Dialog.Actions>
             <FancyButton mode="outlined" color="#000069" onPress={hideFriends}>

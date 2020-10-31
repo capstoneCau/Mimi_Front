@@ -15,7 +15,7 @@ import {Appbar} from 'react-native-paper';
 import {useTheme} from '@react-navigation/native';
 import {FancyFonts, backAction} from '../common/common';
 import {requestKaKaoAuthIdAsync} from '../modules/login';
-import {myFriendList} from '../modules/myFriend';
+import {myFriendList, getFriendInfo} from '../modules/myFriend';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -61,6 +61,9 @@ const tempListData = [
 
 export default function List({navigation}) {
   const {colors} = useTheme();
+  const _friendInfo = useSelector((state) => state.myFriend);
+
+  //List 출력전 전부 해야하는 부분//
   const dispatch = useDispatch();
   const getUser = useCallback(
     (kakaoId) => dispatch(requestKaKaoAuthIdAsync(kakaoId)),
@@ -70,7 +73,10 @@ export default function List({navigation}) {
     dispatch,
   ]);
   const myInfo = useSelector((state) => state.login);
-  myFriend(myInfo.token);
+
+  useEffect(() => {
+    myFriend(myInfo.token);
+  }, []);
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', backAction);
