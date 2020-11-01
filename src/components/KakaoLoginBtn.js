@@ -49,18 +49,27 @@ export default function KakaoLoginBtn({navigation}) {
         `Login Finished:${JSON.stringify(result)}`,
         setLoginLoading(false),
       );
+
       const profile = await KakaoLogins.getProfile();
+
       setProfile(profile);
       logCallback(
         `Get Profile Finished:${JSON.stringify(profile)}`,
         setProfileLoading(false),
       );
 
-      if (await onLoginUser(profile.id)) {
+      // if (await onLoginUser('1111111111')) {
+      if (await onLoginUser('2222222222')) {
+        // if (await onLoginUser('3333333333')) {
+        // if (await onLoginUser('4444444444')) {
+        // if (await onLoginUser('5555555555')) {
+        // if (await onLoginUser('6666666666')) {
+        // if (await onLoginUser('7777777777')) {
+        // if (await onLoginUser(profile.id)) {
         navigation.navigate('Home');
       } else {
         navigation.navigate('SignUp', {
-          gender: profile.gender,
+          gender: profile.gender.toLowerCase(),
           birthday: profile.birthday,
         });
       }

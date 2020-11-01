@@ -12,6 +12,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ToastAndroid,
+  BackHandler,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '@react-navigation/native';
@@ -34,6 +35,7 @@ export default function CertifySchool({
   schoolAddress,
   onChange,
   setInputs,
+  setStartCertify,
   startMbti,
   setStartMbti,
 }) {
@@ -41,7 +43,7 @@ export default function CertifySchool({
   const [campusName, setCampusName] = useState('');
   const [schoolLink, setSchoolLink] = useState('');
   const [showSchoolModal, setShowSchoolModal] = useState(false);
-  const [authCode, setAuthCode] = useState();
+  const [authCode, setAuthCode] = useState(12345678);
   const [inputAuthCode, setInputAuthCode] = useState();
   const [isPressSubmit, setIsPressSubmit] = useState(false);
   const [isAuth, setAuth] = useState(false);
@@ -65,6 +67,20 @@ export default function CertifySchool({
     });
   };
 
+  useEffect(() => {
+    const backAction = () => {
+      setStartCertify(false);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   const requestSchoolAPI = (schoolname) => {
     SearchSchool(schoolname)
       .then(
@@ -82,8 +98,6 @@ export default function CertifySchool({
         let tempSchoolLinkList = [];
 
         const data = json['dataSearch']['content'];
-        console.log(data);
-
         for (let i = 0; i < data[0]['totalCount']; i++) {
           tempSchoolNameList.push(data[i]['schoolName']);
           tempCampusNameList.push(data[i]['campusName']);
@@ -100,10 +114,8 @@ export default function CertifySchool({
           tempCampusNameList,
           tempSchoolLinkList,
         );
-        console.log('1' + JSON.stringify(schoolSort));
       })
       .then(() => {
-        console.log('2' + JSON.stringify(schoolSort));
         setShowSchoolModal(true);
       })
       .catch(function (err) {
@@ -121,7 +133,6 @@ export default function CertifySchool({
           <TouchableOpacity
             style={styles.schoolModalbox}
             onPress={() => {
-              // console.log(schoolSort)
               setSchoolName(item + ' ' + schoolSort.campusN[index]);
               setInputs((inputs) => {
                 return {
@@ -162,6 +173,7 @@ export default function CertifySchool({
           style={styles.inputCode}
           title="인증코드"
           placeholder="코드를 입력해 주세요"
+          maxLength={6}
           onChangeText={(value) => {
             setInputAuthCode(value);
           }}
@@ -194,11 +206,24 @@ export default function CertifySchool({
       </View>
     </View>
   );
+  const failSchool = () =>
+    Alert.alert(
+      '죄송합니다',
+      '학교선택을 먼저 해주세요.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {text: 'OK'},
+      ],
+      {cancelable: false},
+    );
 
   const failCertify = () =>
     Alert.alert(
       '죄송합니다',
-      '학교선택을 먼저 해주세요.',
+      '학교인증을 해주세요.',
       [
         {
           text: 'Cancel',
@@ -272,10 +297,9 @@ export default function CertifySchool({
                     }
                   : async () => {
                       if (schoolAddress === '') {
-                        failCertify();
+                        failSchool();
                       } else {
                         setIsPressSubmit(true);
-
                         setAuthCode(
                           await getAuthCode(emailHost + '@' + schoolAddress),
                         );
