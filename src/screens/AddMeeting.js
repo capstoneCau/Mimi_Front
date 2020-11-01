@@ -37,6 +37,7 @@ import {
   FancyFonts,
   backAction,
 } from '../common/common';
+import DateTimePicker from 'react-native-modal-datetime-picker';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -186,9 +187,48 @@ export default function AddMeeting({navigation}) {
                 {
                   text: 'OK',
                   onPress: () => {
+                    const date = dates.map((x) => {
+                      if (x.split('/')[0].length === 1) {
+                        if (x.split('/')[1].split('(')[0].length === 1) {
+                          return (
+                            '2020' +
+                            '-0' +
+                            x.split('/')[0] +
+                            '-0' +
+                            x.split('/')[1].split('(')[0]
+                          );
+                        } else {
+                          return (
+                            '2020' +
+                            '-0' +
+                            x.split('/')[0] +
+                            '-' +
+                            x.split('/')[1].split('(')[0]
+                          );
+                        }
+                      } else {
+                        if (x.split('/')[1].split('(')[0].length === 1) {
+                          return (
+                            '2020' +
+                            '-' +
+                            x.split('/')[0] +
+                            '-0' +
+                            x.split('/')[1].split('(')[0]
+                          );
+                        } else {
+                          return (
+                            '2020' +
+                            '-' +
+                            x.split('/')[0] +
+                            '-' +
+                            x.split('/')[1].split('(')[0]
+                          );
+                        }
+                      }
+                    });
                     createRoom(
                       friends,
-                      dates,
+                      date,
                       peopleCount,
                       intro,
                       _myInfo.token,

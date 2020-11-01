@@ -39,7 +39,7 @@ export const createRoomAsync = (
   return makeRoomInfo;
 };
 
-export const getAllRoomList = (token) => async (dispach, getState) => {
+export const getAllRoomList = (token) => async (dispatch, getState) => {
   const res = await fetch(SERVER_DOMAIN + 'meeting/roomList/', {
     method: 'GET',
     mode: 'cors',
@@ -48,7 +48,7 @@ export const getAllRoomList = (token) => async (dispach, getState) => {
     },
   });
   const allRoomList = await res.json();
-  dispach({type: GET_ROOOM, allRoomList});
+  dispatch({type: GET_ROOOM, allRoomList});
   return allRoomList;
 };
 

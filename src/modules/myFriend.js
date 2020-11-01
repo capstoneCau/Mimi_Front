@@ -14,7 +14,6 @@ export const myFriendList = (token) => async (dispatch, getState) => {
     },
   });
   const myFriends = await friends.json();
-  console.log(JSON.stringify(myFriends));
   dispatch({type: MY_FRIENDS_LIST, myFriend: myFriends});
 };
 export const getFriendInfo = (token) => async (dispatch, getState) => {
