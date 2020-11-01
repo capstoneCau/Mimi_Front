@@ -51,6 +51,7 @@ export default function CreateUsers({route, navigation}) {
   const [startCertify, setStartCertify] = useState(false);
   const [startMbti, setStartMbti] = useState(false);
   const [finishSignUp, setFinishSignUp] = useState(false);
+  const user = useSelector((state) => state.login, shallowEqual)
 
   const [inputs, setInputs] = useState({
     name: '',
@@ -65,7 +66,7 @@ export default function CreateUsers({route, navigation}) {
     profileImg: 1,
     emailHost: '',
     schoolAddress: '',
-    fcmToken: route.params.fcmToken
+    fcmToken: user.fcmToken
   });
 
   const {
