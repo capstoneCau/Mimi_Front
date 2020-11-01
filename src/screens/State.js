@@ -1,9 +1,8 @@
-import React, {useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
   View,
-  Text,
   TouchableOpacity,
   FlatList,
   Dimensions,
@@ -18,8 +17,21 @@ import {
   getInviteeParticipateRequest,
   updateRequest,
 } from '../modules/requestInfo';
-import {useTheme} from '@react-navigation/native';
-import {FancyFonts, backAction} from '../common/common';
+import {
+  Appbar,
+  Avatar,
+  TextInput,
+  Text,
+  Button,
+  Card,
+  Title,
+  Paragraph,
+  Portal,
+  Dialog,
+  useTheme,
+  RadioButton,
+} from 'react-native-paper';
+import {FancyFonts, backAction, FancyButton} from '../common/common';
 import {updateScopes} from '@react-native-seoul/kakao-login';
 
 var width = Dimensions.get('window').width;
@@ -31,6 +43,8 @@ export default function State() {
   //   return () =>
   //     BackHandler.removeEventListener('hardwareBackPress', backAction);
   // }, []);
+  const [restart, setRestart] = useState('false');
+
   const dispatch = useDispatch();
   const myInfo = useSelector((state) => state.login);
   const roomInfo = useSelector((state) => state.requestInfo);
@@ -60,12 +74,20 @@ export default function State() {
     getInviteeCreate(myInfo.token);
     getInviterParticipate(myInfo.token);
     getInviteeParticipate(myInfo.token);
-  }, []);
-  const {colors} = useTheme();
+  }, [restart]);
 
+  const {colors} = useTheme();
   return (
     <SafeAreaView style={styles.container}>
-      <Text>create</Text>
+      <FancyButton
+        icon="autorenew"
+        mode="outlined"
+        color="#000069"
+        onPress={() => {
+          setRestart(!restart);
+        }}
+      />
+      <Text style={styles.title}>create</Text>
       <FlatList
         data={roomInfo.inviterCreateList.concat(roomInfo.inviteeCreateList)}
         renderItem={({item, index}) => (
@@ -73,7 +95,9 @@ export default function State() {
             style={[
               item.room.status == 'w'
                 ? styles.list_container
-                : {backgroundColor: '#dcdcdc'},
+                : item.room.status == 'a'
+                ? {backgroundColor: '#dcdcdc'}
+                : {display: 'none'},
             ]}
             onPress={() => {
               if (item.user_role == 'invitee') {
@@ -102,7 +126,7 @@ export default function State() {
                   {cancelable: false},
                 );
               } else {
-                console.log('나는방장이야');
+                console.log('나는방장');
               }
             }}>
             <View style={styles.list}>
@@ -121,7 +145,7 @@ export default function State() {
         )}
         keyExtractor={(_item, index) => `${index}`}
       />
-      <Text>participate</Text>
+      <Text style={styles.title}>participate</Text>
       <FlatList
         data={roomInfo.inviterParticiatList.concat(
           roomInfo.inviteeParticiateList,
@@ -131,7 +155,7 @@ export default function State() {
             style={[
               item.room.status == 'a'
                 ? styles.list_container
-                : {backgroundColor: '#dcdcdc'},
+                : {display: 'none'},
             ]}
             onPress={() => {
               if (item.user_role == 'invitee') {
@@ -160,13 +184,17 @@ export default function State() {
                   {cancelable: false},
                 );
               } else {
-                console.log('나는방장이야');
+                console.log('나는방장');
               }
             }}>
             <View style={styles.list}>
               <Text style={styles.peopleCount}>{item.room.user_limit}</Text>
               <View style={styles.content}>
-                <Text style={styles.school}>{item.user.mbti}</Text>
+                <Text style={styles.school}>
+                  {item.room.meeting.map((v) => {
+                    return v.mbti + '/';
+                  })}
+                </Text>
                 <Text style={styles.intro}>{item.room.introduction}</Text>
               </View>
               <Text style={styles.dates}>
@@ -216,7 +244,7 @@ const styles = StyleSheet.create({
   },
   school: {
     alignSelf: 'flex-start',
-    fontSize: 30,
+    fontSize: 20,
     padding: 10,
     fontFamily: FancyFonts.BMDOHYEON,
   },
@@ -230,5 +258,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     padding: 10,
     fontFamily: FancyFonts.BMDOHYEON,
+  },
+  title: {
+    fontSize: 25,
+    fontFamily: FancyFonts.BMDOHYEON,
+    textAlign: 'center',
+    marginTop: 10,
   },
 });
