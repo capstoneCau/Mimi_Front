@@ -23,15 +23,26 @@ import {
 import Geolocation from 'react-native-geolocation-service';
 import {google, naver, odysay} from '../../apiKey.json';
 import {FancyButton, FancyFonts} from '../common/common';
-
+import {sendNotification} from '../modules/sendNotification';
+import {useSelector, shallowEqual} from 'react-redux';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-function GoogleMap() {
+const GoogleMap = () => {
   // console.log(google, naver)
-  const [orgLatitude, setLatitude] = useState(0.0);
-  const [orgLongitude, setLongitude] = useState(0.0);
+  const [orgLocation, setOrgLocation] = useState({
+    "latitude" : 0.0,
+    "longitude" : 0.0
+  })
+  const [desLocation, setDesLocation] = useState({
+    "latitude" : 0.0,
+    "longitude" : 0.0
+  })
+
+  const [duration, setDuration] = useState(0);
+
   const [_watchId, setWatchId] = useState(null);
+  let watchId = null;
   const [testLocation, setTestLocation] = useState('');
   const [googleTime, setGoogleTime] = useState({
     hour: 0,
@@ -46,32 +57,34 @@ function GoogleMap() {
     min: 0,
   });
 
+  const user = useSelector((state) => state.login, shallowEqual)
   useEffect(() => {
     getCurrentPosition();
   }, []);
 
-  const getDistanceTimeByGoogle = async (desLatitude, desLongitude) => {
-    const APP_KEY = google.distance;
-    const BASE_URL =
-      'https://maps.googleapis.com/maps/api/distancematrix/json?';
-    const params = `units=metric&mode=transit&origins=${orgLatitude},${orgLongitude}&destinations=${desLatitude},${desLongitude}&region=KR&key=${APP_KEY}`;
+  // const getDistanceTimeByGoogle = async (desLatitude, desLongitude) => {
+  //   const APP_KEY = google.distance;
+  //   const BASE_URL =
+  //     'https://maps.googleapis.com/maps/api/distancematrix/json?';
+  //   const params = `units=metric&mode=transit&origins=${orgLatitude},${orgLongitude}&destinations=${desLatitude},${desLongitude}&region=KR&key=${APP_KEY}`;
 
-    const res = await fetch(BASE_URL + params);
-    const json = await res.json();
+  //   const res = await fetch(BASE_URL + params);
+  //   const json = await res.json();
 
-    const time = parseInt(json.rows[0].elements[0].duration.value);
-    const hour = parseInt(time / 3600);
-    const min = parseInt((time - hour * 3600) / 60);
+  //   const time = parseInt(json.rows[0].elements[0].duration.value);
+  //   const hour = parseInt(time / 3600);
+  //   const min = parseInt((time - hour * 3600) / 60);
 
-    return {hour, min};
-  };
+  //   return {hour, min};
+  // };
+
 
   const getDistanceTimeByNaver = async (desLatitude, desLongitude) => {
     const CLIENT_ID = naver.client_id;
     const CLIENT_SECRET = naver.client_secret;
     const BASE_URL =
       'https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?';
-    const params = `start=${orgLongitude},${orgLatitude}&goal=${desLongitude},${desLatitude}`;
+    const params = `start=${orgLocation.longitude},${orgLocation.latitude}&goal=${desLongitude},${desLatitude}`;
 
     const headers = {
       'X-NCP-APIGW-API-KEY-ID': CLIENT_ID,
@@ -93,7 +106,7 @@ function GoogleMap() {
     const WEB = odysay.web;
     const ANDROID = odysay.android;
     const BASE_URL = 'https://api.odsay.com/v1/api/searchPubTransPathT?';
-    const params = `SX=${orgLongitude}&SY=${orgLatitude}&EX=${desLongitude}&EY=${desLatitude}&apiKey=${SERVER}`;
+    const params = `SX=${orgLocation.longitude}&SY=${orgLocation.latitude}&EX=${desLongitude}&EY=${desLatitude}&apiKey=${SERVER}`;
 
     const res = await fetch(BASE_URL + params);
     const json = await res.json();
@@ -105,33 +118,59 @@ function GoogleMap() {
   const getCurrentPosition = async () => {
     await requestLocationPermission();
     Geolocation.getCurrentPosition((position) => {
-      const {latitude, longitude} = position.coords;
-      setLatitude(latitude);
-      setLongitude(longitude);
+      setOrgLocation(position.coords)
     });
   };
 
   const getCurrentPositionWatch = async () => {
     await requestLocationPermission();
-    setWatchId(
-      Geolocation.watchPosition(
-        (position) => {
-          const {latitude, longitude} = position.coords;
-          setLatitude(latitude);
-          setLongitude(longitude);
-        },
-        (error) => {
-          // console.log(error);
-        },
-        {
-          enableHighAccuracy: true,
-          distanceFilter: 0,
-          interval: 5000,
-          fastestInterval: 2000,
-        },
-      ),
-    );
+    if(_watchId == null && (desLocation.latitude > 0.0 && desLocation.longitude > 0.0)) {
+      watchId = Geolocation.watchPosition((position) => {
+        setOrgLocation(position.coords);
+        const distance = getDistanceTwoPosition();
+        console.log("위치와의 거리 : ", distance, "m");
+        if (distance < 100) {
+          console.log("목적지에 도착하였습니다.")
+          Geolocation.clearWatch(watchId);
+          watchId = null;
+          setWatchId(null);
+          console.log("종료");
+        }
+      },(error) => {
+        // console.log(error);
+      },{
+        enableHighAccuracy: true,
+        distanceFilter: 0,
+        interval: 5000,
+        fastestInterval: 2000,
+      })
+      setWatchId(watchId)      
+    }
   };
+
+  const stopGetPosition = () => {
+    if (_watchId !== null) {
+      Geolocation.clearWatch(_watchId);
+      setWatchId(null);
+      watchId = null;
+      sendNotification(["1489710892"], "title", "body", user.token)
+    }
+  };
+
+  const getDistanceTwoPosition = () => {
+    const theta = orgLocation.longitude - desLocation.longitude;
+    const dist = rad2deg(Math.acos(Math.sin(deg2rad(orgLocation.latitude)) * Math.sin(deg2rad(desLocation.latitude)) + Math.cos(deg2rad(orgLocation.latitude))
+          * Math.cos(deg2rad(desLocation.latitude)) * Math.cos(deg2rad(theta))))* 60 * 1.1515 * 1.609344;
+
+    return Number(dist*1000).toFixed(2);   // 단위 : m
+  }
+
+  const deg2rad = (deg) => {
+    return (deg * Math.PI / 180);
+  }
+  const rad2deg = (rad) => {
+    return (rad * 180 / Math.PI);
+  }
 
   const getAddressPosition = async (address) => {
     const APP_KEY = google.geocoding;
@@ -142,13 +181,6 @@ function GoogleMap() {
     const json = await res.json();
     console.log(json);
     return json.results[0].geometry.location;
-  };
-
-  const stopGetPosition = () => {
-    if (_watchId !== null) {
-      Geolocation.clearWatch(_watchId);
-      setWatchId(null);
-    }
   };
 
   const requestLocationPermission = async () => {
@@ -211,10 +243,18 @@ function GoogleMap() {
       </View>
       <View style={styles.secContainer}>
         <View>
-          <Text style={styles.coordText}>Latitude : {orgLatitude}</Text>
+          <Text style={styles.coordText}>Org Latitude : {orgLocation.latitude}</Text>
         </View>
         <View>
-          <Text style={styles.coordText}>Longitute : {orgLongitude}</Text>
+          <Text style={styles.coordText}>Org Longitute : {orgLocation.longitude}</Text>
+        </View>
+      </View>
+      <View style={styles.secContainer}>
+        <View>
+          <Text style={styles.coordText}>Des Latitude : {desLocation.latitude}</Text>
+        </View>
+        <View>
+          <Text style={styles.coordText}>Des Longitute : {desLocation.longitude}</Text>
         </View>
       </View>
       <View style={styles.inputContainer}>
@@ -235,15 +275,13 @@ function GoogleMap() {
           style={styles.startButton}
           onPress={async () => {
             const {lat, lng} = await getAddressPosition(testLocation);
-            setGoogleTime(await getDistanceTimeByGoogle(lat, lng));
+            // console.log(await getAddressPosition(testLocation));
+            setDesLocation({
+              "latitude" : lat,
+              "longitude" : lng
+            });
             setNaverTime(await getDistanceTimeByNaver(lat, lng));
             setOdysayTime(await getDistanceTimeByOdySay(lat, lng));
-            // const {hour:ghour, min:gmin} = await getDistanceTimeByGoogle(lat, lng);
-            // console.log('Google Api :', ghour, 'hour', gmin, 'min');
-            // const {hour:nhour, min:nmin} = await getDistanceTimeByNaver(lat, lng);
-            // console.log('Naver Api :', nhour, 'hour', nmin, 'min');
-            // const {hour:ohour, min:omin} = await getDistanceTimeByOdySay(lat, lng);
-            // console.log('Odysay Api :', ohour, 'hour', omin, 'min')
           }}>
           <Text style={styles.text}>거리계산</Text>
         </FancyButton>
@@ -294,6 +332,7 @@ const styles = StyleSheet.create({
   },
   secContainer: {
     flex: 1,
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },
