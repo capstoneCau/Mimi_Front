@@ -24,9 +24,6 @@ export default function KakaoLoginBtn({navigation}) {
     (kakaoId) => dispatch(requestKaKaoAuthIdAsync(kakaoId)),
     [dispatch],
   );
-  const [user, setUser] = useState(
-    useSelector((state) => state.login, shallowEqual),
-  );
 
   const logCallback = (log, callback) => {
     console.log(log);
