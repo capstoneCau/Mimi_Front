@@ -11,7 +11,7 @@ import Animated from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '@react-navigation/native';
 import {CONST_VALUE} from '../common/common';
-import {useSelector, useDispatch} from 'react-redux';
+import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {registerUserInfoAsync} from '../modules/login';
 import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
@@ -44,7 +44,7 @@ export default function CreateUsers({route, navigation}) {
   const [startCertify, setStartCertify] = useState(false);
   const [startMbti, setStartMbti] = useState(false);
   const [finishSignUp, setFinishSignUp] = useState(false);
-  const user = useSelector((state) => state.login, shallowEqual)
+  const user = useSelector((state) => state.login, shallowEqual);
 
   const [inputs, setInputs] = useState({
     name: '',
@@ -58,7 +58,7 @@ export default function CreateUsers({route, navigation}) {
     birthYear: '',
     emailHost: '',
     schoolAddress: '',
-    fcmToken: user.fcmToken
+    fcmToken: user.fcmToken,
   });
 
   const {

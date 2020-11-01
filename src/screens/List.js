@@ -100,7 +100,6 @@ export default function List({navigation}) {
   const handleSearch = () => {
     console.log('Search!');
   };
-  console.log('aaaa' + JSON.stringify(roomInfo.allRoomList));
   return (
     <SafeAreaView style={styles.container}>
       {showFriendModal && (

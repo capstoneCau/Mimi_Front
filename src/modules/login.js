@@ -5,7 +5,7 @@ const LOGIN_USER = 'login/LOGIN_USER';
 const LOGOUT = 'login/LOGOUT';
 const REGISTER_USER_INFO = 'login/REGISTER_USER_INFO';
 const REQUEST_KAKAO_AUTH_ID = 'login/REQUEST_KAKAO_AUTH_ID';
-const FCM_TOKEN = 'login/FCM_TOKEN'
+const FCM_TOKEN = 'login/FCM_TOKEN';
 
 //Action Function
 export const logout = () => ({type: LOGOUT});
@@ -56,7 +56,6 @@ export const requestKaKaoAuthIdAsync = (kakaoId) => async (
     }),
   });
   const result = await res.json();
-
   if (result['user'] == null) {
     dispatch({type: REQUEST_KAKAO_AUTH_ID, kakaoId});
     return false;
@@ -66,25 +65,27 @@ export const requestKaKaoAuthIdAsync = (kakaoId) => async (
   }
 };
 
-export const fcmTokenAsync = (fcmToken, token=null) => async ( dispatch, getState ) => {
-  if(token != null) {
+export const fcmTokenAsync = (fcmToken, token = null) => async (
+  dispatch,
+  getState,
+) => {
+  if (token != null) {
     const res = await fetch(SERVER_DOMAIN + 'user/fcmtoken/', {
-      method: "PATCH",
+      method: 'PATCH',
       mode: 'cors',
       headers: {
-        'Authorization' : `Token ${token}`,
+        Authorization: `Token ${token}`,
         'Content-Type': 'application/json',
       },
-      body : JSON.stringify({
-        "fcmtoken" : fcmToken
+      body: JSON.stringify({
+        fcmtoken: fcmToken,
       }),
-    })
-    const json = await res.json()
-    console.log(json)
+    });
+    const json = await res.json();
+    console.log(json);
   }
-  console.log(fcmToken)
   dispatch({type: FCM_TOKEN, fcmToken});
-}
+};
 
 // 초기 상태
 const initialState = {
@@ -119,8 +120,8 @@ export default function login(state = initialState, action) {
     case FCM_TOKEN:
       return {
         ...state,
-        fcmToken: action.fcmToken
-      }
+        fcmToken: action.fcmToken,
+      };
     default:
       return state;
   }

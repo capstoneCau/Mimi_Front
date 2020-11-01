@@ -204,7 +204,6 @@ export default function AddMeeting({navigation}) {
                         }
                       }
                     });
-                    console.log(date);
                     createRoom(
                       friends,
                       date,
