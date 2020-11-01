@@ -17,7 +17,6 @@ export const createRoomAsync = (
   introduction,
   token,
 ) => async (dispatch, getState) => {
-  console.log(init_users, available_dates, user_limit, introduction, token);
   const res = await fetch(SERVER_DOMAIN + 'meeting/roomList/', {
     method: 'POST',
     mode: 'cors',
@@ -35,7 +34,6 @@ export const createRoomAsync = (
 
   const makeRoomInfo = await res.json();
   dispatch({type: CREATE_ROOM, makeRoomInfo});
-  console.log('this' + makeRoomInfo);
   return makeRoomInfo;
 };
 
@@ -77,24 +75,16 @@ export const getParticipatedUserInfoList = async (room_id, token) => {
   return userInfoList;
 };
 
-export const getOwnsRoomList = (user = null, token) => async (
-  dispach,
-  getState,
-) => {
-  const res = await fetch(
-    SERVER_DOMAIN + `meeting/ownsRoomList/` + user != null ? `${room_id}/` : '',
-    {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        Authorization: `Token ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({room: room_id}),
+export const getOwnsRoomList = (token) => async (dispatch, getState) => {
+  const res = await fetch(SERVER_DOMAIN + `meeting/ownsRoomList/`, {
+    method: 'GET',
+    mode: 'cors',
+    headers: {
+      Authorization: `Token ${token}`,
     },
-  );
+  });
   const userInfoList = await res.json();
-  dispatch({type: GET_MY_ROOM, userInfoList, user});
+  dispatch({type: GET_MY_ROOM, userInfoList});
   return userInfoList;
 };
 
@@ -118,16 +108,11 @@ export default function meetingInfo(state = initialState, action) {
         allRoomList: action.allRoomList,
       };
     case GET_MY_ROOM:
-      if (action.user != null) {
-        return {
-          ...state,
-        };
-      } else {
-        return {
-          ...state,
-          myRoomList: action.myRoomList,
-        };
-      }
+      return {
+        ...state,
+        myRoomList: action.userInfoList,
+      };
+
     default:
       return state;
   }
