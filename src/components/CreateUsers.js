@@ -65,6 +65,7 @@ export default function CreateUsers({route, navigation}) {
     profileImg: 1,
     emailHost: '',
     schoolAddress: '',
+    fcmToken: route.params.fcmToken
   });
 
   const {
