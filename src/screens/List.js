@@ -29,6 +29,7 @@ import {requestKaKaoAuthIdAsync} from '../modules/login';
 import {myFriendList, getFriendInfo} from '../modules/myFriend';
 import {getAllRoomList} from '../modules/meetingInfo';
 import {participateAtRoom} from '../modules/requestInfo';
+import App from '../../App';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -61,10 +62,11 @@ export default function List({navigation}) {
   const [showFriendModal, setShowFriendModal] = useState(false);
   const [removeFriend, setRemoveFriend] = useState(false);
   const [roomNum, setRoomNum] = useState(-1);
+  const [restart, setRestart] = useState(false);
   useEffect(() => {
     myFriend(myInfo.token);
     getAllRoom(myInfo.token);
-  }, []);
+  }, [restart]);
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', backAction);
 
@@ -98,7 +100,7 @@ export default function List({navigation}) {
   const handleSearch = () => {
     console.log('Search!');
   };
-
+  console.log('aaaa' + JSON.stringify(roomInfo.allRoomList));
   return (
     <SafeAreaView style={styles.container}>
       {showFriendModal && (
@@ -117,6 +119,12 @@ export default function List({navigation}) {
       )}
       <Appbar.Header style={{backgroundColor: 'white'}}>
         <Appbar.Content title="미팅목록" />
+        <Appbar.Action
+          icon="autorenew"
+          onPress={() => {
+            setRestart(!restart);
+          }}
+        />
         <Appbar.Action icon="comment-search-outline" onPress={handleAdd} />
         <Appbar.Action icon="comment-plus-outline" onPress={handleAdd} />
       </Appbar.Header>
@@ -124,7 +132,9 @@ export default function List({navigation}) {
         data={roomInfo.allRoomList}
         renderItem={({item, index}) => (
           <TouchableOpacity
-            style={[styles.list_container, {backgroundColor: colors.card}]}
+            style={[
+              item.status == 'm' ? {display: 'none'} : styles.list_container,
+            ]}
             onPress={() => {
               showFriends();
               setRoomNum(item.id);
@@ -133,16 +143,20 @@ export default function List({navigation}) {
               <Text style={styles.peopleCount}>{item.user_limit}</Text>
               <View style={styles.content}>
                 <Text style={styles.school}>
-                  {item.meeting.map((v) => {
-                    return v.mbti + '/';
-                  })}
+                  {item.meeting
+                    ? item.meeting.map((v) => {
+                        return v.mbti + '/';
+                      })
+                    : null}
                 </Text>
                 <Text style={styles.intro}>{item.introduction}</Text>
               </View>
               <Text style={styles.dates}>
-                {item.available_dates.map(
-                  (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
-                )}
+                {item.available_dates
+                  ? item.available_dates.map(
+                      (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
+                    )
+                  : null}
               </Text>
             </View>
           </TouchableOpacity>
@@ -242,7 +256,6 @@ function Friends({
               mode="outlined"
               color="#000069"
               onPress={() => {
-                console.log(friends, roomNum, token);
                 participateRoom(friends, roomNum, token);
                 hideFriends();
               }}>
@@ -289,7 +302,7 @@ const styles = StyleSheet.create({
   },
   school: {
     alignSelf: 'flex-start',
-    fontSize: 30,
+    fontSize: 20,
     padding: 10,
     fontFamily: FancyFonts.BMDOHYEON,
   },
