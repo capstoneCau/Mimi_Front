@@ -23,11 +23,12 @@ import {
 import Geolocation from 'react-native-geolocation-service';
 import {google, naver, odysay} from '../../apiKey.json';
 import {FancyButton, FancyFonts} from '../common/common';
-
+import {sendNotification} from '../modules/sendNotification';
+import {useSelector, shallowEqual} from 'react-redux';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-function GoogleMap() {
+const GoogleMap = () => {
   // console.log(google, naver)
   const [orgLocation, setOrgLocation] = useState({
     "latitude" : 0.0,
@@ -37,12 +38,6 @@ function GoogleMap() {
     "latitude" : 0.0,
     "longitude" : 0.0
   })
-  
-  const [orgLatitude, setOrgLatitude] = useState(0.0);
-  const [orgLongitude, setOrgLongitude] = useState(0.0);
-  
-  const [desLatitude, setDesLatitude] = useState(0.0);
-  const [desLongitude, setDesLongitude] = useState(0.0);
 
   const [duration, setDuration] = useState(0);
 
@@ -62,6 +57,7 @@ function GoogleMap() {
     min: 0,
   });
 
+  const user = useSelector((state) => state.login, shallowEqual)
   useEffect(() => {
     getCurrentPosition();
   }, []);
@@ -88,7 +84,7 @@ function GoogleMap() {
     const CLIENT_SECRET = naver.client_secret;
     const BASE_URL =
       'https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?';
-    const params = `start=${orgLongitude},${orgLatitude}&goal=${desLongitude},${desLatitude}`;
+    const params = `start=${orgLocation.longitude},${orgLocation.latitude}&goal=${desLongitude},${desLatitude}`;
 
     const headers = {
       'X-NCP-APIGW-API-KEY-ID': CLIENT_ID,
@@ -110,7 +106,7 @@ function GoogleMap() {
     const WEB = odysay.web;
     const ANDROID = odysay.android;
     const BASE_URL = 'https://api.odsay.com/v1/api/searchPubTransPathT?';
-    const params = `SX=${orgLongitude}&SY=${orgLatitude}&EX=${desLongitude}&EY=${desLatitude}&apiKey=${SERVER}`;
+    const params = `SX=${orgLocation.longitude}&SY=${orgLocation.latitude}&EX=${desLongitude}&EY=${desLatitude}&apiKey=${SERVER}`;
 
     const res = await fetch(BASE_URL + params);
     const json = await res.json();
@@ -157,6 +153,7 @@ function GoogleMap() {
       Geolocation.clearWatch(_watchId);
       setWatchId(null);
       watchId = null;
+      sendNotification(["1489710892"], "title", "body", user.token)
     }
   };
 
@@ -246,21 +243,17 @@ function GoogleMap() {
       </View>
       <View style={styles.secContainer}>
         <View>
-          {/* <Text style={styles.coordText}>Latitude : {orgLatitude}</Text> */}
           <Text style={styles.coordText}>Org Latitude : {orgLocation.latitude}</Text>
         </View>
         <View>
-          {/* <Text style={styles.coordText}>Longitute : {orgLongitude}</Text> */}
           <Text style={styles.coordText}>Org Longitute : {orgLocation.longitude}</Text>
         </View>
       </View>
       <View style={styles.secContainer}>
         <View>
-          {/* <Text style={styles.coordText}>Latitude : {orgLatitude}</Text> */}
           <Text style={styles.coordText}>Des Latitude : {desLocation.latitude}</Text>
         </View>
         <View>
-          {/* <Text style={styles.coordText}>Longitute : {orgLongitude}</Text> */}
           <Text style={styles.coordText}>Des Longitute : {desLocation.longitude}</Text>
         </View>
       </View>
