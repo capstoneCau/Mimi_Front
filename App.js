@@ -4,6 +4,8 @@ import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import merge from 'deepmerge';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import {StackActions} from '@react-navigation/native';
 import * as name from './src/screens/index';
 import Icon from 'react-native-vector-icons/Ionicons';
 import messaging from '@react-native-firebase/messaging';
@@ -13,6 +15,8 @@ import { fcmTokenAsync } from './src/modules/login';
 
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
+const TopTabs = createMaterialTopTabNavigator();
+
 const MyTheme = {
   dark: false,
   colors: {
@@ -34,6 +38,8 @@ const  App = () => {
     SignUp,
     List,
     State,
+    StateGive,
+    StateTake,
     Chat,
     Setting,
     AddMeeting,
@@ -97,7 +103,7 @@ const  App = () => {
 
     const homeTab = () => {
       return (
-        <BottomTabs.Navigator initialRouteName="Map">
+        <BottomTabs.Navigator initialRouteName="List" backBehavior="none">
           <BottomTabs.Screen
             name="List"
             component={ListStack}
@@ -113,7 +119,7 @@ const  App = () => {
           />
           <BottomTabs.Screen
             name="State"
-            component={State}
+            component={topTab}
             options={{
               tabBarIcon: ({focused}) => {
                 return focused ? (
@@ -164,6 +170,16 @@ const  App = () => {
             }}
           />
         </BottomTabs.Navigator>
+      );
+    };
+
+    const topTab = () => {
+      return (
+        <TopTabs.Navigator initialRouteName="State" backBehavior="none">
+          <TopTabs.Screen name="대기" component={State} />
+          <TopTabs.Screen name="요청한" component={StateGive} />
+          <TopTabs.Screen name="요청받은" component={StateTake} />
+        </TopTabs.Navigator>
       );
     };
 
