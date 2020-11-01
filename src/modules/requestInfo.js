@@ -28,7 +28,6 @@ export const getInviterParticipateRequest = (token) => async (
     },
   });
   const inviterParticipateRequestList = await res.json();
-  console.log('dd' + JSON.stringify(inviterParticipateRequestList));
 
   if (JSON.error) {
     console.log(JSON.detail);

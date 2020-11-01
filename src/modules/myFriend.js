@@ -24,7 +24,6 @@ export const getFriendInfo = (token) => async (dispatch, getState) => {
       Authorization: `Token ${token}`,
     },
   });
-  console.log(JSON.stringify(friendsInfo));
   dispatch({type: GET_FRIENDS_INFO});
 };
 //초기상태

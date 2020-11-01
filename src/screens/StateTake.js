@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-export default function State() {
+export default function StateTake() {
   return (
     <View>
       <TouchableOpacity>

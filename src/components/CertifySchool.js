@@ -98,8 +98,6 @@ export default function CertifySchool({
         let tempSchoolLinkList = [];
 
         const data = json['dataSearch']['content'];
-        console.log(data);
-
         for (let i = 0; i < data[0]['totalCount']; i++) {
           tempSchoolNameList.push(data[i]['schoolName']);
           tempCampusNameList.push(data[i]['campusName']);
@@ -116,10 +114,8 @@ export default function CertifySchool({
           tempCampusNameList,
           tempSchoolLinkList,
         );
-        console.log('1' + JSON.stringify(schoolSort));
       })
       .then(() => {
-        console.log('2' + JSON.stringify(schoolSort));
         setShowSchoolModal(true);
       })
       .catch(function (err) {
@@ -137,7 +133,6 @@ export default function CertifySchool({
           <TouchableOpacity
             style={styles.schoolModalbox}
             onPress={() => {
-              // console.log(schoolSort)
               setSchoolName(item + ' ' + schoolSort.campusN[index]);
               setInputs((inputs) => {
                 return {
