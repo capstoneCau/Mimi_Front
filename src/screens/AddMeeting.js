@@ -377,7 +377,7 @@ function Friends({
                     setFriends((old) => [...old, friendId[0]]);
                   } else {
                     onChange('peopleCount', peopleCount - 1);
-                    setFriends(friends.filter((e) => e !== '6666666666'));
+                    setFriends(friends.filter((e) => e !== friendId[0]));
                   }
                   /* 3항연산자로 하면 왜 안될까? */
                   setIsAdd1(!isAdd1);
@@ -395,7 +395,7 @@ function Friends({
                     setFriends((old) => [...old, friendId[1]]);
                   } else {
                     onChange('peopleCount', peopleCount - 1);
-                    setFriends(friends.filter((e) => e !== '5555555555'));
+                    setFriends(friends.filter((e) => e !== friendId[1]));
                   }
                   setIsAdd2(!isAdd2);
                 }}
@@ -412,7 +412,7 @@ function Friends({
                     setFriends((old) => [...old, friendId[2]]);
                   } else {
                     onChange('peopleCount', peopleCount - 1);
-                    setFriends(friends.filter((e) => e !== '7777777777'));
+                    setFriends(friends.filter((e) => e !== friendId[2]));
                   }
                   setIsAdd3(!isAdd3);
                 }}

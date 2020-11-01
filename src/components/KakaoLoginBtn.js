@@ -51,7 +51,6 @@ export default function KakaoLoginBtn({navigation}) {
       );
 
       const profile = await KakaoLogins.getProfile();
-      console.log('hi');
 
       setProfile(profile);
       logCallback(

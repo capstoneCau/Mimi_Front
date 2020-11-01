@@ -14,9 +14,13 @@ import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {
   getInviterCreateRequest,
   getInviteeCreateRequest,
+  getInviterParticipateRequest,
+  getInviteeParticipateRequest,
+  updateRequest,
 } from '../modules/requestInfo';
 import {useTheme} from '@react-navigation/native';
 import {FancyFonts, backAction} from '../common/common';
+import {updateScopes} from '@react-native-seoul/kakao-login';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -38,24 +42,68 @@ export default function State() {
     (token) => dispatch(getInviteeCreateRequest(token)),
     [dispatch],
   );
+  const getInviterParticipate = useCallback(
+    (token) => dispatch(getInviterParticipateRequest(token)),
+    [dispatch],
+  );
+  const getInviteeParticipate = useCallback(
+    (token) => dispatch(getInviteeParticipateRequest(token)),
+    [dispatch],
+  );
+  const update = useCallback(
+    (type, isAccepted, requestId, token) =>
+      dispatch(updateRequest(type, isAccepted, requestId, token)),
+    [dispatch],
+  );
   useEffect(() => {
     getInviterCreate(myInfo.token);
     getInviteeCreate(myInfo.token);
+    getInviterParticipate(myInfo.token);
+    getInviteeParticipate(myInfo.token);
   }, []);
   const {colors} = useTheme();
 
-  console.log(roomInfo.inviterCreateList[0].room);
   return (
     <SafeAreaView style={styles.container}>
-      <Text>내가만든방</Text>
+      <Text>create</Text>
       <FlatList
-        data={roomInfo.inviterCreateList}
+        data={roomInfo.inviterCreateList.concat(roomInfo.inviteeCreateList)}
         renderItem={({item, index}) => (
           <TouchableOpacity
-            style={[styles.list_container, {backgroundColor: colors.card}]}
+            style={[
+              item.room.status == 'w'
+                ? styles.list_container
+                : {backgroundColor: '#dcdcdc'},
+            ]}
             onPress={() => {
-              //navigation.navigate('미팅요청')
-              console.log('press');
+              if (item.user_role == 'invitee') {
+                Alert.alert(
+                  '확인해주세요',
+                  '참가하시겠습니까?',
+                  [
+                    {
+                      text: '취소',
+                      style: 'cancel',
+                    },
+                    {
+                      text: '아니오',
+                      style: 'cancel',
+                      onPress: () => {
+                        update('create', 'r', item.id, myInfo.token);
+                      },
+                    },
+                    {
+                      text: '네',
+                      onPress: () => {
+                        update('create', 'a', item.id, myInfo.token);
+                      },
+                    },
+                  ],
+                  {cancelable: false},
+                );
+              } else {
+                console.log('나는방장이야');
+              }
             }}>
             <View style={styles.list}>
               <Text style={styles.peopleCount}>{item.room.user_limit}</Text>
@@ -73,15 +121,47 @@ export default function State() {
         )}
         keyExtractor={(_item, index) => `${index}`}
       />
-      <Text>친구가만든방</Text>
+      <Text>participate</Text>
       <FlatList
-        data={roomInfo.inviteeCreateList}
+        data={roomInfo.inviterParticiatList.concat(
+          roomInfo.inviteeParticiateList,
+        )}
         renderItem={({item, index}) => (
           <TouchableOpacity
-            style={[styles.list_container, {backgroundColor: colors.card}]}
+            style={[
+              item.room.status == 'a'
+                ? styles.list_container
+                : {backgroundColor: '#dcdcdc'},
+            ]}
             onPress={() => {
-              //navigation.navigate('미팅요청')
-              console.log('press');
+              if (item.user_role == 'invitee') {
+                Alert.alert(
+                  '확인해주세요',
+                  '참가하시겠습니까?',
+                  [
+                    {
+                      text: '취소',
+                      style: 'cancel',
+                    },
+                    {
+                      text: '아니오',
+                      style: 'cancel',
+                      onPress: () => {
+                        update('participate', 'r', item.id, myInfo.token);
+                      },
+                    },
+                    {
+                      text: '네',
+                      onPress: () => {
+                        update('participate', 'a', item.id, myInfo.token);
+                      },
+                    },
+                  ],
+                  {cancelable: false},
+                );
+              } else {
+                console.log('나는방장이야');
+              }
             }}>
             <View style={styles.list}>
               <Text style={styles.peopleCount}>{item.room.user_limit}</Text>

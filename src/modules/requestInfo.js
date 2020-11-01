@@ -28,14 +28,16 @@ export const getInviterParticipateRequest = (token) => async (
     },
   });
   const inviterParticipateRequestList = await res.json();
-  if (json.error) {
-    console.log(json.detail);
+  console.log('dd' + JSON.stringify(inviterParticipateRequestList));
+
+  if (JSON.error) {
+    console.log(JSON.detail);
     return false;
   } else {
-    dispatch(
-      {type: GET_INVITER_PARTICIPATE_REQUEST},
+    dispatch({
+      type: GET_INVITER_PARTICIPATE_REQUEST,
       inviterParticipateRequestList,
-    );
+    });
     return true;
   }
 };
@@ -77,11 +79,11 @@ export const getInviteeParticipateRequest = (token) => async (
   });
   const inviteeParticipateRequestList = await res.json();
   if (JSON.error) {
-    console.log(json.detail);
+    console.log(JSON.detail);
     return false;
   } else {
     dispatch({
-      type: GET_INVITEE_PARTICIPATE_REQUEST,
+      type: GET_INVITEE_PARTICIPATE_REQUESST,
       inviteeParticipateRequestList,
     });
     return true;
@@ -128,7 +130,7 @@ export const getRequestUserInfo = (request_id, token) => async (
 };
 
 export const getRequestRoomInfo = (request_id, token) => async (
-  dispacth,
+  dispatch,
   getState,
 ) => {
   const res = await fetch(SERVER_DOMAIN + `request/roominfo/${request_id}/`, {
@@ -139,11 +141,11 @@ export const getRequestRoomInfo = (request_id, token) => async (
     },
   });
   const roomInfo = await res.json();
-  dispach({type: GET_REQUEST_ROOM_INFO});
+  dispatch({type: GET_REQUEST_ROOM_INFO});
   return roomInfo;
 };
 
-export const updateRequest = (type, is_acctepted, request_id, token) => async (
+export const updateRequest = (type, is_accepted, request_id, token) => async (
   dispatch,
   getState,
 ) => {
@@ -156,12 +158,21 @@ export const updateRequest = (type, is_acctepted, request_id, token) => async (
         Authorization: `Token ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({is_accepted: is_acctepted}),
+      body: JSON.stringify({is_accepted: is_accepted}),
     },
   );
+  //   const list =
+  //     type == 'create' ? inviteeCreateList.status : inviteeParticiateList.status;
+  //   list.forEach((element) => {
+  //     if (element.id == action.requestInfo.id) {
+  //       element = action.request;
+  //     }
+  //   });
   const requestInfo = await res.json();
-  dispach({type: UPDATE_REQUEST, requestInfo, type});
-  return requestInfo;
+  //   dispatch({type: UPDATE_REQUEST, requestInfo, type});
+  dispatch({type: UPDATE_REQUEST});
+
+  //   return requestInfo;
   // getState().requestInfo.inviteeCreateIdList
 };
 
@@ -229,25 +240,14 @@ export default function meetingInfo(state = initialState, action) {
         ...state,
       };
     case UPDATE_REQUEST:
-      list =
-        action.type == 'create'
-          ? status.inviteeCreateList
-          : status.inviteeParticiateList;
-      list.forEach((element) => {
-        if (element.id == action.requestInfo.id) {
-          element = action.request;
-          return {
-            ...state,
-          };
-        }
-      });
-
-    case PARTICIPATE_MEETING:
-      status.inviterParticiatList.push(action.requestInfo);
       return {
         ...state,
       };
-
+    case PARTICIPATE_MEETING:
+      //   status.inviterParticiatList.push(action.requestInfo);
+      return {
+        ...state,
+      };
     default:
       return state;
   }
