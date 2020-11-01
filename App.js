@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {SafeAreaView, StyleSheet, View, Text} from 'react-native';
 import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import merge from 'deepmerge';
@@ -8,6 +8,8 @@ import * as name from './src/screens/index';
 import Icon from 'react-native-vector-icons/Ionicons';
 import messaging from '@react-native-firebase/messaging';
 import { Alert } from 'react-native';
+import {useSelector, useDispatch, shallowEqual} from 'react-redux';
+import { fcmTokenAsync } from './src/modules/login';
 
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -26,7 +28,7 @@ const MyTheme = {
   },
 };
 
-function App() {
+const  App = () => {
   const {
     Login,
     SignUp,
@@ -37,14 +39,33 @@ function App() {
     AddMeeting,
     GoogleMap,
   } = name;
+  const [pushToken, setPushToken] = useState(null)
+  const dispatch = useDispatch();
+  const onFcmToken = useCallback((fcmToken) => dispatch(fcmTokenAsync(fcmToken)),[dispatch],);
 
-  useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
+  const foregroundListener  = useCallback(() => {
+    messaging().onMessage(async remoteMessage => {
+      console.log(remoteMessage)
       const { body, title } = remoteMessage.notification
       Alert.alert(title, body);
-    });
+    })
+  }, []);
 
-    return unsubscribe;
+  const handlePushToken = useCallback(async () => {
+    const enabled = await messaging().hasPermission()
+    // console.log(enabled)
+    if (enabled) {
+      const fcmToken = await messaging().getToken()
+      if (fcmToken) onFcmToken(fcmToken)
+    } else {
+      const authorizaed = await messaging.requestPermission()
+      console.log(authorizaed)
+    }
+  }, [])
+
+  useEffect(() => {
+    handlePushToken()
+    foregroundListener();
   }, []);
 
   const Navigator = () => {
