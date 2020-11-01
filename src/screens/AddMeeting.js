@@ -140,14 +140,14 @@ export default function AddMeeting({navigation}) {
         <View style={styles.list}>
           <Text style={styles.peopleCount}>
             {peopleCount}
-            <Reset setRemove={setRemoveFriend} />
+            <Reset remove={removeFriend} setRemove={setRemoveFriend} />
           </Text>
           <View style={styles.content}>
-            <Text style={styles.school}>{myInfo.school}</Text>
+            <Text style={styles.school}>{myInfo.mbti}</Text>
             <Text style={styles.intro}>{intro}</Text>
           </View>
           <Text style={styles.dates}>
-            <Reset setRemove={setRemoveDate} />
+            <Reset remove={removeDate} setRemove={setRemoveDate} />
 
             {dates}
           </Text>
@@ -188,44 +188,23 @@ export default function AddMeeting({navigation}) {
                   text: 'OK',
                   onPress: () => {
                     const date = dates.map((x) => {
-                      if (x.split('/')[0].length === 1) {
-                        if (x.split('/')[1].split('(')[0].length === 1) {
-                          return (
-                            '2020' +
-                            '-0' +
-                            x.split('/')[0] +
-                            '-0' +
-                            x.split('/')[1].split('(')[0]
-                          );
+                      const month = x.split('/')[0].replace('\n', '');
+                      const day = x.split('/')[1].split('(')[0];
+                      if (month.length === 1) {
+                        if (day.length === 1) {
+                          return `2020-0${month}-0${day}`;
                         } else {
-                          return (
-                            '2020' +
-                            '-0' +
-                            x.split('/')[0] +
-                            '-' +
-                            x.split('/')[1].split('(')[0]
-                          );
+                          return `2020-0${month}-${day}`;
                         }
                       } else {
-                        if (x.split('/')[1].split('(')[0].length === 1) {
-                          return (
-                            '2020' +
-                            '-' +
-                            x.split('/')[0] +
-                            '-0' +
-                            x.split('/')[1].split('(')[0]
-                          );
+                        if (day.length === 1) {
+                          return `2020-${month}-0${day}`;
                         } else {
-                          return (
-                            '2020' +
-                            '-' +
-                            x.split('/')[0] +
-                            '-' +
-                            x.split('/')[1].split('(')[0]
-                          );
+                          return `2020-${month}-${day}`;
                         }
                       }
                     });
+                    console.log(date);
                     createRoom(
                       friends,
                       date,
@@ -247,14 +226,14 @@ export default function AddMeeting({navigation}) {
   );
 }
 
-function Reset({setRemove}) {
+function Reset({remove, setRemove}) {
   return (
     <View>
       <FancyButton
         mode="outlined"
         color="#000069"
         onPress={() => {
-          setRemove(true);
+          setRemove(!remove);
         }}>
         <Text style={styles.text}>X</Text>
       </FancyButton>
@@ -278,14 +257,13 @@ function DatePick({onChange, removeDate, setRemove}) {
   const handleConfirm = (date) => {
     hideDatePicker();
     const dates =
-      date.getMonth() +
-      1 +
+      '\n' +
+      (date.getMonth() + 1) +
       '/' +
       date.getDate() +
       '(' +
       CONST_VALUE.WEEK[date.getDay()] +
-      ') ' +
-      '\n';
+      ') ';
     setSelectedDate(selectedDate.concat(dates));
   };
 
@@ -294,15 +272,15 @@ function DatePick({onChange, removeDate, setRemove}) {
   };
 
   useEffect(() => {
+    onChange('dates', selectedDate);
+  }, [selectedDate]);
+
+  useEffect(() => {
     if (removeDate) {
       resetDate();
       setRemove(false);
     }
   });
-
-  useEffect(() => {
-    onChange('dates', selectedDate);
-  }, [selectedDate]);
 
   return (
     <View style={styles.datePick}>
@@ -603,7 +581,7 @@ const styles = StyleSheet.create({
   },
   school: {
     alignSelf: 'flex-start',
-    fontSize: 25,
+    fontSize: 20,
     padding: 10,
     fontFamily: FancyFonts.BMDOHYEON,
   },
