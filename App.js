@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {SafeAreaView, StyleSheet, View, Text} from 'react-native';
 import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import merge from 'deepmerge';
@@ -9,9 +9,9 @@ import {StackActions} from '@react-navigation/native';
 import * as name from './src/screens/index';
 import Icon from 'react-native-vector-icons/Ionicons';
 import messaging from '@react-native-firebase/messaging';
-import { Alert } from 'react-native';
+import {Alert} from 'react-native';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
-import { fcmTokenAsync } from './src/modules/login';
+import {fcmTokenAsync} from './src/modules/login';
 
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -32,7 +32,7 @@ const MyTheme = {
   },
 };
 
-const  App = () => {
+const App = () => {
   const {
     Login,
     SignUp,
@@ -45,32 +45,36 @@ const  App = () => {
     AddMeeting,
     GoogleMap,
   } = name;
-  const [pushToken, setPushToken] = useState(null)
+  const [pushToken, setPushToken] = useState(null);
   const dispatch = useDispatch();
-  const onFcmToken = useCallback((fcmToken) => dispatch(fcmTokenAsync(fcmToken)),[dispatch],);
+  const onFcmToken = useCallback(
+    (fcmToken) => dispatch(fcmTokenAsync(fcmToken)),
+    [dispatch],
+  );
 
-  const foregroundListener  = useCallback(() => {
-    messaging().onMessage(async remoteMessage => {
-      console.log(remoteMessage)
-      const { body, title } = remoteMessage.notification
+  const foregroundListener = useCallback(() => {
+    messaging().onMessage(async (remoteMessage) => {
+      console.log(remoteMessage);
+      const {body, title} = remoteMessage.notification;
       Alert.alert(title, body);
-    })
+    });
   }, []);
 
   const handlePushToken = useCallback(async () => {
-    const enabled = await messaging().hasPermission()
+    const enabled = await messaging().hasPermission();
     // console.log(enabled)
     if (enabled) {
-      const fcmToken = await messaging().getToken()
-      if (fcmToken) onFcmToken(fcmToken)
+      const fcmToken = await messaging().getToken();
+      console.log(fcmToken);
+      if (fcmToken) onFcmToken(fcmToken);
     } else {
-      const authorizaed = await messaging.requestPermission()
-      console.log(authorizaed)
+      const authorizaed = await messaging.requestPermission();
+      console.log(authorizaed);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    handlePushToken()
+    handlePushToken();
     foregroundListener();
   }, []);
 
@@ -193,6 +197,6 @@ const  App = () => {
     );
   };
   return <Navigator />;
-}
+};
 
 export default App;

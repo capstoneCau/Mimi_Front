@@ -29,6 +29,7 @@ import {requestKaKaoAuthIdAsync} from '../modules/login';
 import {myFriendList, getFriendInfo} from '../modules/myFriend';
 import {getAllRoomList} from '../modules/meetingInfo';
 import {participateAtRoom} from '../modules/requestInfo';
+
 import App from '../../App';
 
 var width = Dimensions.get('window').width;
@@ -225,7 +226,7 @@ function Friends({
               />
               <Text style={styles.memberText}>{friendName[1]}</Text>
             </View>
-            <View style={styles.memberContainer}>
+            {/* <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {
                   if (isAdd3 === false) {
@@ -239,7 +240,7 @@ function Friends({
                 status={isAdd3 ? 'checked' : 'unchecked'}
               />
               <Text style={styles.memberText}>{friendName[2]}</Text>
-            </View>
+            </View> */}
           </Dialog.Content>
           <Dialog.Actions>
             <FancyButton

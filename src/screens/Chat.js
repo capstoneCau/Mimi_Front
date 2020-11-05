@@ -39,7 +39,7 @@ export default function Chat() {
   //     BackHandler.removeEventListener('hardwareBackPress', backAction);
   // }, []);
   const [restart, setRestart] = useState('false');
-
+  const [roomInfos, setRoomInfos] = useState([]);
   const dispatch = useDispatch();
   const myInfo = useSelector((state) => state.login);
   const roomInfo = useSelector((state) => state.meetingInfo);
@@ -51,8 +51,11 @@ export default function Chat() {
     [dispatch],
   );
   useEffect(() => {
+    const getRoom = async () => {
+      setRoomInfos(await getMatchedRoom(myInfo.token));
+    };
     myFriend(myInfo.token);
-    getMatchedRoom(myInfo.token);
+    getRoom();
   }, [restart]);
   const {colors} = useTheme();
 
@@ -69,7 +72,7 @@ export default function Chat() {
       </Appbar.Header>
       <Text style={styles.titleText}>Matching</Text>
       <FlatList
-        data={roomInfo.myRoomList}
+        data={roomInfos}
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[

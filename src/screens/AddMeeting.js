@@ -117,7 +117,6 @@ export default function AddMeeting({navigation}) {
   const hideFriends = () => {
     setShowFriendModal(false);
   };
-
   return (
     <View style={styles.continer}>
       {showFriendModal && (
@@ -140,14 +139,14 @@ export default function AddMeeting({navigation}) {
         <View style={styles.list}>
           <Text style={styles.peopleCount}>
             {peopleCount}
-            <Reset remove={removeFriend} setRemove={setRemoveFriend} />
+            {/* <Reset remove={removeFriend} setRemove={setRemoveFriend} /> */}
           </Text>
           <View style={styles.content}>
             <Text style={styles.school}>{myInfo.mbti}</Text>
             <Text style={styles.intro}>{intro}</Text>
           </View>
           <Text style={styles.dates}>
-            <Reset remove={removeDate} setRemove={setRemoveDate} />
+            {/* <Reset remove={removeDate} setRemove={setRemoveDate} /> */}
 
             {dates}
           </Text>
@@ -176,9 +175,7 @@ export default function AddMeeting({navigation}) {
           onPress={() => {
             Alert.alert(
               '확인해주세요',
-              `${_friendInfo.myFriend.map((val) => {
-                return val.to_user.name;
-              })}에게 참가요청 메세지를 보냅니다.`,
+              '방을 생성하시겠습니까?',
               [
                 {
                   text: 'Cancel',
@@ -327,6 +324,7 @@ function Friends({
   friends,
   setFriends,
 }) {
+  const [add, setAdd] = useState([]);
   const [isAdd1, setIsAdd1] = useState(false);
   const [isAdd2, setIsAdd2] = useState(false);
   const [isAdd3, setIsAdd3] = useState(false);
@@ -381,7 +379,7 @@ function Friends({
               />
               <Text style={styles.memberText}>{friendName[1]}</Text>
             </View>
-            <View style={styles.memberContainer}>
+            {/* <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {
                   if (isAdd3 === false) {
@@ -397,7 +395,7 @@ function Friends({
                 status={isAdd3 ? 'checked' : 'unchecked'}
               />
               <Text style={styles.memberText}>{friendName[2]}</Text>
-            </View>
+            </View> */}
             {/* <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {

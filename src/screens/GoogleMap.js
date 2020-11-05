@@ -31,13 +31,13 @@ var height = Dimensions.get('window').height;
 const GoogleMap = () => {
   // console.log(google, naver)
   const [orgLocation, setOrgLocation] = useState({
-    "latitude" : 0.0,
-    "longitude" : 0.0
-  })
+    latitude: 0.0,
+    longitude: 0.0,
+  });
   const [desLocation, setDesLocation] = useState({
-    "latitude" : 0.0,
-    "longitude" : 0.0
-  })
+    latitude: 0.0,
+    longitude: 0.0,
+  });
 
   const [duration, setDuration] = useState(0);
 
@@ -57,7 +57,7 @@ const GoogleMap = () => {
     min: 0,
   });
 
-  const user = useSelector((state) => state.login, shallowEqual)
+  const user = useSelector((state) => state.login, shallowEqual);
   useEffect(() => {
     getCurrentPosition();
   }, []);
@@ -77,7 +77,6 @@ const GoogleMap = () => {
 
   //   return {hour, min};
   // };
-
 
   const getDistanceTimeByNaver = async (desLatitude, desLongitude) => {
     const CLIENT_ID = naver.client_id;
@@ -118,33 +117,41 @@ const GoogleMap = () => {
   const getCurrentPosition = async () => {
     await requestLocationPermission();
     Geolocation.getCurrentPosition((position) => {
-      setOrgLocation(position.coords)
+      setOrgLocation(position.coords);
     });
   };
 
   const getCurrentPositionWatch = async () => {
     await requestLocationPermission();
-    if(_watchId == null && (desLocation.latitude > 0.0 && desLocation.longitude > 0.0)) {
-      watchId = Geolocation.watchPosition((position) => {
-        setOrgLocation(position.coords);
-        const distance = getDistanceTwoPosition();
-        console.log("위치와의 거리 : ", distance, "m");
-        if (distance < 100) {
-          console.log("목적지에 도착하였습니다.")
-          Geolocation.clearWatch(watchId);
-          watchId = null;
-          setWatchId(null);
-          console.log("종료");
-        }
-      },(error) => {
-        // console.log(error);
-      },{
-        enableHighAccuracy: true,
-        distanceFilter: 0,
-        interval: 5000,
-        fastestInterval: 2000,
-      })
-      setWatchId(watchId)      
+    if (
+      _watchId == null &&
+      desLocation.latitude > 0.0 &&
+      desLocation.longitude > 0.0
+    ) {
+      watchId = Geolocation.watchPosition(
+        (position) => {
+          setOrgLocation(position.coords);
+          const distance = getDistanceTwoPosition();
+          console.log('위치와의 거리 : ', distance, 'm');
+          if (distance < 100) {
+            console.log('목적지에 도착하였습니다.');
+            Geolocation.clearWatch(watchId);
+            watchId = null;
+            setWatchId(null);
+            console.log('종료');
+          }
+        },
+        (error) => {
+          // console.log(error);
+        },
+        {
+          enableHighAccuracy: true,
+          distanceFilter: 0,
+          interval: 5000,
+          fastestInterval: 2000,
+        },
+      );
+      setWatchId(watchId);
     }
   };
 
@@ -153,24 +160,40 @@ const GoogleMap = () => {
       Geolocation.clearWatch(_watchId);
       setWatchId(null);
       watchId = null;
-      sendNotification(["1489710892"], "title", "body", user.token)
+      sendNotification(
+        ['1489710892', '1519828858'],
+        '안전귀가서비스',
+        `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
+        user.token,
+      );
     }
   };
 
   const getDistanceTwoPosition = () => {
     const theta = orgLocation.longitude - desLocation.longitude;
-    const dist = rad2deg(Math.acos(Math.sin(deg2rad(orgLocation.latitude)) * Math.sin(deg2rad(desLocation.latitude)) + Math.cos(deg2rad(orgLocation.latitude))
-          * Math.cos(deg2rad(desLocation.latitude)) * Math.cos(deg2rad(theta))))* 60 * 1.1515 * 1.609344;
+    const dist =
+      rad2deg(
+        Math.acos(
+          Math.sin(deg2rad(orgLocation.latitude)) *
+            Math.sin(deg2rad(desLocation.latitude)) +
+            Math.cos(deg2rad(orgLocation.latitude)) *
+              Math.cos(deg2rad(desLocation.latitude)) *
+              Math.cos(deg2rad(theta)),
+        ),
+      ) *
+      60 *
+      1.1515 *
+      1.609344;
 
-    return Number(dist*1000).toFixed(2);   // 단위 : m
-  }
+    return Number(dist * 1000).toFixed(2); // 단위 : m
+  };
 
   const deg2rad = (deg) => {
-    return (deg * Math.PI / 180);
-  }
+    return (deg * Math.PI) / 180;
+  };
   const rad2deg = (rad) => {
-    return (rad * 180 / Math.PI);
-  }
+    return (rad * 180) / Math.PI;
+  };
 
   const getAddressPosition = async (address) => {
     const APP_KEY = google.geocoding;
@@ -226,7 +249,7 @@ const GoogleMap = () => {
             onPress={() => {
               getCurrentPositionWatch();
             }}>
-            <Text style={styles.text}>주소GET</Text>
+            <Text style={styles.text}>위치추적</Text>
           </FancyButton>
         </View>
         <View style={styles.subContainer}>
@@ -243,18 +266,26 @@ const GoogleMap = () => {
       </View>
       <View style={styles.secContainer}>
         <View>
-          <Text style={styles.coordText}>Org Latitude : {orgLocation.latitude}</Text>
+          <Text style={styles.coordText}>
+            Org Latitude : {orgLocation.latitude}
+          </Text>
         </View>
         <View>
-          <Text style={styles.coordText}>Org Longitute : {orgLocation.longitude}</Text>
+          <Text style={styles.coordText}>
+            Org Longitute : {orgLocation.longitude}
+          </Text>
         </View>
       </View>
       <View style={styles.secContainer}>
         <View>
-          <Text style={styles.coordText}>Des Latitude : {desLocation.latitude}</Text>
+          <Text style={styles.coordText}>
+            Des Latitude : {desLocation.latitude}
+          </Text>
         </View>
         <View>
-          <Text style={styles.coordText}>Des Longitute : {desLocation.longitude}</Text>
+          <Text style={styles.coordText}>
+            Des Longitute : {desLocation.longitude}
+          </Text>
         </View>
       </View>
       <View style={styles.inputContainer}>
@@ -277,8 +308,8 @@ const GoogleMap = () => {
             const {lat, lng} = await getAddressPosition(testLocation);
             // console.log(await getAddressPosition(testLocation));
             setDesLocation({
-              "latitude" : lat,
-              "longitude" : lng
+              latitude: lat,
+              longitude: lng,
             });
             setNaverTime(await getDistanceTimeByNaver(lat, lng));
             setOdysayTime(await getDistanceTimeByOdySay(lat, lng));
@@ -305,7 +336,7 @@ const GoogleMap = () => {
       </View>
     </View>
   );
-}
+};
 export default GoogleMap;
 
 const styles = StyleSheet.create({
