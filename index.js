@@ -8,22 +8,23 @@ import React from 'react';
 import {name as appName} from './app.json';
 import {Provider as StoreProvieder} from 'react-redux';
 import {Provider as PaperProvider} from 'react-native-paper';
-import {createStore, applyMiddleware} from 'redux';
-import rootReducer from './src/modules/index';
-import ReduxThunk from 'redux-thunk';
+import {PersistGate} from 'redux-persist/integration/react';
 import messaging from '@react-native-firebase/messaging';
+import configureStore from './src/store/index';
 
-messaging().setBackgroundMessageHandler(async remoteMessage => {
+messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log('Message handled in the background!', remoteMessage);
 });
 
-const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
+const {store, persistor} = configureStore();
 
 const Root = () => (
   <StoreProvieder store={store}>
-    <PaperProvider>
-      <App />
-    </PaperProvider>
+    <PersistGate loading={null} persistor={persistor}>
+      <PaperProvider>
+        <App />
+      </PaperProvider>
+    </PersistGate>
   </StoreProvieder>
 );
 
