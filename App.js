@@ -45,13 +45,14 @@ const App = () => {
     AddMeeting,
     GoogleMap,
   } = name;
+  const myInfo = useSelector((state) => state.login);
   const [pushToken, setPushToken] = useState(null);
   const dispatch = useDispatch();
   const onFcmToken = useCallback(
     (fcmToken) => dispatch(fcmTokenAsync(fcmToken)),
     [dispatch],
   );
-
+  console.log('persist' + JSON.stringify(myInfo.kakaoId));
   const foregroundListener = useCallback(() => {
     messaging().onMessage(async (remoteMessage) => {
       console.log(remoteMessage);

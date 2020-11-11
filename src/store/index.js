@@ -1,12 +1,13 @@
 import {createStore, applyMiddleware} from 'redux';
-import rootReducer from '../reducers';
+import rootReducer from '../modules/index';
 import {persistStore, persistReducer} from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+//import storage from 'redux-persist/lib/storage';
 import ReduxThunk from 'redux-thunk';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const persistConfig = {
   key: 'kakaoId',
-  storage: storage,
+  storage: AsyncStorage,
   whitelist: ['kakaoId'],
 };
 
