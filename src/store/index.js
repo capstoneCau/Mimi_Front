@@ -6,9 +6,9 @@ import ReduxThunk from 'redux-thunk';
 import AsyncStorage from '@react-native-community/async-storage';
 
 const persistConfig = {
-  key: 'kakaoId',
+  key: 'userInfo',
   storage: AsyncStorage,
-  whitelist: ['kakaoId'],
+  whitelist: ['userInfo'],
 };
 
 const enhancedReducer = persistReducer(persistConfig, rootReducer);

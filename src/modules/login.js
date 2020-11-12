@@ -90,7 +90,6 @@ export const fcmTokenAsync = (fcmToken, token = null) => async (
 // 초기 상태
 const initialState = {
   isLogin: false,
-  kakaoId: null,
 };
 
 // 리듀서 작성
