@@ -55,11 +55,6 @@ export default function KakaoLoginBtn({navigation}) {
         setProfileLoading(false),
       );
 
-      // if (await onLoginUser('1111111111')) {
-      // if (await onLoginUser('2222222222')) {
-      // if (await onLoginUser('3333333333')) {
-      // if (await onLoginUser('1489710892')) {
-      // if (await onLoginUser('1519828858')) {
       if (await onLoginUser(profile.id)) {
         navigation.navigate('Home');
       } else {
