@@ -25,6 +25,8 @@ import {google, naver, odysay} from '../../apiKey.json';
 import {FancyButton, FancyFonts} from '../common/common';
 import {sendNotification} from '../modules/sendNotification';
 import {useSelector, shallowEqual} from 'react-redux';
+import BackgroundFetch from 'react-native-background-fetch';
+import BackgroundTimer from 'react-native-background-timer';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -47,10 +49,12 @@ const GoogleMap = () => {
   const [googleTime, setGoogleTime] = useState({
     hour: 0,
     min: 0,
+    sec: 0,
   });
   const [naverTime, setNaverTime] = useState({
     hour: 0,
     min: 0,
+    sec: 0,
   });
   const [odysayTime, setOdysayTime] = useState({
     hour: 0,
@@ -60,6 +64,14 @@ const GoogleMap = () => {
   const user = useSelector((state) => state.login, shallowEqual);
   useEffect(() => {
     getCurrentPosition();
+    // BackgroundFetch.scheduleTask({
+    //   taskId: 'google',
+    //   // delay: 2000,
+    //   forceAlarmManager: true,
+    //   enableHeadless : true,
+    //   stopOnTerminate: false,
+    //   periodic: true
+    // });
   }, []);
 
   // const getDistanceTimeByGoogle = async (desLatitude, desLongitude) => {
@@ -97,7 +109,10 @@ const GoogleMap = () => {
     const time = parseInt(json.route.traoptimal[0].summary.duration);
     const hour = parseInt(time / 1000 / 3600);
     const min = parseInt((time / 1000 - hour * 3600) / 60);
-    return {hour, min};
+    const sec = parseInt( (time / 1000) - (hour * 3600) - (min * 60));
+    console.log(time, hour, min, sec)
+
+    return {hour, min, sec};
   };
 
   const getDistanceTimeByOdySay = async (desLatitude, desLongitude) => {
@@ -109,8 +124,12 @@ const GoogleMap = () => {
 
     const res = await fetch(BASE_URL + params);
     const json = await res.json();
+    if (json.error) {
+      return {hour : 0, min : 0};
+    }
     const min = parseInt(json.result.path[0].info.totalTime);
     const hour = parseInt(min / 60);
+    
     return {hour, min};
   };
 
@@ -128,44 +147,59 @@ const GoogleMap = () => {
       desLocation.latitude > 0.0 &&
       desLocation.longitude > 0.0
     ) {
-      watchId = Geolocation.watchPosition(
-        (position) => {
+      // watchId = Geolocation.watchPosition(
+      //   (position) => {
+      //     setOrgLocation(position.coords);
+      //     const distance = getDistanceTwoPosition();
+      //     console.log('위치와의 거리 : ', distance, 'm');
+      //     if (distance < 100) {
+      //       console.log('목적지에 도착하였습니다.');
+      //       Geolocation.clearWatch(watchId);
+      //       watchId = null;
+      //       setWatchId(null);
+      //       console.log('종료');
+      //     }
+      //   },
+      //   (error) => {
+      //     // console.log(error);
+      //   },
+      //   {
+      //     enableHighAccuracy: true,
+      //     distanceFilter: 0,
+      //     interval: 5000,
+      //     fastestInterval: 2000,
+      //   },
+      // );
+      watchId = BackgroundTimer.setInterval(()=>{
+        Geolocation.getCurrentPosition((position) => {
           setOrgLocation(position.coords);
-          const distance = getDistanceTwoPosition();
+        });
+        const distance = getDistanceTwoPosition();
           console.log('위치와의 거리 : ', distance, 'm');
-          if (distance < 100) {
+          if (distance < 300) {
             console.log('목적지에 도착하였습니다.');
-            Geolocation.clearWatch(watchId);
+            BackgroundTimer.clearInterval(watchId);
             watchId = null;
             setWatchId(null);
             console.log('종료');
           }
-        },
-        (error) => {
-          // console.log(error);
-        },
-        {
-          enableHighAccuracy: true,
-          distanceFilter: 0,
-          interval: 5000,
-          fastestInterval: 2000,
-        },
-      );
+      }, 2000)
       setWatchId(watchId);
     }
   };
 
   const stopGetPosition = () => {
     if (_watchId !== null) {
-      Geolocation.clearWatch(_watchId);
+      // Geolocation.clearWatch(_watchId);
+      BackgroundTimer.clearInterval(_watchId);
       setWatchId(null);
       watchId = null;
-      sendNotification(
-        ['1489710892', '1519828858'],
-        '안전귀가서비스',
-        `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
-        user.token,
-      );
+      // sendNotification(
+      //   ['1489710892', '1519828858'],
+      //   '안전귀가서비스',
+      //   `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
+      //   user.token,
+      // );
     }
   };
 
@@ -325,7 +359,7 @@ const GoogleMap = () => {
         </View> */}
         <View>
           <Text style={styles.coordText}>
-            Naver : {naverTime.hour}h {naverTime.min}m
+            Naver : {naverTime.hour}h {naverTime.min}m {naverTime.sec}s
           </Text>
         </View>
         <View>
