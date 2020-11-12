@@ -1,5 +1,5 @@
 import {SERVER_DOMAIN} from '../common/common';
-
+import infoToLocal from '../common/InfoToLocal';
 //Action Type
 const LOGIN_USER = 'login/LOGIN_USER';
 const LOGOUT = 'login/LOGOUT';
@@ -56,6 +56,7 @@ export const requestKaKaoAuthIdAsync = (kakaoId) => async (
     }),
   });
   const result = await res.json();
+  infoToLocal('kakaoId', kakaoId);
   if (result['user'] == null) {
     dispatch({type: REQUEST_KAKAO_AUTH_ID, kakaoId});
     return false;
