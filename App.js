@@ -12,6 +12,8 @@ import messaging from '@react-native-firebase/messaging';
 import {Alert} from 'react-native';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {fcmTokenAsync} from './src/modules/login';
+import localToInfo from './src/common/LocalToInfo';
+import {requestKaKaoAuthIdAsync} from './src/modules/login';
 
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -46,12 +48,18 @@ const App = () => {
     GoogleMap,
   } = name;
   const [pushToken, setPushToken] = useState(null);
+  const [isLogin, setIsLogin] = useState(false);
+  const [initDestination, setInitDestination] = useState('Login');
   const dispatch = useDispatch();
+  const onLoginUser = useCallback(
+    (kakaoId) => dispatch(requestKaKaoAuthIdAsync(kakaoId)),
+    [dispatch],
+  );
+  //const myInfo = useSelector((state) => state.login); //상단에 쓰면 왜 무한 리렌더링??
   const onFcmToken = useCallback(
     (fcmToken) => dispatch(fcmTokenAsync(fcmToken)),
     [dispatch],
   );
-
   const foregroundListener = useCallback(() => {
     messaging().onMessage(async (remoteMessage) => {
       console.log(remoteMessage);
@@ -72,6 +80,19 @@ const App = () => {
       console.log(authorizaed);
     }
   }, []);
+
+  useEffect(() => {
+    localToInfo('kakaoId')
+      .then((result) => {
+        onLoginUser(result);
+        return result;
+      })
+      .then((result) => {
+        if (result.length === 10) {
+          setInitDestination('Home');
+        }
+      });
+  }, [isLogin]);
 
   useEffect(() => {
     handlePushToken();
@@ -189,7 +210,7 @@ const App = () => {
 
     return (
       <NavigationContainer theme={MyTheme}>
-        <Stack.Navigator initialRouteName="Login" headerMode="false">
+        <Stack.Navigator initialRouteName={initDestination} headerMode="false">
           <Stack.Screen name="Login" component={loginStack} />
           <Stack.Screen name="Home" component={homeStack} />
         </Stack.Navigator>

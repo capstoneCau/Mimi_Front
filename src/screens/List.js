@@ -37,8 +37,14 @@ var height = Dimensions.get('window').height;
 
 export default function List({navigation}) {
   const {colors} = useTheme();
-  const _friendInfo = useSelector((state) => state.myFriend);
-
+  const myInfo = useSelector((state) => state.login);
+  const roomInfo = useSelector((state) => state.meetingInfo);
+  const friendInfo = useSelector((state) => state.myFriend);
+  const [friends, setFriends] = useState([]);
+  const [showFriendModal, setShowFriendModal] = useState(false);
+  const [removeFriend, setRemoveFriend] = useState(false);
+  const [roomNum, setRoomNum] = useState(-1);
+  const [restart, setRestart] = useState(false);
   //List 출력전 전부 해야하는 부분//
   const dispatch = useDispatch();
   const getUser = useCallback(
@@ -56,14 +62,6 @@ export default function List({navigation}) {
       dispatch(participateAtRoom(participation_user_list, room_id, token)),
     [dispatch],
   );
-  const myInfo = useSelector((state) => state.login);
-  const roomInfo = useSelector((state) => state.meetingInfo);
-  const friendInfo = useSelector((state) => state.myFriend);
-  const [friends, setFriends] = useState([]);
-  const [showFriendModal, setShowFriendModal] = useState(false);
-  const [removeFriend, setRemoveFriend] = useState(false);
-  const [roomNum, setRoomNum] = useState(-1);
-  const [restart, setRestart] = useState(false);
   useEffect(() => {
     myFriend(myInfo.token);
     getAllRoom(myInfo.token);
@@ -95,6 +93,7 @@ export default function List({navigation}) {
   };
 
   const handleAdd = () => {
+    setRestart(!restart);
     navigation.navigate('AddMeeting');
   };
 

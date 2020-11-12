@@ -13,7 +13,7 @@ import rootReducer from './src/modules/index';
 import ReduxThunk from 'redux-thunk';
 import messaging from '@react-native-firebase/messaging';
 
-messaging().setBackgroundMessageHandler(async remoteMessage => {
+messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log('Message handled in the background!', remoteMessage);
 });
 
