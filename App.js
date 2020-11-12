@@ -45,14 +45,23 @@ const App = () => {
     AddMeeting,
     GoogleMap,
   } = name;
-  const myInfo = useSelector((state) => state.login);
   const [pushToken, setPushToken] = useState(null);
+  const [initialDestination, setInitialDestination] = useState('Login');
+  const [changeRoute, setChangeRoute] = useState(false);
   const dispatch = useDispatch();
+  const myInfo = useSelector((state) => state.login); //상단에 쓰면 왜 무한 리렌더링??
+  console.log(myInfo.isLogin);
+  useEffect(() => {
+    let dest = 'Login';
+    if (myInfo.isLogin) {
+      dest = 'Home';
+    }
+    setInitialDestination(dest);
+  }, []);
   const onFcmToken = useCallback(
     (fcmToken) => dispatch(fcmTokenAsync(fcmToken)),
     [dispatch],
   );
-  console.log('persist' + JSON.stringify(myInfo.kakaoId));
   const foregroundListener = useCallback(() => {
     messaging().onMessage(async (remoteMessage) => {
       console.log(remoteMessage);
@@ -73,6 +82,12 @@ const App = () => {
       console.log(authorizaed);
     }
   }, []);
+
+  const setInitialRoute = (kakaoId) => {
+    if (kakaoId) {
+      setInitialDestination('Home');
+    }
+  };
 
   useEffect(() => {
     handlePushToken();
@@ -190,7 +205,9 @@ const App = () => {
 
     return (
       <NavigationContainer theme={MyTheme}>
-        <Stack.Navigator initialRouteName="Login" headerMode="false">
+        <Stack.Navigator
+          initialRouteName={initialDestination}
+          headerMode="false">
           <Stack.Screen name="Login" component={loginStack} />
           <Stack.Screen name="Home" component={homeStack} />
         </Stack.Navigator>

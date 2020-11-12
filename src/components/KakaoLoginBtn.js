@@ -61,7 +61,6 @@ export default function KakaoLoginBtn({navigation}) {
       // if (await onLoginUser('1489710892')) {
       // if (await onLoginUser('1519828858')) {
       if (await onLoginUser(profile.id)) {
-        //
         navigation.navigate('Home');
       } else {
         navigation.navigate('SignUp', {
