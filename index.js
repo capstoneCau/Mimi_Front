@@ -7,7 +7,7 @@ import App from './App';
 import React from 'react';
 import {name as appName} from './app.json';
 import {Provider as StoreProvieder} from 'react-redux';
-import {Provider as PaperProvider} from 'react-native-paper';
+import {DefaultTheme, Provider as PaperProvider} from 'react-native-paper';
 import {createStore, applyMiddleware} from 'redux';
 import rootReducer from './src/modules/index';
 import ReduxThunk from 'redux-thunk';
@@ -18,10 +18,19 @@ messaging().setBackgroundMessageHandler(async (remoteMessage) => {
 });
 
 const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
+const theme = {
+  ...DefaultTheme,
+  roundness: 2,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#3498db',
+    accent: '#f1c40f',
+  },
+};
 
 const Root = () => (
   <StoreProvieder store={store}>
-    <PaperProvider>
+    <PaperProvider theme={theme}>
       <App />
     </PaperProvider>
   </StoreProvieder>
