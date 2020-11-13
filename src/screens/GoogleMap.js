@@ -25,7 +25,6 @@ import {google, naver, odysay} from '../../apiKey.json';
 import {FancyButton, FancyFonts} from '../common/common';
 import {sendNotification} from '../modules/sendNotification';
 import {useSelector, shallowEqual} from 'react-redux';
-import BackgroundFetch from 'react-native-background-fetch';
 import BackgroundTimer from 'react-native-background-timer';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -109,8 +108,8 @@ const GoogleMap = () => {
     const time = parseInt(json.route.traoptimal[0].summary.duration);
     const hour = parseInt(time / 1000 / 3600);
     const min = parseInt((time / 1000 - hour * 3600) / 60);
-    const sec = parseInt( (time / 1000) - (hour * 3600) - (min * 60));
-    console.log(time, hour, min, sec)
+    const sec = parseInt(time / 1000 - hour * 3600 - min * 60);
+    console.log(time, hour, min, sec);
 
     return {hour, min, sec};
   };
@@ -125,11 +124,11 @@ const GoogleMap = () => {
     const res = await fetch(BASE_URL + params);
     const json = await res.json();
     if (json.error) {
-      return {hour : 0, min : 0};
+      return {hour: 0, min: 0};
     }
     const min = parseInt(json.result.path[0].info.totalTime);
     const hour = parseInt(min / 60);
-    
+
     return {hour, min};
   };
 
@@ -170,20 +169,20 @@ const GoogleMap = () => {
       //     fastestInterval: 2000,
       //   },
       // );
-      watchId = BackgroundTimer.setInterval(()=>{
+      watchId = BackgroundTimer.setInterval(() => {
         Geolocation.getCurrentPosition((position) => {
           setOrgLocation(position.coords);
         });
         const distance = getDistanceTwoPosition();
-          console.log('위치와의 거리 : ', distance, 'm');
-          if (distance < 300) {
-            console.log('목적지에 도착하였습니다.');
-            BackgroundTimer.clearInterval(watchId);
-            watchId = null;
-            setWatchId(null);
-            console.log('종료');
-          }
-      }, 2000)
+        console.log('위치와의 거리 : ', distance, 'm');
+        if (distance < 300) {
+          console.log('목적지에 도착하였습니다.');
+          BackgroundTimer.clearInterval(watchId);
+          watchId = null;
+          setWatchId(null);
+          console.log('종료');
+        }
+      }, 2000);
       setWatchId(watchId);
     }
   };
