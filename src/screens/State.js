@@ -18,7 +18,9 @@ import {
   updateRequest,
 } from '../modules/requestInfo';
 import {
+  Provider,
   Appbar,
+  Modal,
   Avatar,
   TextInput,
   Text,
@@ -33,6 +35,7 @@ import {
 } from 'react-native-paper';
 import {FancyFonts, backAction, FancyButton} from '../common/common';
 import {updateScopes} from '@react-native-seoul/kakao-login';
+import StateInfoModal from '../components/StateInfoModal';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -43,8 +46,9 @@ export default function State() {
   //   return () =>
   //     BackHandler.removeEventListener('hardwareBackPress', backAction);
   // }, []);
+  const [visible, setVisible] = useState(false);
   const [restart, setRestart] = useState('false');
-
+  const [roomNum, setRoomNum] = useState(0);
   const dispatch = useDispatch();
   const myInfo = useSelector((state) => state.login);
   const roomInfo = useSelector((state) => state.requestInfo);
@@ -69,6 +73,10 @@ export default function State() {
       dispatch(updateRequest(type, isAccepted, requestId, token)),
     [dispatch],
   );
+
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
+
   useEffect(() => {
     getInviterCreate(myInfo.token);
     getInviteeCreate(myInfo.token);
@@ -101,30 +109,32 @@ export default function State() {
             ]}
             onPress={() => {
               if (item.user_role == 'invitee') {
-                Alert.alert(
-                  '확인해주세요',
-                  '참가하시겠습니까?',
-                  [
-                    {
-                      text: '취소',
-                      style: 'cancel',
-                    },
-                    {
-                      text: '아니오',
-                      style: 'cancel',
-                      onPress: () => {
-                        update('create', 'r', item.id, myInfo.token);
-                      },
-                    },
-                    {
-                      text: '네',
-                      onPress: () => {
-                        update('create', 'a', item.id, myInfo.token);
-                      },
-                    },
-                  ],
-                  {cancelable: false},
-                );
+                setRoomNum(item.id);
+                showModal();
+                // Alert.alert(
+                //   '확인해주세요',
+                //   '참가하시겠습니까?',
+                //   [
+                //     {
+                //       text: '취소',
+                //       style: 'cancel',
+                //     },
+                //     {
+                //       text: '아니오',
+                //       style: 'cancel',
+                //       onPress: () => {
+                //         update('create', 'r', item.id, myInfo.token);
+                //       },
+                //     },
+                //     {
+                //       text: '네',
+                //       onPress: () => {
+                //         update('create', 'a', item.id, myInfo.token);
+                //       },
+                //     },
+                //   ],
+                //   {cancelable: false},
+                // );
               } else {
                 console.log('나는방장');
               }
@@ -207,9 +217,16 @@ export default function State() {
         )}
         keyExtractor={(_item, index) => `${index}`}
       />
+      <StateInfoModal
+        visible={visible}
+        hideModal={hideModal}
+        token={myInfo.token}
+        requestId={roomNum}
+      />
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -264,5 +281,8 @@ const styles = StyleSheet.create({
     fontFamily: FancyFonts.BMDOHYEON,
     textAlign: 'center',
     marginTop: 10,
+  },
+  containerStyle: {
+    backgroundColor: 'white',
   },
 });
