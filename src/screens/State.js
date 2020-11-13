@@ -34,7 +34,6 @@ import {
   RadioButton,
 } from 'react-native-paper';
 import {FancyFonts, backAction, FancyButton} from '../common/common';
-import {updateScopes} from '@react-native-seoul/kakao-login';
 import StateInfoModal from '../components/StateInfoModal';
 
 var width = Dimensions.get('window').width;
@@ -49,6 +48,7 @@ export default function State() {
   const [visible, setVisible] = useState(false);
   const [restart, setRestart] = useState('false');
   const [roomNum, setRoomNum] = useState(0);
+  const [roomType, setRoomType] = useState('');
   const dispatch = useDispatch();
   const myInfo = useSelector((state) => state.login);
   const roomInfo = useSelector((state) => state.requestInfo);
@@ -109,32 +109,9 @@ export default function State() {
             ]}
             onPress={() => {
               if (item.user_role == 'invitee') {
+                setRoomType('create');
                 setRoomNum(item.id);
                 showModal();
-                // Alert.alert(
-                //   '확인해주세요',
-                //   '참가하시겠습니까?',
-                //   [
-                //     {
-                //       text: '취소',
-                //       style: 'cancel',
-                //     },
-                //     {
-                //       text: '아니오',
-                //       style: 'cancel',
-                //       onPress: () => {
-                //         update('create', 'r', item.id, myInfo.token);
-                //       },
-                //     },
-                //     {
-                //       text: '네',
-                //       onPress: () => {
-                //         update('create', 'a', item.id, myInfo.token);
-                //       },
-                //     },
-                //   ],
-                //   {cancelable: false},
-                // );
               } else {
                 console.log('나는방장');
               }
@@ -169,30 +146,9 @@ export default function State() {
             ]}
             onPress={() => {
               if (item.user_role == 'invitee') {
-                Alert.alert(
-                  '확인해주세요',
-                  '참가하시겠습니까?',
-                  [
-                    {
-                      text: '취소',
-                      style: 'cancel',
-                    },
-                    {
-                      text: '아니오',
-                      style: 'cancel',
-                      onPress: () => {
-                        update('participate', 'r', item.id, myInfo.token);
-                      },
-                    },
-                    {
-                      text: '네',
-                      onPress: () => {
-                        update('participate', 'a', item.id, myInfo.token);
-                      },
-                    },
-                  ],
-                  {cancelable: false},
-                );
+                setRoomType('participate');
+                setRoomNum(item.id);
+                showModal();
               } else {
                 console.log('나는방장');
               }
@@ -222,6 +178,7 @@ export default function State() {
         hideModal={hideModal}
         token={myInfo.token}
         requestId={roomNum}
+        roomType={roomType}
       />
     </SafeAreaView>
   );
