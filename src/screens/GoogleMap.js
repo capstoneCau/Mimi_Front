@@ -19,19 +19,18 @@ import {
   useTheme,
   RadioButton,
 } from 'react-native-paper';
-// import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import Geolocation from 'react-native-geolocation-service';
 import {google, naver, odysay} from '../../apiKey.json';
 import {FancyButton, FancyFonts} from '../common/common';
 import {sendNotification} from '../modules/sendNotification';
 import {useSelector, shallowEqual} from 'react-redux';
-import BackgroundFetch from 'react-native-background-fetch';
 import BackgroundTimer from 'react-native-background-timer';
+import infoToLocal from '../common/InfoToLocal'
+import localToInfo from '../common/LocalToInfo'
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
 const GoogleMap = () => {
-  // console.log(google, naver)
   const [orgLocation, setOrgLocation] = useState({
     latitude: 0.0,
     longitude: 0.0,
@@ -40,17 +39,7 @@ const GoogleMap = () => {
     latitude: 0.0,
     longitude: 0.0,
   });
-
-  const [duration, setDuration] = useState(0);
-
-  const [_watchId, setWatchId] = useState(null);
-  let watchId = null;
   const [testLocation, setTestLocation] = useState('');
-  const [googleTime, setGoogleTime] = useState({
-    hour: 0,
-    min: 0,
-    sec: 0,
-  });
   const [naverTime, setNaverTime] = useState({
     hour: 0,
     min: 0,
@@ -64,31 +53,7 @@ const GoogleMap = () => {
   const user = useSelector((state) => state.login, shallowEqual);
   useEffect(() => {
     getCurrentPosition();
-    // BackgroundFetch.scheduleTask({
-    //   taskId: 'google',
-    //   // delay: 2000,
-    //   forceAlarmManager: true,
-    //   enableHeadless : true,
-    //   stopOnTerminate: false,
-    //   periodic: true
-    // });
   }, []);
-
-  // const getDistanceTimeByGoogle = async (desLatitude, desLongitude) => {
-  //   const APP_KEY = google.distance;
-  //   const BASE_URL =
-  //     'https://maps.googleapis.com/maps/api/distancematrix/json?';
-  //   const params = `units=metric&mode=transit&origins=${orgLatitude},${orgLongitude}&destinations=${desLatitude},${desLongitude}&region=KR&key=${APP_KEY}`;
-
-  //   const res = await fetch(BASE_URL + params);
-  //   const json = await res.json();
-
-  //   const time = parseInt(json.rows[0].elements[0].duration.value);
-  //   const hour = parseInt(time / 3600);
-  //   const min = parseInt((time - hour * 3600) / 60);
-
-  //   return {hour, min};
-  // };
 
   const getDistanceTimeByNaver = async (desLatitude, desLongitude) => {
     const CLIENT_ID = naver.client_id;
@@ -110,7 +75,6 @@ const GoogleMap = () => {
     const hour = parseInt(time / 1000 / 3600);
     const min = parseInt((time / 1000 - hour * 3600) / 60);
     const sec = parseInt( (time / 1000) - (hour * 3600) - (min * 60));
-    console.log(time, hour, min, sec)
 
     return {hour, min, sec};
   };
@@ -143,57 +107,33 @@ const GoogleMap = () => {
   const getCurrentPositionWatch = async () => {
     await requestLocationPermission();
     if (
-      _watchId == null &&
+      await localToInfo('watchId') == null &&
       desLocation.latitude > 0.0 &&
       desLocation.longitude > 0.0
     ) {
-      // watchId = Geolocation.watchPosition(
-      //   (position) => {
-      //     setOrgLocation(position.coords);
-      //     const distance = getDistanceTwoPosition();
-      //     console.log('위치와의 거리 : ', distance, 'm');
-      //     if (distance < 100) {
-      //       console.log('목적지에 도착하였습니다.');
-      //       Geolocation.clearWatch(watchId);
-      //       watchId = null;
-      //       setWatchId(null);
-      //       console.log('종료');
-      //     }
-      //   },
-      //   (error) => {
-      //     // console.log(error);
-      //   },
-      //   {
-      //     enableHighAccuracy: true,
-      //     distanceFilter: 0,
-      //     interval: 5000,
-      //     fastestInterval: 2000,
-      //   },
-      // );
-      watchId = BackgroundTimer.setInterval(()=>{
-        Geolocation.getCurrentPosition((position) => {
-          setOrgLocation(position.coords);
-        });
-        const distance = getDistanceTwoPosition();
-          console.log('위치와의 거리 : ', distance, 'm');
-          if (distance < 300) {
-            console.log('목적지에 도착하였습니다.');
-            BackgroundTimer.clearInterval(watchId);
-            watchId = null;
-            setWatchId(null);
-            console.log('종료');
-          }
-      }, 2000)
-      setWatchId(watchId);
-    }
+        const watchId = BackgroundTimer.setInterval(()=>{
+          Geolocation.getCurrentPosition((position) => {
+            setOrgLocation(position.coords);
+          });
+          const distance = getDistanceTwoPosition();
+            console.log('위치와의 거리 : ', distance, 'm');
+            if (distance < 300) {
+              console.log('목적지에 도착하였습니다.');
+              BackgroundTimer.clearInterval(watchId);
+              watchId = null;
+              setWatchId(null);
+              console.log('종료');
+            }
+        }, 2000)
+        infoToLocal('watchId', watchId)
+      }
   };
 
-  const stopGetPosition = () => {
-    if (_watchId !== null) {
-      // Geolocation.clearWatch(_watchId);
-      BackgroundTimer.clearInterval(_watchId);
-      setWatchId(null);
-      watchId = null;
+  const stopGetPosition = async () => {
+    const watchId = await localToInfo('watchId')
+    if (watchId !== null) {
+      BackgroundTimer.clearInterval(watchId)
+      infoToLocal('watchId', null)
       // sendNotification(
       //   ['1489710892', '1519828858'],
       //   '안전귀가서비스',
