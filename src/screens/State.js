@@ -113,6 +113,9 @@ export default function State() {
                 setRoomNum(item.id);
                 showModal();
               } else {
+                setRoomType('create');
+                setRoomNum(item.id);
+                showModal();
                 console.log('나는방장');
               }
             }}>
@@ -179,6 +182,7 @@ export default function State() {
         token={myInfo.token}
         requestId={roomNum}
         roomType={roomType}
+        roomState="S"
       />
     </SafeAreaView>
   );

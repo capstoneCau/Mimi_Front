@@ -24,6 +24,7 @@ import {
   useTheme,
   RadioButton,
 } from 'react-native-paper';
+import StateInfoModal from '../components/StateInfoModal';
 import {FancyButton, FancyFonts, backAction} from '../common/common';
 import {requestKaKaoAuthIdAsync} from '../modules/login';
 import {myFriendList, getFriendInfo} from '../modules/myFriend';
@@ -45,6 +46,9 @@ export default function List({navigation}) {
   const [removeFriend, setRemoveFriend] = useState(false);
   const [roomNum, setRoomNum] = useState(-1);
   const [restart, setRestart] = useState(false);
+  const [visible, setVisible] = useState(false);
+  // const [requestId, setRequestId] = useState(0);
+  const [roomType, setRoomType] = useState('');
   //List 출력전 전부 해야하는 부분//
   const dispatch = useDispatch();
   const getUser = useCallback(
@@ -100,6 +104,10 @@ export default function List({navigation}) {
   const handleSearch = () => {
     console.log('Search!');
   };
+
+  const showModal = () => setVisible(true);
+
+  const hideModal = () => setVisible(false);
   return (
     <SafeAreaView style={styles.container}>
       {showFriendModal && (
@@ -135,7 +143,7 @@ export default function List({navigation}) {
               item.status == 'm' ? {display: 'none'} : styles.list_container,
             ]}
             onPress={() => {
-              showFriends();
+              showModal();
               setRoomNum(item.id);
             }}>
             <View style={styles.list}>
@@ -161,6 +169,15 @@ export default function List({navigation}) {
           </TouchableOpacity>
         )}
         keyExtractor={(_item, index) => `${index}`}
+      />
+      <StateInfoModal
+        visible={visible}
+        hideModal={hideModal}
+        token={myInfo.token}
+        requestId={roomNum}
+        roomType={roomType}
+        roomState="L"
+        showFriends={showFriends}
       />
     </SafeAreaView>
   );

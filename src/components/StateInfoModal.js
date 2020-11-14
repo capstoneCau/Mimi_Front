@@ -11,8 +11,9 @@ import {
 } from 'react-native';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {Modal, Portal, Text, Button, Provider} from 'react-native-paper';
-import {getRequestUserInfo} from '../modules/requestInfo';
-
+import {getRequestUserInfo, updateRequest} from '../modules/requestInfo';
+import {FancyButton, FancyFonts} from '../common/common';
+import {getRoomInfo} from '../modules/meetingInfo';
 const data = [
   {
     user: {
@@ -33,18 +34,41 @@ const data = [
   },
 ];
 
-export default function StateInfoModal({visible, hideModal, token, requestId}) {
+export default function StateInfoModal({
+  visible,
+  hideModal,
+  token,
+  requestId,
+  roomType,
+  roomState,
+  showFriends,
+}) {
   const [userInfo, setUserInfo] = useState([]);
   const dispatch = useDispatch();
   const getUserInfo = useCallback(
     (_requestId, _token) => dispatch(getRequestUserInfo(_requestId, _token)),
     [dispatch],
   );
+  const _getRoomInfo = useCallback(
+    (_roomId, _token) => dispatch(getRoomInfo(_roomId, _token)),
+    [dispatch],
+  );
+  const update = useCallback(
+    (type, isAccepted, _requestId, _token) =>
+      dispatch(updateRequest(type, isAccepted, _requestId, _token)),
+    [dispatch],
+  );
   useEffect(() => {
-    console.log(token);
-    getUserInfo(token, requestId);
-    setUserInfo(data);
+    if (roomState === 'S') {
+      const sameGender = getUserInfo(requestId, token); // requestId = requestId
+      setUserInfo(data);
+    } else if (roomState === 'L') {
+      const diffGender = _getRoomInfo(requestId, token); // requestId = roomNum
+      setUserInfo(diffGender.meeting);
+    }
   }, [requestId]);
+  console.log(JSON.stringify(userInfo));
+
   return (
     <Provider>
       <Portal>
@@ -70,6 +94,35 @@ export default function StateInfoModal({visible, hideModal, token, requestId}) {
             )}
             keyExtractor={(_item, index) => `${index}`}
           />
+          <View>
+            <FancyButton
+              mode="outlined"
+              color="#000069"
+              onPress={() => {
+                if (roomState === 'S') {
+                  update(roomType, 'r', requestId, token);
+                  hideModal();
+                } else if (roomState === 'L') {
+                  hideModal();
+                }
+              }}>
+              <Text>아니오</Text>
+            </FancyButton>
+            <FancyButton
+              mode="outlined"
+              color="#000069"
+              onPress={() => {
+                if (roomState === 'S') {
+                  update(roomType, 'a', requestId, token);
+                  hideModal();
+                } else if (roomState === 'L') {
+                  hideModal();
+                  showFriends();
+                }
+              }}>
+              <Text>네</Text>
+            </FancyButton>
+          </View>
         </Modal>
       </Portal>
     </Provider>
