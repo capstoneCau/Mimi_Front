@@ -3,11 +3,9 @@ import {SERVER_DOMAIN} from '../common/common';
 //Action Type
 
 const GET_MY_ROOM = 'meeting/GET_MY_ROOM';
-
 const CREATE_ROOM = 'meeting/CREATE_ROOM';
-
 const GET_ROOM = 'meeting/GET_ROOM';
-
+const GET_ROOM_INFO = 'meeting/GET_ROOM_INFO';
 //Thunk
 
 export const createRoomAsync = (
@@ -49,7 +47,8 @@ export const getAllRoomList = (token) => async (dispatch, getState) => {
   dispatch({type: GET_ROOM, allRoomList});
 };
 
-export const getRoomInfo = async (room_id, token) => {
+export const getRoomInfo = (room_id, token) => async (dispatch, getState) => {
+  console.log(room_id, token);
   const res = await fetch(SERVER_DOMAIN + `meeting/roomList/${room_id}/`, {
     method: 'GET',
     mode: 'cors',
@@ -58,6 +57,7 @@ export const getRoomInfo = async (room_id, token) => {
     },
   });
   const roomInfo = await res.json();
+  dispatch({type: GET_ROOM_INFO});
   return roomInfo;
 };
 
@@ -111,6 +111,10 @@ export default function meetingInfo(state = initialState, action) {
       return {
         ...state,
         myRoomList: action.userInfoList,
+      };
+    case GET_ROOM_INFO:
+      return {
+        ...state,
       };
 
     default:
