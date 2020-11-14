@@ -14,7 +14,7 @@ const GET_REQUEST_ROOM_INFO = 'request/GET_REQUEST_ROOM_INFO';
 
 const UPDATE_REQUEST = 'request/UPDATE_REQUEST';
 const PARTICIPATE_MEETING = 'request/PARTICIPATE_MEETING';
-
+const REMOVE_MEETING = 'request/REMOVE_MEETING';
 //Thunk
 export const getInviterParticipateRequest = (token) => async (
   dispatch,
@@ -202,6 +202,18 @@ export const participateAtRoom = (
   // getState().requestInfo.inviteeCreateIdList
 };
 
+export const removeMeeting = (room_id, token) => async (dispatch, getState) => {
+  const res = await fetch(SERVER_DOMAIN + `/meeting/roomList/${room_id}/`, {
+    method: 'DELETE',
+    mode: 'cors',
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  });
+  const requestInfo = await res.json();
+  dispatch({type: REMOVE_MEETING});
+};
+
 //Initial State
 const initialState = {
   inviteeCreateList: [],
@@ -248,6 +260,10 @@ export default function meetingInfo(state = initialState, action) {
       };
     case PARTICIPATE_MEETING:
       //   status.inviterParticiatList.push(action.requestInfo);
+      return {
+        ...state,
+      };
+    case REMOVE_MEETING:
       return {
         ...state,
       };
