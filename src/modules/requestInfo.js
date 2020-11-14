@@ -110,21 +110,22 @@ export const getInviteeCreateRequest = (token) => async (
   }
 };
 
-export const getRequestUserInfo = (request_id, token) => async (
-  dispach,
+export const getRequestUserInfo = (request, token) => async (
+  dispatch,
   getState,
 ) => {
-  const res = await fetch(SERVER_DOMAIN + 'request/userinfo/', {
-    method: 'GET',
-    mode: 'cors',
-    headers: {
-      Authorization: `Token ${token}`,
-      'Content-Type': 'application/json',
+  const res = await fetch(
+    SERVER_DOMAIN + `request/userinfo?request=${request}`,
+    {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
     },
-    Body: JSON.stringify({request: request_id}),
-  });
+  );
   const userInfoList = await res.json();
-  dispach({type: GET_REQUEST_USER_INFO});
+  dispatch({type: GET_REQUEST_USER_INFO});
   return userInfoList;
 };
 
@@ -132,13 +133,16 @@ export const getRequestRoomInfo = (request_id, token) => async (
   dispatch,
   getState,
 ) => {
-  const res = await fetch(SERVER_DOMAIN + `request/roominfo/${request_id}/`, {
-    method: 'GET',
-    mode: 'cors',
-    headers: {
-      Authorization: `Token ${token}`,
+  const res = await fetch(
+    SERVER_DOMAIN + `request/roominfo?request=${request_id}`,
+    {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
     },
-  });
+  );
   const roomInfo = await res.json();
   dispatch({type: GET_REQUEST_ROOM_INFO});
   return roomInfo;

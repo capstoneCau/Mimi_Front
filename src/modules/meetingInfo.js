@@ -48,8 +48,7 @@ export const getAllRoomList = (token) => async (dispatch, getState) => {
 };
 
 export const getRoomInfo = (room_id, token) => async (dispatch, getState) => {
-  console.log(room_id, token);
-  const res = await fetch(SERVER_DOMAIN + `meeting/roomList/${room_id}/`, {
+  const res = await fetch(SERVER_DOMAIN + `meeting/roomList?room=${room_id}`, {
     method: 'GET',
     mode: 'cors',
     headers: {
@@ -62,14 +61,12 @@ export const getRoomInfo = (room_id, token) => async (dispatch, getState) => {
 };
 
 export const getParticipatedUserInfoList = async (room_id, token) => {
-  const res = await fetch(SERVER_DOMAIN + 'meeting/userinfo/', {
+  const res = await fetch(SERVER_DOMAIN + `meeting/userinfo?room=${room_id}`, {
     method: 'GET',
     mode: 'cors',
     headers: {
       Authorization: `Token ${token}`,
-      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({room: room_id}),
   });
   const userInfoList = await res.json();
   return userInfoList;
