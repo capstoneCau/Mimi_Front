@@ -49,6 +49,7 @@ export default function State() {
   const [restart, setRestart] = useState('false');
   const [roomNum, setRoomNum] = useState(0);
   const [roomType, setRoomType] = useState('');
+  const [userRole, setUserRole] = useState('');
   const dispatch = useDispatch();
   const myInfo = useSelector((state) => state.login);
   const roomInfo = useSelector((state) => state.requestInfo);
@@ -111,10 +112,12 @@ export default function State() {
               if (item.user_role == 'invitee') {
                 setRoomType('create');
                 setRoomNum(item.id);
+                setUserRole('invitee');
                 showModal();
               } else {
                 setRoomType('create');
                 setRoomNum(item.id);
+                setUserRole('inviter');
                 showModal();
                 console.log('나는방장');
               }
@@ -151,8 +154,13 @@ export default function State() {
               if (item.user_role == 'invitee') {
                 setRoomType('participate');
                 setRoomNum(item.id);
+                setUserRole('invitee');
                 showModal();
               } else {
+                setRoomType('participate');
+                setRoomNum(item.id);
+                setUserRole('inviter');
+                showModal();
                 console.log('나는방장');
               }
             }}>
@@ -183,6 +191,7 @@ export default function State() {
         requestId={roomNum}
         roomType={roomType}
         roomState="S"
+        userRole={userRole}
       />
     </SafeAreaView>
   );
