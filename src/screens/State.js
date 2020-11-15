@@ -51,6 +51,7 @@ export default function State() {
   const [roomType, setRoomType] = useState('');
   const [roomStatus, setRoomStatus] = useState('');
   const [userRole, setUserRole] = useState('');
+  const [partyNum, setPartyNum] = useState('');
   const dispatch = useDispatch();
   const myInfo = useSelector((state) => state.login);
   const roomInfo = useSelector((state) => state.requestInfo);
@@ -80,7 +81,7 @@ export default function State() {
     getInviterParticipate(myInfo.token);
     getInviteeParticipate(myInfo.token);
   }, [restart]);
-  const {colors} = useTheme();
+
   return (
     <SafeAreaView style={styles.container}>
       <FancyButton
@@ -175,6 +176,7 @@ export default function State() {
                 setRoomNum(item.room.id);
                 setRoomStatus(item.room.status);
                 setUserRole('inviter');
+                setPartyNum(item.party_number);
                 showModal();
                 console.log('나는방장');
               }
@@ -217,6 +219,7 @@ export default function State() {
         roomState="S"
         userRole={userRole}
         roomStatus={roomStatus}
+        partyId={partyNum}
       />
     </SafeAreaView>
   );
