@@ -1,4 +1,5 @@
 import {SERVER_DOMAIN} from '../common/common';
+import State from '../screens/StateGive';
 
 //Action Type
 const GET_INVITER_PARTICIPATE_REQUEST =
@@ -15,6 +16,8 @@ const GET_REQUEST_ROOM_INFO = 'request/GET_REQUEST_ROOM_INFO';
 const UPDATE_REQUEST = 'request/UPDATE_REQUEST';
 const PARTICIPATE_MEETING = 'request/PARTICIPATE_MEETING';
 const REMOVE_MEETING = 'request/REMOVE_MEETING';
+const GET_MATCHING_SELECT_INFO = 'request/GET_MATCHING_SELECT_INFO';
+const MATCH_MEETING = 'request/MATCH_MEETING';
 //Thunk
 export const getInviterParticipateRequest = (token) => async (
   dispatch,
@@ -214,6 +217,37 @@ export const removeMeeting = (room_id, token) => async (dispatch, getState) => {
   dispatch({type: REMOVE_MEETING});
 };
 
+export const getMatchingSelectInfo = (request_id, token) => async (
+  dispatch,
+  getState,
+) => {
+  const res = await fetch(
+    SERVER_DOMAIN + `request/select?request=${request_id}`,
+    {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    },
+  );
+  const requestInfo = await res.json();
+  dispatch({type: GET_MATCHING_SELECT_INFO});
+  return requestInfo;
+};
+
+export const matchMeeting = (party_id, token) => async (dispatch, getState) => {
+  const res = await fetch(SERVER_DOMAIN + `request/select/${party_id}/`, {
+    method: 'PATCH',
+    mode: 'cors',
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  });
+  const requestInfo = await res.json();
+  dispatch({type: MATCH_MEETING});
+};
+
 //Initial State
 const initialState = {
   inviteeCreateList: [],
@@ -264,6 +298,14 @@ export default function meetingInfo(state = initialState, action) {
         ...state,
       };
     case REMOVE_MEETING:
+      return {
+        ...state,
+      };
+    case GET_MATCHING_SELECT_INFO:
+      return {
+        ...state,
+      };
+    case MATCH_MEETING:
       return {
         ...state,
       };
