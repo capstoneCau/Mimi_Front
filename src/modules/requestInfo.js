@@ -16,6 +16,7 @@ const GET_REQUEST_ROOM_INFO = 'request/GET_REQUEST_ROOM_INFO';
 const UPDATE_REQUEST = 'request/UPDATE_REQUEST';
 const PARTICIPATE_MEETING = 'request/PARTICIPATE_MEETING';
 const REMOVE_MEETING = 'request/REMOVE_MEETING';
+const REMOVE_PARTICIPATE = 'request/REMOVE_PARTICIPATE';
 const GET_MATCHING_SELECT_INFO = 'request/GET_MATCHING_SELECT_INFO';
 const MATCH_MEETING = 'request/MATCH_MEETING';
 //Thunk
@@ -217,6 +218,24 @@ export const removeMeeting = (room_id, token) => async (dispatch, getState) => {
   dispatch({type: REMOVE_MEETING});
 };
 
+export const removeParticipate = (party_id, token) => async (
+  dispatch,
+  getState,
+) => {
+  const res = await fetch(
+    SERVER_DOMAIN + `request/inviter/participate/${party_id}`,
+    {
+      method: 'DELETE',
+      mode: 'cors',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    },
+  );
+  const requestInfo = await res.json();
+  dispatch({type: REMOVE_PARTICIPATE});
+};
+
 export const getMatchingSelectInfo = (request_id, token) => async (
   dispatch,
   getState,
@@ -298,6 +317,10 @@ export default function meetingInfo(state = initialState, action) {
         ...state,
       };
     case REMOVE_MEETING:
+      return {
+        ...state,
+      };
+    case REMOVE_PARTICIPATE:
       return {
         ...state,
       };

@@ -15,6 +15,7 @@ import {
   getRequestUserInfo,
   updateRequest,
   removeMeeting,
+  removeParticipate,
   getMatchingSelectInfo,
   matchMeeting,
 } from '../modules/requestInfo';
@@ -53,6 +54,10 @@ export default function StateInfoModal({
   );
   const _removeMeeting = useCallback(
     (_roomId, _token) => dispatch(removeMeeting(_roomId, _token)),
+    [dispatch],
+  );
+  const _removeParticipate = useCallback(
+    (_partyId, _token) => dispatch(removeParticipate(_partyId, _token)),
     [dispatch],
   );
   const _getMatchingSelectInfo = useCallback(
@@ -245,7 +250,7 @@ export default function StateInfoModal({
                     if (roomType == 'create') {
                       _removeMeeting(roomId, token);
                     } else {
-                      //참여자 삭제
+                      // _removeParticipate(,token)
                     }
                   }
                 } else if (roomState === 'L') {
