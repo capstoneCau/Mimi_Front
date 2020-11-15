@@ -24,26 +24,30 @@ import {
   Button,
   PermissionsAndroid,
   Image,
-  StyleSheet,} from 'react-native';
+  StyleSheet,
+  Text,
+} from 'react-native';
 import {RNCamera} from 'react-native-camera';
-import uploadImage from '../modules/imageUpload'
+import {FlatList} from 'react-native-gesture-handler';
+import uploadImage from '../modules/imageUpload';
 
 export default function Setting() {
   const cameraRef = React.useRef(null); // useRef로 camera를 위한 ref를 하나 만들어주고
-  const [category, setCategory] = useState([])
-  const [predict, setPredict] = useState([])
-  const [imageUri, setImageUri] = useState()
+  const [category, setCategory] = useState([]);
+  const [predict, setPredict] = useState([]);
+  const [result, setResult] = useState([]);
+  const [imageUri, setImageUri] = useState();
   const takePhoto = async () => {
     if (cameraRef) {
-      setCategory([])
-      setPredict([])
+      setCategory([]);
+      setPredict([]);
       const data = await cameraRef.current.takePictureAsync({
         quality: 1,
         exif: true,
       });
-      const {uri} = data
-      setImageUri(uri)
-      console.log(await uploadImage(uri, 'male'))
+      const {uri} = data;
+      setImageUri(uri);
+      setResult(await uploadImage(uri, 'male'));
     }
   };
   const requestLocationPermission = async () => {
@@ -52,8 +56,7 @@ export default function Setting() {
         PermissionsAndroid.PERMISSIONS.CAMERA,
         {
           title: 'Mimi',
-          message:
-            'To use the animal service, you need to use camera.',
+          message: 'To use the animal service, you need to use camera.',
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -67,11 +70,11 @@ export default function Setting() {
     }
   };
   useEffect(() => {
-    requestLocationPermission()
-  })
+    requestLocationPermission();
+  });
   return (
-        <>
-        <RNCamera
+    <>
+      <RNCamera
         ref={cameraRef}
         style={{
           width: 200,
@@ -79,39 +82,46 @@ export default function Setting() {
         }}
         captureAudio={false}
         type={RNCamera.Constants.Type.front}
-         />
-         <Image 
-         style={styles.tinyLogo}
-         source={{
+      />
+      <Image
+        style={styles.tinyLogo}
+        source={{
           uri: imageUri,
-        }}/>
-        <View style={styles.container}>
-          <Button 
-            style={styles.button}
-            title="Take"
-            onPress={takePhoto}
-          >
-          </Button>
-          
-        </View>
-       </>
-  )
+        }}
+      />
+      <View style={styles.container}>
+        <Button style={styles.button} title="Take" onPress={takePhoto}></Button>
+      </View>
+      <FlatList
+        data={result}
+        renderItem={({item, index}) => (
+          <TouchableOpacity>
+            <View>
+              <Text>{item.category}</Text>
+              <Text>{item.predict_rate}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        keyExtractor={(_item, index) => `${index}`}
+      />
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   button: {
     width: 100,
     height: 100,
     borderRadius: 50,
     borderStyle: 'solid',
-    borderColor: 'grey',
-    borderWidth : 10,
-    backgroundColor: 'pink'
+    borderColor: 'gray',
+    borderWidth: 10,
+    backgroundColor: 'pink',
   },
   tinyLogo: {
     width: 100,

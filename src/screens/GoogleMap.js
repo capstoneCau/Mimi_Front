@@ -25,8 +25,8 @@ import {FancyButton, FancyFonts} from '../common/common';
 import {sendNotification} from '../modules/sendNotification';
 import {useSelector, shallowEqual} from 'react-redux';
 import BackgroundTimer from 'react-native-background-timer';
-import infoToLocal from '../common/InfoToLocal'
-import localToInfo from '../common/LocalToInfo'
+import infoToLocal from '../common/InfoToLocal';
+import localToInfo from '../common/LocalToInfo';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -74,7 +74,7 @@ const GoogleMap = () => {
     const time = parseInt(json.route.traoptimal[0].summary.duration);
     const hour = parseInt(time / 1000 / 3600);
     const min = parseInt((time / 1000 - hour * 3600) / 60);
-    const sec = parseInt( (time / 1000) - (hour * 3600) - (min * 60));
+    const sec = parseInt(time / 1000 - hour * 3600 - min * 60);
 
     return {hour, min, sec};
   };
@@ -89,11 +89,11 @@ const GoogleMap = () => {
     const res = await fetch(BASE_URL + params);
     const json = await res.json();
     if (json.error) {
-      return {hour : 0, min : 0};
+      return {hour: 0, min: 0};
     }
     const min = parseInt(json.result.path[0].info.totalTime);
     const hour = parseInt(min / 60);
-    
+
     return {hour, min};
   };
 
@@ -107,50 +107,50 @@ const GoogleMap = () => {
   const getCurrentPositionWatch = async () => {
     await requestLocationPermission();
     if (
-      await localToInfo('watchId') == null &&
+      (await localToInfo('watchId')) == null &&
       desLocation.latitude > 0.0 &&
       desLocation.longitude > 0.0
     ) {
-        const watchId = BackgroundTimer.setInterval(()=>{
-          Geolocation.getCurrentPosition((position) => {
-            setOrgLocation(position.coords);
-          });
-          const distance = getDistanceTwoPosition();
-            console.log('위치와의 거리 : ', distance, 'm');
-            if (distance < 300) {
-              console.log('목적지에 도착하였습니다.');
-              BackgroundTimer.clearInterval(watchId);
-              watchId = null;
-              setWatchId(null);
-              console.log('종료');
-            }
-        }, 2000)
-        infoToLocal('watchId', watchId)
-        
-        BackgroundTimer.setTimeout(()=>{
-          infoToLocal('watchId', null)
-          BackgroundTimer.clearInterval(watchId)
-          sendNotification(
-            ['1489710892'],
-            '안전귀가서비스',
-            `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
-            user.token,
-          );
-        }, 5000)
-      }
+      const watchId = BackgroundTimer.setInterval(() => {
+        Geolocation.getCurrentPosition((position) => {
+          setOrgLocation(position.coords);
+        });
+        const distance = getDistanceTwoPosition();
+        console.log('위치와의 거리 : ', distance, 'm');
+        if (distance < 300) {
+          console.log('목적지에 도착하였습니다.');
+          BackgroundTimer.clearInterval(watchId);
+          watchId = null;
+          setWatchId(null);
+          console.log('종료');
+        }
+      }, 2000);
+      infoToLocal('watchId', watchId);
+
+      BackgroundTimer.setTimeout(() => {
+        infoToLocal('watchId', null);
+        BackgroundTimer.clearInterval(watchId);
+        sendNotification(
+          ['1496391237'],
+          '안전귀가서비스',
+          `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
+          user.token,
+        );
+      }, 5000);
+    }
   };
 
   const stopGetPosition = async () => {
-    const watchId = await localToInfo('watchId')
+    const watchId = await localToInfo('watchId');
     if (watchId !== null) {
-      BackgroundTimer.clearInterval(watchId)
-      infoToLocal('watchId', null)
-      // sendNotification(
-      //   ['1489710892'],
-      //   '안전귀가서비스',
-      //   `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
-      //   user.token,
-      // );
+      BackgroundTimer.clearInterval(watchId);
+      infoToLocal('watchId', null);
+      sendNotification(
+        ['1496391237'],
+        '안전귀가서비스',
+        `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
+        user.token,
+      );
     }
   };
 

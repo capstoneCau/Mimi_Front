@@ -45,7 +45,7 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
   dispatch,
   getState,
 ) => {
-  console.log(kakaoId, fcmToken)
+  console.log(kakaoId, fcmToken);
   dispatch({type: FCM_TOKEN, fcmToken});
   const res = await fetch(SERVER_DOMAIN + 'api/auth/login/', {
     method: 'POST',
@@ -62,12 +62,9 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
     dispatch({type: REQUEST_KAKAO_AUTH_ID, kakaoId});
     return false;
   } else {
-    // infoToLocal('kakaoId', '1111111111');
-    // infoToLocal('kakaoId', '2222222222');
-    // infoToLocal('kakaoId', '3333333333');
-    // infoToLocal('kakaoId', '1489710892');
-    // infoToLocal('kakaoId', '1519828858');
-    // infoToLocal('kakaoId', '1496391237');
+    // await infoToLocal('kakaoId', '1111111111');
+    await infoToLocal('kakaoId', '6666666666');
+    // await infoToLocal('kakaoId', kakaoId); //실제 배포할 경우 사용할 코드
     const res = await fetch(SERVER_DOMAIN + `user/fcmToken/${kakaoId}/`, {
       method: 'PATCH',
       mode: 'cors',
@@ -80,8 +77,7 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
     });
     const json = await res.json();
     console.log(json);
-    await infoToLocal('kakaoId', kakaoId); //실제 배포할 경우 사용할 코드
-    
+
     dispatch({type: LOGIN_USER, userInfo: result.user, token: result.token});
     return true;
   }
@@ -90,9 +86,7 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
 export const fcmTokenAsync = (fcmToken, kakaoId) => async (
   dispatch,
   getState,
-) => {
-  
-};
+) => {};
 
 // 초기 상태
 const initialState = {

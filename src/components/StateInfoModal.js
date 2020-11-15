@@ -21,7 +21,8 @@ import {
 } from '../modules/requestInfo';
 import {FancyButton, FancyFonts} from '../common/common';
 import {getRoomInfo, getParticipatedUserInfoList} from '../modules/meetingInfo';
-
+var width = Dimensions.get('window').width;
+var height = Dimensions.get('window').height;
 export default function StateInfoModal({
   visible,
   hideModal,
@@ -133,6 +134,7 @@ export default function StateInfoModal({
           onDismiss={hideModal}
           contentContainerStyle={styles.containerStyle}>
           <FlatList
+            style={styles.personInfoContainer}
             data={
               roomState == 'S'
                 ? roomStatus == 'a'
@@ -153,6 +155,13 @@ export default function StateInfoModal({
                       ? roomState == 'S'
                         ? item.user.name
                         : item.name
+                      : ''}
+                  </Text>
+                  <Text>
+                    {typeof item !== 'undefined'
+                      ? roomState == 'S'
+                        ? item.is_accepted
+                        : null
                       : ''}
                   </Text>
                   <Text>
@@ -202,72 +211,76 @@ export default function StateInfoModal({
             )}
             keyExtractor={(_item, index) => `${index}`}
           />
-          <View
-            style={[
-              roomStatus == 'a' && roomType == 'create' && userRole == 'invitee'
-                ? {display: 'none'}
-                : null,
-            ]}>
-            <Text>
-              {roomState == 'S'
-                ? userRole == 'invitee'
-                  ? '참여하시겠습니까?'
-                  : '삭제하시겠습니까?'
-                : '참여하시겠습니까?'}
-            </Text>
-            <FancyButton
-              mode="outlined"
-              color="#000069"
-              onPress={() => {
-                if (roomState === 'S') {
-                  if (userRole == 'invitee') {
-                    hideModal();
-                    update(roomType, 'r', requestId, token);
-                  } else {
-                    hideModal();
-                  }
-                } else if (roomState === 'L') {
-                  hideModal();
-                }
-              }}>
+          <View style={styles.buttonContainer}>
+            <View
+              style={[
+                roomStatus == 'a' &&
+                roomType == 'create' &&
+                userRole == 'invitee'
+                  ? {display: 'none'}
+                  : null,
+              ]}>
               <Text>
                 {roomState == 'S'
                   ? userRole == 'invitee'
-                    ? '아니오'
-                    : '아니오'
-                  : '아니오'}
+                    ? '참여하시겠습니까?'
+                    : '삭제하시겠습니까?'
+                  : '참여하시겠습니까?'}
               </Text>
-            </FancyButton>
-            <FancyButton
-              mode="outlined"
-              color="#000069"
-              onPress={() => {
-                if (roomState === 'S') {
-                  if (userRole == 'invitee') {
-                    hideModal();
-                    update(roomType, 'a', requestId, token);
-                  } else {
-                    hideModal();
-                    if (roomType == 'create') {
-                      _removeMeeting(roomId, token);
+              <FancyButton
+                mode="outlined"
+                color="#000069"
+                onPress={() => {
+                  if (roomState === 'S') {
+                    if (userRole == 'invitee') {
+                      hideModal();
+                      update(roomType, 'r', requestId, token);
                     } else {
                       hideModal();
-                      _removeParticipate(partyId, token);
                     }
+                  } else if (roomState === 'L') {
+                    hideModal();
                   }
-                } else if (roomState === 'L') {
-                  hideModal();
-                  showFriends();
-                }
-              }}>
-              <Text>
-                {roomState == 'S'
-                  ? userRole == 'invitee'
-                    ? '참여'
-                    : '삭제'
-                  : '참여'}
-              </Text>
-            </FancyButton>
+                }}>
+                <Text>
+                  {roomState == 'S'
+                    ? userRole == 'invitee'
+                      ? '아니오'
+                      : '아니오'
+                    : '아니오'}
+                </Text>
+              </FancyButton>
+              <FancyButton
+                mode="outlined"
+                color="#000069"
+                onPress={() => {
+                  if (roomState === 'S') {
+                    if (userRole == 'invitee') {
+                      hideModal();
+                      update(roomType, 'a', requestId, token);
+                    } else {
+                      hideModal();
+                      if (roomType == 'create') {
+                        _removeMeeting(roomId, token);
+                      } else {
+                        hideModal();
+                        _removeParticipate(partyId, token);
+                      }
+                    }
+                  } else if (roomState === 'L') {
+                    hideModal();
+                    showFriends();
+                  }
+                }}>
+                <Text>
+                  {roomState == 'S'
+                    ? userRole == 'invitee'
+                      ? '참여'
+                      : '삭제'
+                    : '참여'}
+                </Text>
+              </FancyButton>
+            </View>
           </View>
         </Modal>
       </Portal>
@@ -277,9 +290,16 @@ export default function StateInfoModal({
 
 const styles = StyleSheet.create({
   containerStyle: {
-    width: 500,
-    height: 500,
+    width: width,
+    height: height * 0.7,
     backgroundColor: 'white',
     padding: 20,
+    flexDirection: 'column',
+  },
+  personInfoContainer: {
+    flex: 8,
+  },
+  buttonContainer: {
+    flex: 1,
   },
 });

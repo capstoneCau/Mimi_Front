@@ -362,7 +362,7 @@ function Friends({
               />
               <Text style={styles.memberText}>{friendName[0]}</Text>
             </View>
-            <View style={styles.memberContainer}>
+            {/* <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {
                   if (isAdd2 === false) {
@@ -378,7 +378,7 @@ function Friends({
                 status={isAdd2 ? 'checked' : 'unchecked'}
               />
               <Text style={styles.memberText}>{friendName[1]}</Text>
-            </View>
+            </View> */}
             {/* <View style={styles.memberContainer}>
               <RadioButton
                 onPress={() => {
