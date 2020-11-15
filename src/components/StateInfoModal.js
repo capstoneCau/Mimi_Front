@@ -15,9 +15,11 @@ import {
   getRequestUserInfo,
   updateRequest,
   removeMeeting,
+  getMatchingSelectInfo,
+  matchMeeting,
 } from '../modules/requestInfo';
 import {FancyButton, FancyFonts} from '../common/common';
-import {getRoomInfo} from '../modules/meetingInfo';
+import {getRoomInfo, getParticipatedUserInfoList} from '../modules/meetingInfo';
 
 export default function StateInfoModal({
   visible,
@@ -29,9 +31,12 @@ export default function StateInfoModal({
   roomState,
   showFriends,
   userRole,
+  roomStatus,
 }) {
   const [userStateInfo, setUserStateInfo] = useState([]);
   const [userListInfo, setUserListInfo] = useState([]);
+  const [userMatchingSelectInfo, setUserMatchingSelectInfo] = useState([]);
+  const [userMeetingInfo, setUserMeetingInfo] = useState([]);
   const dispatch = useDispatch();
   const _getUserInfo = useCallback(
     (_requestId, _token) => dispatch(getRequestUserInfo(_requestId, _token)),
@@ -50,24 +55,65 @@ export default function StateInfoModal({
     (_roomId, _token) => dispatch(removeMeeting(_roomId, _token)),
     [dispatch],
   );
+  const _getMatchingSelectInfo = useCallback(
+    (_requestId, _token) => dispatch(getMatchingSelectInfo(_requestId, _token)),
+    [dispatch],
+  );
+  const _matchMeeting = useCallback(
+    (_partyId, _token) => dispatch(matchMeeting(_partyId, _token)),
+    [dispatch],
+  );
+  const _getMeetingUserInfo = useCallback(
+    (_roomId, _token) => dispatch(getParticipatedUserInfoList(_roomId, _token)),
+    [dispatch],
+  );
 
   useEffect(() => {
-    if (roomState === 'S') {
+    if (roomState === 'S' && roomStatus !== '') {
       const setStateUserInfo = async () => {
         const stateUserInfo = await _getUserInfo(requestId, token);
-        setUserStateInfo([stateUserInfo[0].user]); // 넣는 방식 여러명일때 바꿔줘야함
+        setUserStateInfo(stateUserInfo);
       };
       setStateUserInfo();
-    } else if (roomState === 'L') {
+    } else if (roomState === 'L' && roomStatus !== '') {
       const setListUserInfo = async () => {
         const listUserInfo = await _getRoomInfo(roomId, token);
         setUserListInfo(listUserInfo[0].meeting);
       };
       setListUserInfo();
     }
+    if (roomStatus === 'a' && roomType === 'create') {
+      const setMatcingSelectInfo = async () => {
+        const matchingSelectInfo = await _getMatchingSelectInfo(
+          requestId,
+          token,
+        );
+        setUserMatchingSelectInfo(matchingSelectInfo);
+      };
+      setMatcingSelectInfo();
+    }
+    if (roomState === 'S' && roomType === 'participate' && roomStatus === 'a') {
+      const getMeetingUserInfo = async () => {
+        const meetingUserInfo = await _getMeetingUserInfo(roomId, token);
+        setUserMeetingInfo(meetingUserInfo);
+      };
+      getMeetingUserInfo();
+    }
+
     return () => {};
   }, [visible]);
 
+  const acceptButton = (partyId) => (
+    <FancyButton
+      mode="outlined"
+      color="#000069"
+      onPress={() => {
+        _matchMeeting(partyId, token);
+        hideModal();
+      }}>
+      <Text>수락</Text>
+    </FancyButton>
+  );
   return (
     <Provider>
       <Portal>
@@ -76,26 +122,81 @@ export default function StateInfoModal({
           onDismiss={hideModal}
           contentContainerStyle={styles.containerStyle}>
           <FlatList
-            data={roomState == 'S' ? userStateInfo : userListInfo}
+            data={
+              roomState == 'S'
+                ? roomStatus == 'a'
+                  ? roomType == 'create'
+                    ? userMatchingSelectInfo
+                    : userStateInfo.concat(userMeetingInfo)
+                  : userStateInfo
+                : userListInfo
+            }
             renderItem={({item, index}) => (
               <TouchableOpacity
                 onPress={() => {
                   console.log('press');
                 }}>
                 <View>
-                  <Text>{typeof item !== 'undefined' ? item.name : ''}</Text>
-                  <Text>{typeof item !== 'undefined' ? item.school : ''}</Text>
-                  <Text>{typeof item !== 'undefined' ? item.mbti : ''}</Text>
-                  <Text>{typeof item !== 'undefined' ? item.star : ''}</Text>
                   <Text>
-                    {typeof item !== 'undefined' ? item.chinese_zodiac : ''}
+                    {typeof item !== 'undefined'
+                      ? roomState == 'S'
+                        ? item.user.name
+                        : item.name
+                      : ''}
                   </Text>
+                  <Text>
+                    {typeof item !== 'undefined'
+                      ? roomState == 'S'
+                        ? item.user.school
+                        : item.school
+                      : ''}
+                  </Text>
+                  <Text>
+                    {typeof item !== 'undefined'
+                      ? roomState == 'S'
+                        ? item.user.mbti
+                        : item.mbti
+                      : ''}
+                  </Text>
+                  <Text>
+                    {typeof item !== 'undefined'
+                      ? roomState == 'S'
+                        ? item.user.star
+                        : item.star
+                      : ''}
+                  </Text>
+                  <Text>
+                    {typeof item !== 'undefined'
+                      ? roomState == 'S'
+                        ? item.user.chinese_zodiac
+                        : item.chinese_zodiac
+                      : ''}
+                  </Text>
+                  {typeof userMatchingSelectInfo !== 'undefined'
+                    ? roomType == 'create' &&
+                      userRole == 'inviter' &&
+                      roomStatus == 'a'
+                      ? userMatchingSelectInfo.length > 1
+                        ? userMatchingSelectInfo.length == index + 1
+                          ? acceptButton(item.party_number)
+                          : userMatchingSelectInfo[index].party_number !==
+                            userMatchingSelectInfo[index + 1].party_number
+                          ? acceptButton(item.party_number)
+                          : null
+                        : null
+                      : null
+                    : null}
                 </View>
               </TouchableOpacity>
             )}
             keyExtractor={(_item, index) => `${index}`}
           />
-          <View>
+          <View
+            style={[
+              roomStatus == 'a' && roomType == 'create' && userRole == 'invitee'
+                ? {display: 'none'}
+                : null,
+            ]}>
             <Text>
               {roomState == 'S'
                 ? userRole == 'invitee'

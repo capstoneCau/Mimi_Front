@@ -15,7 +15,6 @@ import {
   getInviteeCreateRequest,
   getInviterParticipateRequest,
   getInviteeParticipateRequest,
-  updateRequest,
 } from '../modules/requestInfo';
 import {
   Provider,
@@ -50,6 +49,7 @@ export default function State() {
   const [requestNum, setRequestNum] = useState(0);
   const [roomNum, setRoomNum] = useState(0);
   const [roomType, setRoomType] = useState('');
+  const [roomStatus, setRoomStatus] = useState('');
   const [userRole, setUserRole] = useState('');
   const dispatch = useDispatch();
   const myInfo = useSelector((state) => state.login);
@@ -68,11 +68,6 @@ export default function State() {
   );
   const getInviteeParticipate = useCallback(
     (token) => dispatch(getInviteeParticipateRequest(token)),
-    [dispatch],
-  );
-  const update = useCallback(
-    (type, isAccepted, requestId, token) =>
-      dispatch(updateRequest(type, isAccepted, requestId, token)),
     [dispatch],
   );
 
@@ -115,12 +110,14 @@ export default function State() {
                 setRoomType('create');
                 setRequestNum(item.id);
                 setRoomNum(item.room.id);
+                setRoomStatus(item.room.status);
                 setUserRole('invitee');
                 showModal();
               } else {
                 setRoomType('create');
                 setRequestNum(item.id);
                 setRoomNum(item.room.id);
+                setRoomStatus(item.room.status);
                 setUserRole('inviter');
                 showModal();
                 console.log('나는방장');
@@ -169,12 +166,14 @@ export default function State() {
                 setRoomType('participate');
                 setRequestNum(item.id);
                 setRoomNum(item.room.id);
+                setRoomStatus(item.room.status);
                 setUserRole('invitee');
                 showModal();
               } else {
                 setRoomType('participate');
                 setRequestNum(item.id);
                 setRoomNum(item.room.id);
+                setRoomStatus(item.room.status);
                 setUserRole('inviter');
                 showModal();
                 console.log('나는방장');
@@ -217,6 +216,7 @@ export default function State() {
         roomType={roomType}
         roomState="S"
         userRole={userRole}
+        roomStatus={roomStatus}
       />
     </SafeAreaView>
   );
