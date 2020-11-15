@@ -15,10 +15,11 @@ import {
   getInviteeCreateRequest,
   getInviterParticipateRequest,
   getInviteeParticipateRequest,
-  updateRequest,
 } from '../modules/requestInfo';
 import {
+  Provider,
   Appbar,
+  Modal,
   Avatar,
   TextInput,
   Text,
@@ -32,7 +33,7 @@ import {
   RadioButton,
 } from 'react-native-paper';
 import {FancyFonts, backAction, FancyButton} from '../common/common';
-import {updateScopes} from '@react-native-seoul/kakao-login';
+import StateInfoModal from '../components/StateInfoModal';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -43,8 +44,14 @@ export default function State() {
   //   return () =>
   //     BackHandler.removeEventListener('hardwareBackPress', backAction);
   // }, []);
+  const [visible, setVisible] = useState(false);
   const [restart, setRestart] = useState('false');
-
+  const [requestNum, setRequestNum] = useState(0);
+  const [roomNum, setRoomNum] = useState(0);
+  const [roomType, setRoomType] = useState('');
+  const [roomStatus, setRoomStatus] = useState('');
+  const [userRole, setUserRole] = useState('');
+  const [partyNum, setPartyNum] = useState('');
   const dispatch = useDispatch();
   const myInfo = useSelector((state) => state.login);
   const roomInfo = useSelector((state) => state.requestInfo);
@@ -64,11 +71,10 @@ export default function State() {
     (token) => dispatch(getInviteeParticipateRequest(token)),
     [dispatch],
   );
-  const update = useCallback(
-    (type, isAccepted, requestId, token) =>
-      dispatch(updateRequest(type, isAccepted, requestId, token)),
-    [dispatch],
-  );
+
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
+
   useEffect(() => {
     getInviterCreate(myInfo.token);
     getInviteeCreate(myInfo.token);
@@ -76,7 +82,6 @@ export default function State() {
     getInviteeParticipate(myInfo.token);
   }, [restart]);
 
-  const {colors} = useTheme();
   return (
     <SafeAreaView style={styles.container}>
       <FancyButton
@@ -93,52 +98,50 @@ export default function State() {
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[
-              item.room.status == 'w'
-                ? styles.list_container
-                : item.room.status == 'a'
-                ? {backgroundColor: '#dcdcdc'}
+              typeof item !== 'undefined'
+                ? item.room.status == 'w'
+                  ? styles.list_container
+                  : item.room.status == 'a'
+                  ? {backgroundColor: '#dcdcdc'}
+                  : {display: 'none'}
                 : {display: 'none'},
             ]}
             onPress={() => {
               if (item.user_role == 'invitee') {
-                Alert.alert(
-                  '확인해주세요',
-                  '참가하시겠습니까?',
-                  [
-                    {
-                      text: '취소',
-                      style: 'cancel',
-                    },
-                    {
-                      text: '아니오',
-                      style: 'cancel',
-                      onPress: () => {
-                        update('create', 'r', item.id, myInfo.token);
-                      },
-                    },
-                    {
-                      text: '네',
-                      onPress: () => {
-                        update('create', 'a', item.id, myInfo.token);
-                      },
-                    },
-                  ],
-                  {cancelable: false},
-                );
+                setRoomType('create');
+                setRequestNum(item.id);
+                setRoomNum(item.room.id);
+                setRoomStatus(item.room.status);
+                setUserRole('invitee');
+                showModal();
               } else {
+                setRoomType('create');
+                setRequestNum(item.id);
+                setRoomNum(item.room.id);
+                setRoomStatus(item.room.status);
+                setUserRole('inviter');
+                showModal();
                 console.log('나는방장');
               }
             }}>
             <View style={styles.list}>
-              <Text style={styles.peopleCount}>{item.room.user_limit}</Text>
+              <Text style={styles.peopleCount}>
+                {typeof item !== 'undefined' ? item.room.user_limit : ''}
+              </Text>
               <View style={styles.content}>
-                <Text style={styles.school}>{item.user.mbti}</Text>
-                <Text style={styles.intro}>{item.room.introduction}</Text>
+                <Text style={styles.school}>
+                  {typeof item !== 'undefined' ? item.user.mbti : ''}
+                </Text>
+                <Text style={styles.intro}>
+                  {typeof item !== 'undefined' ? item.room.introduction : ''}
+                </Text>
               </View>
               <Text style={styles.dates}>
-                {item.room.available_dates.map(
-                  (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
-                )}
+                {typeof item !== 'undefined'
+                  ? item.room.available_dates.map(
+                      (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
+                    )
+                  : ''}
               </Text>
             </View>
           </TouchableOpacity>
@@ -153,63 +156,75 @@ export default function State() {
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[
-              item.room.status == 'a'
-                ? styles.list_container
+              typeof item !== 'undefined'
+                ? item.room.status == 'a'
+                  ? styles.list_container
+                  : {display: 'none'}
                 : {display: 'none'},
             ]}
             onPress={() => {
               if (item.user_role == 'invitee') {
-                Alert.alert(
-                  '확인해주세요',
-                  '참가하시겠습니까?',
-                  [
-                    {
-                      text: '취소',
-                      style: 'cancel',
-                    },
-                    {
-                      text: '아니오',
-                      style: 'cancel',
-                      onPress: () => {
-                        update('participate', 'r', item.id, myInfo.token);
-                      },
-                    },
-                    {
-                      text: '네',
-                      onPress: () => {
-                        update('participate', 'a', item.id, myInfo.token);
-                      },
-                    },
-                  ],
-                  {cancelable: false},
-                );
+                setRoomType('participate');
+                setRequestNum(item.id);
+                setRoomNum(item.room.id);
+                setRoomStatus(item.room.status);
+                setUserRole('invitee');
+                showModal();
               } else {
+                setRoomType('participate');
+                setRequestNum(item.id);
+                setRoomNum(item.room.id);
+                setRoomStatus(item.room.status);
+                setUserRole('inviter');
+                setPartyNum(item.party_number);
+                showModal();
                 console.log('나는방장');
               }
             }}>
             <View style={styles.list}>
-              <Text style={styles.peopleCount}>{item.room.user_limit}</Text>
+              <Text style={styles.peopleCount}>
+                {typeof item !== 'undefined' ? item.room.user_limit : ''}
+              </Text>
               <View style={styles.content}>
                 <Text style={styles.school}>
-                  {item.room.meeting.map((v) => {
-                    return v.mbti + '/';
-                  })}
+                  {typeof item !== 'undefined'
+                    ? item.room.meeting.map((v) => {
+                        return v.mbti + '/';
+                      })
+                    : ''}
                 </Text>
-                <Text style={styles.intro}>{item.room.introduction}</Text>
+                <Text style={styles.intro}>
+                  {typeof item !== 'undefined' ? item.room.introduction : ''}
+                </Text>
               </View>
               <Text style={styles.dates}>
-                {item.room.available_dates.map(
-                  (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
-                )}
+                {typeof item !== 'undefined'
+                  ? item.room.available_dates.map(
+                      (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
+                    )
+                  : ''}
               </Text>
             </View>
           </TouchableOpacity>
         )}
         keyExtractor={(_item, index) => `${index}`}
       />
+      <StateInfoModal
+        visible={visible}
+        hideModal={hideModal}
+        token={myInfo.token}
+        requestId={requestNum}
+        roomId={roomNum}
+        roomType={roomType}
+        roomState="S"
+        userRole={userRole}
+        roomStatus={roomStatus}
+        partyId={partyNum}
+      />
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -264,5 +279,8 @@ const styles = StyleSheet.create({
     fontFamily: FancyFonts.BMDOHYEON,
     textAlign: 'center',
     marginTop: 10,
+  },
+  containerStyle: {
+    backgroundColor: 'white',
   },
 });

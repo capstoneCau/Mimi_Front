@@ -1,4 +1,5 @@
 import {SERVER_DOMAIN} from '../common/common';
+import State from '../screens/StateGive';
 
 //Action Type
 const GET_INVITER_PARTICIPATE_REQUEST =
@@ -14,7 +15,10 @@ const GET_REQUEST_ROOM_INFO = 'request/GET_REQUEST_ROOM_INFO';
 
 const UPDATE_REQUEST = 'request/UPDATE_REQUEST';
 const PARTICIPATE_MEETING = 'request/PARTICIPATE_MEETING';
-
+const REMOVE_MEETING = 'request/REMOVE_MEETING';
+const REMOVE_PARTICIPATE = 'request/REMOVE_PARTICIPATE';
+const GET_MATCHING_SELECT_INFO = 'request/GET_MATCHING_SELECT_INFO';
+const MATCH_MEETING = 'request/MATCH_MEETING';
 //Thunk
 export const getInviterParticipateRequest = (token) => async (
   dispatch,
@@ -110,21 +114,22 @@ export const getInviteeCreateRequest = (token) => async (
   }
 };
 
-export const getRequestUserInfo = (request_id, token) => async (
-  dispach,
+export const getRequestUserInfo = (request, token) => async (
+  dispatch,
   getState,
 ) => {
-  const res = await fetch(SERVER_DOMAIN + 'request/userinfo/', {
-    method: 'GET',
-    mode: 'cors',
-    headers: {
-      Authorization: `Token ${token}`,
-      'Content-Type': 'application/json',
+  const res = await fetch(
+    SERVER_DOMAIN + `request/userinfo?request=${request}`,
+    {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
     },
-    Body: JSON.stringify({request: request_id}),
-  });
+  );
   const userInfoList = await res.json();
-  dispach({type: GET_REQUEST_USER_INFO});
+  dispatch({type: GET_REQUEST_USER_INFO});
   return userInfoList;
 };
 
@@ -132,13 +137,16 @@ export const getRequestRoomInfo = (request_id, token) => async (
   dispatch,
   getState,
 ) => {
-  const res = await fetch(SERVER_DOMAIN + `request/roominfo/${request_id}/`, {
-    method: 'GET',
-    mode: 'cors',
-    headers: {
-      Authorization: `Token ${token}`,
+  const res = await fetch(
+    SERVER_DOMAIN + `request/roominfo?request=${request_id}`,
+    {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
     },
-  });
+  );
   const roomInfo = await res.json();
   dispatch({type: GET_REQUEST_ROOM_INFO});
   return roomInfo;
@@ -198,6 +206,67 @@ export const participateAtRoom = (
   // getState().requestInfo.inviteeCreateIdList
 };
 
+export const removeMeeting = (room_id, token) => async (dispatch, getState) => {
+  const res = await fetch(SERVER_DOMAIN + `meeting/roomList/${room_id}/`, {
+    method: 'DELETE',
+    mode: 'cors',
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  });
+  const requestInfo = await res.json();
+  dispatch({type: REMOVE_MEETING});
+};
+
+export const removeParticipate = (party_id, token) => async (
+  dispatch,
+  getState,
+) => {
+  const res = await fetch(
+    SERVER_DOMAIN + `request/inviter/participate/${party_id}/`,
+    {
+      method: 'DELETE',
+      mode: 'cors',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    },
+  );
+  const requestInfo = await res.json();
+  dispatch({type: REMOVE_PARTICIPATE});
+};
+
+export const getMatchingSelectInfo = (request_id, token) => async (
+  dispatch,
+  getState,
+) => {
+  const res = await fetch(
+    SERVER_DOMAIN + `request/select?request=${request_id}`,
+    {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    },
+  );
+  const requestInfo = await res.json();
+  dispatch({type: GET_MATCHING_SELECT_INFO});
+  return requestInfo;
+};
+
+export const matchMeeting = (party_id, token) => async (dispatch, getState) => {
+  const res = await fetch(SERVER_DOMAIN + `request/select/${party_id}/`, {
+    method: 'PATCH',
+    mode: 'cors',
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  });
+  const requestInfo = await res.json();
+  dispatch({type: MATCH_MEETING});
+};
+
 //Initial State
 const initialState = {
   inviteeCreateList: [],
@@ -244,6 +313,22 @@ export default function meetingInfo(state = initialState, action) {
       };
     case PARTICIPATE_MEETING:
       //   status.inviterParticiatList.push(action.requestInfo);
+      return {
+        ...state,
+      };
+    case REMOVE_MEETING:
+      return {
+        ...state,
+      };
+    case REMOVE_PARTICIPATE:
+      return {
+        ...state,
+      };
+    case GET_MATCHING_SELECT_INFO:
+      return {
+        ...state,
+      };
+    case MATCH_MEETING:
       return {
         ...state,
       };

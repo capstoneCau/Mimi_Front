@@ -24,6 +24,7 @@ import {
   useTheme,
   RadioButton,
 } from 'react-native-paper';
+import StateInfoModal from '../components/StateInfoModal';
 import {FancyButton, FancyFonts, backAction} from '../common/common';
 import {requestKaKaoAuthIdAsync} from '../modules/login';
 import {myFriendList, getFriendInfo} from '../modules/myFriend';
@@ -45,6 +46,9 @@ export default function List({navigation}) {
   const [removeFriend, setRemoveFriend] = useState(false);
   const [roomNum, setRoomNum] = useState(-1);
   const [restart, setRestart] = useState(false);
+  const [visible, setVisible] = useState(false);
+  // const [requestId, setRequestId] = useState(0);
+  const [roomType, setRoomType] = useState('');
   //List 출력전 전부 해야하는 부분//
   const dispatch = useDispatch();
   const getUser = useCallback(
@@ -76,6 +80,9 @@ export default function List({navigation}) {
   const resetFriend = () => {
     setFriends([]);
   };
+  useEffect(() => {
+    setRestart(!restart);
+  }, []);
 
   useEffect(() => {
     if (removeFriend) {
@@ -100,6 +107,10 @@ export default function List({navigation}) {
   const handleSearch = () => {
     console.log('Search!');
   };
+
+  const showModal = () => setVisible(true);
+
+  const hideModal = () => setVisible(false);
   return (
     <SafeAreaView style={styles.container}>
       {showFriendModal && (
@@ -132,35 +143,52 @@ export default function List({navigation}) {
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[
-              item.status == 'm' ? {display: 'none'} : styles.list_container,
+              typeof item !== 'undefined'
+                ? item.status == 'm'
+                  ? {display: 'none'}
+                  : styles.list_container
+                : {display: 'none'},
             ]}
             onPress={() => {
-              showFriends();
+              showModal();
               setRoomNum(item.id);
             }}>
             <View style={styles.list}>
-              <Text style={styles.peopleCount}>{item.user_limit}</Text>
+              <Text style={styles.peopleCount}>
+                {typeof item !== 'undefined' ? item.user_limit : ''}
+              </Text>
               <View style={styles.content}>
                 <Text style={styles.school}>
-                  {item.meeting
+                  {typeof item !== 'undefined'
                     ? item.meeting.map((v) => {
                         return v.mbti + '/';
                       })
                     : null}
                 </Text>
-                <Text style={styles.intro}>{item.introduction}</Text>
+                <Text style={styles.intro}>
+                  {typeof item !== 'undefined' ? item.introduction : ''}
+                </Text>
               </View>
               <Text style={styles.dates}>
-                {item.available_dates
+                {typeof item !== 'undefined'
                   ? item.available_dates.map(
                       (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
                     )
-                  : null}
+                  : ''}
               </Text>
             </View>
           </TouchableOpacity>
         )}
         keyExtractor={(_item, index) => `${index}`}
+      />
+      <StateInfoModal
+        visible={visible}
+        hideModal={hideModal}
+        token={myInfo.token}
+        roomId={roomNum}
+        roomType={roomType}
+        roomState="L"
+        showFriends={showFriends}
       />
     </SafeAreaView>
   );
