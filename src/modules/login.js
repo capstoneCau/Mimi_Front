@@ -60,12 +60,12 @@ export const requestKaKaoAuthIdAsync = (kakaoId) => async (
     dispatch({type: REQUEST_KAKAO_AUTH_ID, kakaoId});
     return false;
   } else {
-    // infoToLocal('kakaoId', '1111111111');
+    infoToLocal('kakaoId', '1111111111');
     // infoToLocal('kakaoId', '2222222222');
     // infoToLocal('kakaoId', '3333333333');
     // infoToLocal('kakaoId', '1489710892');
     // infoToLocal('kakaoId', '1519828858');
-    infoToLocal('kakaoId', '1496391237');
+    // infoToLocal('kakaoId', '1496391237');
     //infoToLocal('kakaoId', kakaoId); //실제 배포할 경우 사용할 코드
     dispatch({type: LOGIN_USER, userInfo: result.user, token: result.token});
     return true;

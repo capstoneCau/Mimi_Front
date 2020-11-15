@@ -80,7 +80,6 @@ export default function List({navigation}) {
   const resetFriend = () => {
     setFriends([]);
   };
-
   useEffect(() => {
     setRestart(!restart);
   }, []);
