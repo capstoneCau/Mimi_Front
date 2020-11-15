@@ -60,7 +60,10 @@ export const getRoomInfo = (room_id, token) => async (dispatch, getState) => {
   return roomInfo;
 };
 
-export const getParticipatedUserInfoList = async (room_id, token) => {
+export const getParticipatedUserInfoList = (room_id, token) => async (
+  dispatch,
+  getState,
+) => {
   const res = await fetch(SERVER_DOMAIN + `meeting/userinfo?room=${room_id}`, {
     method: 'GET',
     mode: 'cors',
