@@ -33,6 +33,7 @@ export default function StateInfoModal({
   showFriends,
   userRole,
   roomStatus,
+  partyId,
 }) {
   const [userStateInfo, setUserStateInfo] = useState([]);
   const [userListInfo, setUserListInfo] = useState([]);
@@ -250,7 +251,8 @@ export default function StateInfoModal({
                     if (roomType == 'create') {
                       _removeMeeting(roomId, token);
                     } else {
-                      // _removeParticipate(,token)
+                      hideModal();
+                      _removeParticipate(partyId, token);
                     }
                   }
                 } else if (roomState === 'L') {
