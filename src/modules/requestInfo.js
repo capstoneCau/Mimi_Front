@@ -223,7 +223,7 @@ export const removeParticipate = (party_id, token) => async (
   getState,
 ) => {
   const res = await fetch(
-    SERVER_DOMAIN + `request/inviter/participate/${party_id}`,
+    SERVER_DOMAIN + `request/inviter/participate/${party_id}/`,
     {
       method: 'DELETE',
       mode: 'cors',
