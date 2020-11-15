@@ -18,10 +18,10 @@ export default function KakaoLoginBtn({navigation}) {
   // const [unlinkLoading, setUnlinkLoading] = useState(false);
   const [token, setToken] = useState(TOKEN_EMPTY);
   const [profile, setProfile] = useState(PROFILE_EMPTY);
-  // const user = useSelector(state => state.login);
+  const user = useSelector(state => state.login);
   const dispatch = useDispatch();
   const onLoginUser = useCallback(
-    (kakaoId) => dispatch(requestKaKaoAuthIdAsync(kakaoId)),
+    (kakaoId, fcmToken) => dispatch(requestKaKaoAuthIdAsync(kakaoId, fcmToken)),
     [dispatch],
   );
 
@@ -54,8 +54,8 @@ export default function KakaoLoginBtn({navigation}) {
         `Get Profile Finished:${JSON.stringify(profile)}`,
         setProfileLoading(false),
       );
-
-      if (await onLoginUser(profile.id)) {
+      console.log(user)
+      if (await onLoginUser(profile.id, user.fcmToken)) {
         navigation.navigate('Home');
       } else {
         navigation.navigate('SignUp', {

@@ -52,12 +52,12 @@ const App = () => {
   const [initDestination, setInitDestination] = useState('Login');
   const dispatch = useDispatch();
   const onLoginUser = useCallback(
-    (kakaoId) => dispatch(requestKaKaoAuthIdAsync(kakaoId)),
+    (kakaoId, fcmToken) => dispatch(requestKaKaoAuthIdAsync(kakaoId, fcmToken)),
     [dispatch],
   );
   //const myInfo = useSelector((state) => state.login); //상단에 쓰면 왜 무한 리렌더링??
   const onFcmToken = useCallback(
-    (fcmToken) => dispatch(fcmTokenAsync(fcmToken)),
+    (fcmToken, kakaoId) => dispatch(fcmTokenAsync(fcmToken, kakaoId)),
     [dispatch],
   );
   const foregroundListener = useCallback(() => {
@@ -68,13 +68,14 @@ const App = () => {
     });
   }, []);
 
-  const handlePushToken = useCallback(async () => {
+  const handlePushToken = useCallback(async (kakaoId) => {
     const enabled = await messaging().hasPermission();
     // console.log(enabled)
     if (enabled) {
       const fcmToken = await messaging().getToken();
-      console.log(fcmToken);
-      if (fcmToken) onFcmToken(fcmToken);
+      if (fcmToken) {
+        onLoginUser(kakaoId, fcmToken);
+      }
     } else {
       const authorizaed = await messaging.requestPermission();
       console.log(authorizaed);
@@ -83,19 +84,22 @@ const App = () => {
 
   useEffect(() => {
     localToInfo('kakaoId')
-      .then((result) => {
-        onLoginUser(result);
-        return result;
+      .then((kakaoId) => {
+        handlePushToken(kakaoId);
+        return kakaoId;
       })
-      .then((result) => {
-        if (result.length === 10) {
+      .then((kakaoId) => {
+        if (kakaoId.length === 10) {
           setInitDestination('Home');
         }
-      });
+        return kakaoId
+      })
+      .then((kakaoId) => {
+        
+      })
   }, [isLogin]);
 
   useEffect(() => {
-    handlePushToken();
     foregroundListener();
   }, []);
 
