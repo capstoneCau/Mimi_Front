@@ -203,7 +203,7 @@ export const participateAtRoom = (
 };
 
 export const removeMeeting = (room_id, token) => async (dispatch, getState) => {
-  const res = await fetch(SERVER_DOMAIN + `/meeting/roomList/${room_id}/`, {
+  const res = await fetch(SERVER_DOMAIN + `meeting/roomList/${room_id}/`, {
     method: 'DELETE',
     mode: 'cors',
     headers: {
