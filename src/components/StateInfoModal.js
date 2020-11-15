@@ -11,7 +11,11 @@ import {
 } from 'react-native';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {Modal, Portal, Text, Button, Provider} from 'react-native-paper';
-import {getRequestUserInfo, updateRequest} from '../modules/requestInfo';
+import {
+  getRequestUserInfo,
+  updateRequest,
+  removeMeeting,
+} from '../modules/requestInfo';
 import {FancyButton, FancyFonts} from '../common/common';
 import {getRoomInfo} from '../modules/meetingInfo';
 
@@ -20,6 +24,7 @@ export default function StateInfoModal({
   hideModal,
   token,
   requestId,
+  roomId,
   roomType,
   roomState,
   showFriends,
@@ -41,23 +46,28 @@ export default function StateInfoModal({
       dispatch(updateRequest(type, isAccepted, _requestId, _token)),
     [dispatch],
   );
+  const _removeMeeting = useCallback(
+    (_roomId, _token) => dispatch(removeMeeting(_roomId, _token)),
+    [dispatch],
+  );
+
   useEffect(() => {
     if (roomState === 'S') {
       const setStateUserInfo = async () => {
         const stateUserInfo = await _getUserInfo(requestId, token);
-        console.log(stateUserInfo[0].user);
-        setUserStateInfo(stateUserInfo[0].user);
+        setUserStateInfo([stateUserInfo[0].user]); // 넣는 방식 여러명일때 바꿔줘야함
       };
       setStateUserInfo();
     } else if (roomState === 'L') {
       const setListUserInfo = async () => {
-        const listUserInfo = await _getRoomInfo(requestId, token);
-        console.log(JSON.stringify(listUserInfo));
+        const listUserInfo = await _getRoomInfo(roomId, token);
         setUserListInfo(listUserInfo[0].meeting);
       };
       setListUserInfo();
     }
+    return () => {};
   }, [visible]);
+
   return (
     <Provider>
       <Portal>
@@ -66,18 +76,20 @@ export default function StateInfoModal({
           onDismiss={hideModal}
           contentContainerStyle={styles.containerStyle}>
           <FlatList
-            data={roomState == 'S' ? [userStateInfo] : userListInfo}
+            data={roomState == 'S' ? userStateInfo : userListInfo}
             renderItem={({item, index}) => (
               <TouchableOpacity
                 onPress={() => {
                   console.log('press');
                 }}>
                 <View>
-                  <Text>{item.name}</Text>
-                  <Text>{item.school}</Text>
-                  <Text>{item.mbti}</Text>
-                  <Text>{item.star}</Text>
-                  <Text>{item.chinese_zodiac}</Text>
+                  <Text>{typeof item !== 'undefined' ? item.name : ''}</Text>
+                  <Text>{typeof item !== 'undefined' ? item.school : ''}</Text>
+                  <Text>{typeof item !== 'undefined' ? item.mbti : ''}</Text>
+                  <Text>{typeof item !== 'undefined' ? item.star : ''}</Text>
+                  <Text>
+                    {typeof item !== 'undefined' ? item.chinese_zodiac : ''}
+                  </Text>
                 </View>
               </TouchableOpacity>
             )}
@@ -99,6 +111,8 @@ export default function StateInfoModal({
                   if (userRole == 'invitee') {
                     update(roomType, 'r', requestId, token);
                     hideModal();
+                  } else {
+                    hideModal();
                   }
                 } else if (roomState === 'L') {
                   hideModal();
@@ -119,6 +133,9 @@ export default function StateInfoModal({
                 if (roomState === 'S') {
                   if (userRole == 'invitee') {
                     update(roomType, 'a', requestId, token);
+                    hideModal();
+                  } else {
+                    _removeMeeting(roomId, token);
                     hideModal();
                   }
                 } else if (roomState === 'L') {
