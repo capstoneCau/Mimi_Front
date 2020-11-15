@@ -199,6 +199,7 @@ dependencies {
     implementation 'androidx.work:work-runtime:2.2.0'
     implementation project(':react-native-background-timer')
     implementation project(':react-native-camera')
+    implementation project(':rn-fetch-blob')
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
     }
