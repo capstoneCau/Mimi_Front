@@ -82,6 +82,10 @@ export default function List({navigation}) {
   };
 
   useEffect(() => {
+    setRestart(!restart);
+  }, []);
+
+  useEffect(() => {
     if (removeFriend) {
       resetFriend();
       setRemoveFriend(false);
