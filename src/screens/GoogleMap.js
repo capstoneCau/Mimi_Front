@@ -126,6 +126,17 @@ const GoogleMap = () => {
             }
         }, 2000)
         infoToLocal('watchId', watchId)
+        
+        BackgroundTimer.setTimeout(()=>{
+          infoToLocal('watchId', null)
+          BackgroundTimer.clearInterval(watchId)
+          sendNotification(
+            ['1489710892'],
+            '안전귀가서비스',
+            `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
+            user.token,
+          );
+        }, 5000)
       }
   };
 
@@ -135,7 +146,7 @@ const GoogleMap = () => {
       BackgroundTimer.clearInterval(watchId)
       infoToLocal('watchId', null)
       // sendNotification(
-      //   ['1489710892', '1519828858'],
+      //   ['1489710892'],
       //   '안전귀가서비스',
       //   `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
       //   user.token,
