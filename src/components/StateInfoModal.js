@@ -69,37 +69,42 @@ export default function StateInfoModal({
   );
 
   useEffect(() => {
-    if (roomState === 'S' && roomStatus !== '') {
-      const setStateUserInfo = async () => {
-        const stateUserInfo = await _getUserInfo(requestId, token);
-        setUserStateInfo(stateUserInfo);
-      };
-      setStateUserInfo();
-    } else if (roomState === 'L' && roomStatus !== '') {
-      const setListUserInfo = async () => {
-        const listUserInfo = await _getRoomInfo(roomId, token);
-        setUserListInfo(listUserInfo[0].meeting);
-      };
-      setListUserInfo();
+    if (visible === true) {
+      if (roomState === 'S' && roomStatus !== '') {
+        const setStateUserInfo = async () => {
+          const stateUserInfo = await _getUserInfo(requestId, token);
+          setUserStateInfo(stateUserInfo);
+        };
+        setStateUserInfo();
+      } else if (roomState === 'L' && roomStatus !== '') {
+        const setListUserInfo = async () => {
+          const listUserInfo = await _getRoomInfo(roomId, token);
+          setUserListInfo(listUserInfo[0].meeting);
+        };
+        setListUserInfo();
+      }
+      if (roomStatus === 'a' && roomType === 'create') {
+        const setMatcingSelectInfo = async () => {
+          const matchingSelectInfo = await _getMatchingSelectInfo(
+            requestId,
+            token,
+          );
+          setUserMatchingSelectInfo(matchingSelectInfo);
+        };
+        setMatcingSelectInfo();
+      }
+      if (
+        roomState === 'S' &&
+        roomType === 'participate' &&
+        roomStatus === 'a'
+      ) {
+        const getMeetingUserInfo = async () => {
+          const meetingUserInfo = await _getMeetingUserInfo(roomId, token);
+          setUserMeetingInfo(meetingUserInfo);
+        };
+        getMeetingUserInfo();
+      }
     }
-    if (roomStatus === 'a' && roomType === 'create') {
-      const setMatcingSelectInfo = async () => {
-        const matchingSelectInfo = await _getMatchingSelectInfo(
-          requestId,
-          token,
-        );
-        setUserMatchingSelectInfo(matchingSelectInfo);
-      };
-      setMatcingSelectInfo();
-    }
-    if (roomState === 'S' && roomType === 'participate' && roomStatus === 'a') {
-      const getMeetingUserInfo = async () => {
-        const meetingUserInfo = await _getMeetingUserInfo(roomId, token);
-        setUserMeetingInfo(meetingUserInfo);
-      };
-      getMeetingUserInfo();
-    }
-
     return () => {};
   }, [visible]);
 
@@ -210,8 +215,8 @@ export default function StateInfoModal({
               onPress={() => {
                 if (roomState === 'S') {
                   if (userRole == 'invitee') {
-                    update(roomType, 'r', requestId, token);
                     hideModal();
+                    update(roomType, 'r', requestId, token);
                   } else {
                     hideModal();
                   }
@@ -233,11 +238,15 @@ export default function StateInfoModal({
               onPress={() => {
                 if (roomState === 'S') {
                   if (userRole == 'invitee') {
+                    hideModal();
                     update(roomType, 'a', requestId, token);
-                    hideModal();
                   } else {
-                    _removeMeeting(roomId, token);
                     hideModal();
+                    if (roomType == 'create') {
+                      _removeMeeting(roomId, token);
+                    } else {
+                      //참여자 삭제
+                    }
                   }
                 } else if (roomState === 'L') {
                   hideModal();
