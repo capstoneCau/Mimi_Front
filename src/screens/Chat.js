@@ -51,15 +51,12 @@ export default function Chat() {
     [dispatch],
   );
   useEffect(() => {
-    console.log('hi');
     const getRoom = async () => {
       setRoomInfos(await getMatchedRoom(myInfo.token));
     };
     myFriend(myInfo.token);
     getRoom();
   }, [restart]);
-  const {colors} = useTheme();
-
   return (
     <SafeAreaView style={styles.container}>
       <Appbar.Header style={{backgroundColor: 'white'}}>
@@ -77,7 +74,7 @@ export default function Chat() {
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[
-              typeof item !== 'undefined'
+              typeof item !== 'undefined' && item.meeting.length > 0
                 ? item.room.status == 'm'
                   ? styles.list_container
                   : {display: 'none'}
@@ -88,22 +85,26 @@ export default function Chat() {
             }}>
             <View style={styles.list}>
               <Text style={styles.peopleCount}>
-                {typeof item !== 'undefined' ? item.room.user_limit : ''}
+                {typeof item !== 'undefined' && item.meeting.length > 0
+                  ? item.room.user_limit
+                  : ''}
               </Text>
               <View style={styles.content}>
                 <Text style={styles.school}>
-                  {typeof item !== 'undefined'
+                  {typeof item !== 'undefined' && item.meeting.length > 0
                     ? item.room.meeting.map((v) => {
                         return v.mbti + '/';
                       })
                     : ''}
                 </Text>
                 <Text style={styles.intro}>
-                  {typeof item !== 'undefined' ? item.room.introduction : ''}
+                  {typeof item !== 'undefined' && item.meeting.length > 0
+                    ? item.room.introduction
+                    : ''}
                 </Text>
               </View>
               <Text style={styles.dates}>
-                {typeof item !== 'undefined'
+                {typeof item !== 'undefined' && item.meeting.length > 0
                   ? item.room.available_dates.map(
                       (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
                     )
