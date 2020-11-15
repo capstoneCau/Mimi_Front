@@ -140,30 +140,38 @@ export default function List({navigation}) {
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[
-              item.status == 'm' ? {display: 'none'} : styles.list_container,
+              typeof item !== 'undefined'
+                ? item.status == 'm'
+                  ? {display: 'none'}
+                  : styles.list_container
+                : {display: 'none'},
             ]}
             onPress={() => {
               showModal();
               setRoomNum(item.id);
             }}>
             <View style={styles.list}>
-              <Text style={styles.peopleCount}>{item.user_limit}</Text>
+              <Text style={styles.peopleCount}>
+                {typeof item !== 'undefined' ? item.user_limit : ''}
+              </Text>
               <View style={styles.content}>
                 <Text style={styles.school}>
-                  {item.meeting
+                  {typeof item !== 'undefined'
                     ? item.meeting.map((v) => {
                         return v.mbti + '/';
                       })
                     : null}
                 </Text>
-                <Text style={styles.intro}>{item.introduction}</Text>
+                <Text style={styles.intro}>
+                  {typeof item !== 'undefined' ? item.introduction : ''}
+                </Text>
               </View>
               <Text style={styles.dates}>
-                {item.available_dates
+                {typeof item !== 'undefined'
                   ? item.available_dates.map(
                       (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
                     )
-                  : null}
+                  : ''}
               </Text>
             </View>
           </TouchableOpacity>
@@ -174,7 +182,7 @@ export default function List({navigation}) {
         visible={visible}
         hideModal={hideModal}
         token={myInfo.token}
-        requestId={roomNum}
+        roomId={roomNum}
         roomType={roomType}
         roomState="L"
         showFriends={showFriends}

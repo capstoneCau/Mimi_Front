@@ -51,6 +51,7 @@ export default function Chat() {
     [dispatch],
   );
   useEffect(() => {
+    console.log('hi');
     const getRoom = async () => {
       setRoomInfos(await getMatchedRoom(myInfo.token));
     };
@@ -76,31 +77,37 @@ export default function Chat() {
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[
-              item.room.status == 'm'
-                ? styles.list_container
+              typeof item !== 'undefined'
+                ? item.room.status == 'm'
+                  ? styles.list_container
+                  : {display: 'none'}
                 : {display: 'none'},
             ]}
             onPress={() => {
               console.log('chatting');
             }}>
             <View style={styles.list}>
-              <Text style={styles.peopleCount}>{item.room.user_limit}</Text>
+              <Text style={styles.peopleCount}>
+                {typeof item !== 'undefined' ? item.room.user_limit : ''}
+              </Text>
               <View style={styles.content}>
                 <Text style={styles.school}>
-                  {item.room.meeting
+                  {typeof item !== 'undefined'
                     ? item.room.meeting.map((v) => {
                         return v.mbti + '/';
                       })
-                    : null}
+                    : ''}
                 </Text>
-                <Text style={styles.intro}>{item.room.introduction}</Text>
+                <Text style={styles.intro}>
+                  {typeof item !== 'undefined' ? item.room.introduction : ''}
+                </Text>
               </View>
               <Text style={styles.dates}>
-                {item.room.available_dates
+                {typeof item !== 'undefined'
                   ? item.room.available_dates.map(
                       (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
                     )
-                  : null}
+                  : ''}
               </Text>
             </View>
           </TouchableOpacity>

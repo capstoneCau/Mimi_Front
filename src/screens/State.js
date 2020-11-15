@@ -47,6 +47,7 @@ export default function State() {
   // }, []);
   const [visible, setVisible] = useState(false);
   const [restart, setRestart] = useState('false');
+  const [requestNum, setRequestNum] = useState(0);
   const [roomNum, setRoomNum] = useState(0);
   const [roomType, setRoomType] = useState('');
   const [userRole, setUserRole] = useState('');
@@ -84,7 +85,6 @@ export default function State() {
     getInviterParticipate(myInfo.token);
     getInviteeParticipate(myInfo.token);
   }, [restart]);
-
   const {colors} = useTheme();
   return (
     <SafeAreaView style={styles.container}>
@@ -102,36 +102,48 @@ export default function State() {
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[
-              item.room.status == 'w'
-                ? styles.list_container
-                : item.room.status == 'a'
-                ? {backgroundColor: '#dcdcdc'}
+              typeof item !== 'undefined'
+                ? item.room.status == 'w'
+                  ? styles.list_container
+                  : item.room.status == 'a'
+                  ? {backgroundColor: '#dcdcdc'}
+                  : {display: 'none'}
                 : {display: 'none'},
             ]}
             onPress={() => {
               if (item.user_role == 'invitee') {
                 setRoomType('create');
-                setRoomNum(item.id);
+                setRequestNum(item.id);
+                setRoomNum(item.room.id);
                 setUserRole('invitee');
                 showModal();
               } else {
                 setRoomType('create');
-                setRoomNum(item.id);
+                setRequestNum(item.id);
+                setRoomNum(item.room.id);
                 setUserRole('inviter');
                 showModal();
                 console.log('나는방장');
               }
             }}>
             <View style={styles.list}>
-              <Text style={styles.peopleCount}>{item.room.user_limit}</Text>
+              <Text style={styles.peopleCount}>
+                {typeof item !== 'undefined' ? item.room.user_limit : ''}
+              </Text>
               <View style={styles.content}>
-                <Text style={styles.school}>{item.user.mbti}</Text>
-                <Text style={styles.intro}>{item.room.introduction}</Text>
+                <Text style={styles.school}>
+                  {typeof item !== 'undefined' ? item.user.mbti : ''}
+                </Text>
+                <Text style={styles.intro}>
+                  {typeof item !== 'undefined' ? item.room.introduction : ''}
+                </Text>
               </View>
               <Text style={styles.dates}>
-                {item.room.available_dates.map(
-                  (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
-                )}
+                {typeof item !== 'undefined'
+                  ? item.room.available_dates.map(
+                      (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
+                    )
+                  : ''}
               </Text>
             </View>
           </TouchableOpacity>
@@ -146,38 +158,50 @@ export default function State() {
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[
-              item.room.status == 'a'
-                ? styles.list_container
+              typeof item !== 'undefined'
+                ? item.room.status == 'a'
+                  ? styles.list_container
+                  : {display: 'none'}
                 : {display: 'none'},
             ]}
             onPress={() => {
               if (item.user_role == 'invitee') {
                 setRoomType('participate');
-                setRoomNum(item.id);
+                setRequestNum(item.id);
+                setRoomNum(item.room.id);
                 setUserRole('invitee');
                 showModal();
               } else {
                 setRoomType('participate');
-                setRoomNum(item.id);
+                setRequestNum(item.id);
+                setRoomNum(item.room.id);
                 setUserRole('inviter');
                 showModal();
                 console.log('나는방장');
               }
             }}>
             <View style={styles.list}>
-              <Text style={styles.peopleCount}>{item.room.user_limit}</Text>
+              <Text style={styles.peopleCount}>
+                {typeof item !== 'undefined' ? item.room.user_limit : ''}
+              </Text>
               <View style={styles.content}>
                 <Text style={styles.school}>
-                  {item.room.meeting.map((v) => {
-                    return v.mbti + '/';
-                  })}
+                  {typeof item !== 'undefined'
+                    ? item.room.meeting.map((v) => {
+                        return v.mbti + '/';
+                      })
+                    : ''}
                 </Text>
-                <Text style={styles.intro}>{item.room.introduction}</Text>
+                <Text style={styles.intro}>
+                  {typeof item !== 'undefined' ? item.room.introduction : ''}
+                </Text>
               </View>
               <Text style={styles.dates}>
-                {item.room.available_dates.map(
-                  (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
-                )}
+                {typeof item !== 'undefined'
+                  ? item.room.available_dates.map(
+                      (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
+                    )
+                  : ''}
               </Text>
             </View>
           </TouchableOpacity>
@@ -188,7 +212,8 @@ export default function State() {
         visible={visible}
         hideModal={hideModal}
         token={myInfo.token}
-        requestId={roomNum}
+        requestId={requestNum}
+        roomId={roomNum}
         roomType={roomType}
         roomState="S"
         userRole={userRole}
