@@ -30,6 +30,8 @@ import {
 import {RNCamera} from 'react-native-camera';
 import {FlatList} from 'react-native-gesture-handler';
 import uploadImage from '../modules/imageUpload';
+import {FancyButton, FancyFonts} from '../common/common';
+import {ProgressBar, Colors} from 'react-native-paper';
 
 export default function Setting() {
   const cameraRef = React.useRef(null); // useRef로 camera를 위한 ref를 하나 만들어주고
@@ -37,8 +39,10 @@ export default function Setting() {
   const [predict, setPredict] = useState([]);
   const [result, setResult] = useState([]);
   const [imageUri, setImageUri] = useState();
+  const [checkRun, setCheckRun] = useState(true);
   const takePhoto = async () => {
     if (cameraRef) {
+      setCheckRun(false);
       setCategory([]);
       setPredict([]);
       const data = await cameraRef.current.takePictureAsync({
@@ -73,38 +77,64 @@ export default function Setting() {
     requestLocationPermission();
   });
   return (
-    <>
+    <View style={styles.container}>
       <RNCamera
         ref={cameraRef}
         style={{
-          width: 200,
-          height: 200,
+          width: 100,
+          height: 80,
+          marginTop: 60,
         }}
         captureAudio={false}
         type={RNCamera.Constants.Type.front}
       />
       <Image
-        style={styles.tinyLogo}
+        style={{
+          width: 100,
+          height: 80,
+          marginTop: 60,
+          borderRadius: 30,
+        }}
         source={{
           uri: imageUri,
         }}
       />
-      <View style={styles.container}>
-        <Button style={styles.button} title="Take" onPress={takePhoto}></Button>
+
+      <View>
+        {checkRun ? (
+          <FancyButton
+            style={styles.button}
+            icon="camera"
+            title="Take"
+            onPress={() => takePhoto()}>
+            촬영
+          </FancyButton>
+        ) : (
+          <FancyButton
+            style={styles.button}
+            icon="camera-retake-outline"
+            title="Take"
+            onPress={() => {
+              setCheckRun(true);
+            }}>
+            재촬영
+          </FancyButton>
+        )}
       </View>
+      <Text style={styles.titleText}>[당신과 닮은 동물 Best3]</Text>
       <FlatList
         data={result}
         renderItem={({item, index}) => (
           <TouchableOpacity>
-            <View>
-              <Text>{item.category}</Text>
-              <Text>{item.predict_rate}</Text>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>{item.category}</Text>
+              <Text style={styles.text}>{item.predict_rate}</Text>
             </View>
           </TouchableOpacity>
         )}
         keyExtractor={(_item, index) => `${index}`}
       />
-    </>
+    </View>
   );
 }
 
@@ -113,18 +143,30 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'white',
   },
   button: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderStyle: 'solid',
-    borderColor: 'gray',
-    borderWidth: 10,
-    backgroundColor: 'pink',
+    // width: 50,
+    // height: 50,
+    // borderRadius: 30,
+    // borderStyle: 'solid',
+    // borderColor: 'gray',
+    // borderWidth: 10,
+    marginTop: 80,
+    backgroundColor: 'white',
   },
-  tinyLogo: {
-    width: 100,
-    height: 100,
+  tinyLogo: {},
+  textContainer: {
+    flexDirection: 'row',
+  },
+  titleText: {
+    fontFamily: FancyFonts.BMDOHYEON,
+    fontSize: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  text: {
+    fontFamily: FancyFonts.BMDOHYEON,
+    margin: 20,
   },
 });

@@ -92,7 +92,7 @@ export default function State() {
           setRestart(!restart);
         }}
       />
-      <Text style={styles.title}>create</Text>
+      <Text style={styles.title}>생성</Text>
       <FlatList
         data={roomInfo.inviterCreateList.concat(roomInfo.inviteeCreateList)}
         renderItem={({item, index}) => (
@@ -148,7 +148,7 @@ export default function State() {
         )}
         keyExtractor={(_item, index) => `${index}`}
       />
-      <Text style={styles.title}>participate</Text>
+      <Text style={styles.title}>참여</Text>
       <FlatList
         data={roomInfo.inviterParticiatList.concat(
           roomInfo.inviteeParticiateList,
