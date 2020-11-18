@@ -21,7 +21,7 @@ export default function Login({navigation}) {
     </View>
   );
 }
-
+//ㄴㅇㅁㄹㅇㄴㄹ
 function Logo() {
   return <Image style={styles.logo} source={require('../image/logo.png')} />;
 }
