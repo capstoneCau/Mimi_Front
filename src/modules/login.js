@@ -1,3 +1,5 @@
+import auth from '@react-native-firebase/auth';
+
 import {SERVER_DOMAIN} from '../common/common';
 import infoToLocal from '../common/InfoToLocal';
 //Action Type
@@ -6,12 +8,12 @@ const LOGOUT = 'login/LOGOUT';
 const REGISTER_USER_INFO = 'login/REGISTER_USER_INFO';
 const REQUEST_KAKAO_AUTH_ID = 'login/REQUEST_KAKAO_AUTH_ID';
 const FCM_TOKEN = 'login/FCM_TOKEN';
+const FIREBASE_AUTH_UID = 'login/FIREBASE_AUTH_UID';
 
 //Action Function
 export const logout = () => ({type: LOGOUT});
 export const registerUserInfo = () => ({type: REGISTER_USER_INFO});
 export const requestKaKaoAuthId = () => ({type: REQUEST_KAKAO_AUTH_ID});
-
 //Thunk
 export const logoutAsync = (token) => async (dispatch, getState) => {
   await fetch(SERVER_DOMAIN + 'api/auth/logout/', {
@@ -45,7 +47,6 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
   dispatch,
   getState,
 ) => {
-  console.log(kakaoId, fcmToken);
   dispatch({type: FCM_TOKEN, fcmToken});
   const res = await fetch(SERVER_DOMAIN + 'api/auth/login/', {
     method: 'POST',
@@ -62,31 +63,48 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
     dispatch({type: REQUEST_KAKAO_AUTH_ID, kakaoId});
     return false;
   } else {
-    // await infoToLocal('kakaoId', '1111111111');
-    await infoToLocal('kakaoId', '6666666666');
-    // await infoToLocal('kakaoId', kakaoId); //실제 배포할 경우 사용할 코드
-    const res = await fetch(SERVER_DOMAIN + `user/fcmToken/${kakaoId}/`, {
-      method: 'PATCH',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fcmToken: fcmToken,
-      }),
-    });
-    const json = await res.json();
-    console.log(json);
+    try {
+      const userCredential = await auth().signInWithEmailAndPassword(
+        result.user.email,
+        result.user.kakao_auth_id,
+      );
 
-    dispatch({type: LOGIN_USER, userInfo: result.user, token: result.token});
-    return true;
+      const {uid} = userCredential.user;
+      dispatch({type: FIREBASE_AUTH_UID, uid});
+      await infoToLocal('kakaoId', kakaoId);
+      const res = await fetch(SERVER_DOMAIN + `user/fcmToken/${kakaoId}/`, {
+        method: 'PATCH',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fcmToken: fcmToken,
+        }),
+      });
+      const json = await res.json();
+
+      dispatch({type: LOGIN_USER, userInfo: result.user, token: result.token});
+      return true;
+    } catch (error) {
+      // error.code를 보고 사용자 메일 인증이 잘 되었는지 판단할 수 있음..
+      console.log(error);
+      if (error.code === 'auth/email-already-in-use') {
+        console.log('That email address is already in use!');
+      }
+
+      if (error.code === 'auth/invalid-email') {
+        console.log('That email address is invalid!');
+      }
+
+      if (error.code === 'auth/invalid-email-verified') {
+        console.log('invalid-email-verified');
+      }
+
+      return false;
+    }
   }
 };
-
-export const fcmTokenAsync = (fcmToken, kakaoId) => async (
-  dispatch,
-  getState,
-) => {};
 
 // 초기 상태
 const initialState = {
@@ -122,6 +140,11 @@ export default function login(state = initialState, action) {
       return {
         ...state,
         fcmToken: action.fcmToken,
+      };
+    case FIREBASE_AUTH_UID:
+      return {
+        ...state,
+        uid: action.uid,
       };
     default:
       return state;
