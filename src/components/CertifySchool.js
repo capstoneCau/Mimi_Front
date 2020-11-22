@@ -35,6 +35,7 @@ export default function CertifySchool({
   schoolAddress,
   onChange,
   setInputs,
+  setStartSignUp,
   setStartCertify,
   startMbti,
   setStartMbti,
@@ -69,6 +70,7 @@ export default function CertifySchool({
 
   useEffect(() => {
     const backAction = () => {
+      setStartSignUp(true);
       setStartCertify(false);
       return true;
     };
@@ -325,8 +327,9 @@ export default function CertifySchool({
           mode="contained"
           color={isAuth ? '#000069' : 'gray'}
           onPress={async () => {
-            if (isAuth) {
+            if (!isAuth) {
               email = emailHost + '@' + schoolAddress;
+              setStartCertify(false);
               setStartMbti(true);
               //delete schoolAddress;
               //delete emailHost;

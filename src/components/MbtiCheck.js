@@ -24,6 +24,9 @@ export default function MbtiCheck({
   gender,
   onChange,
   setStartMbti,
+  setStartCertify,
+  startAnimal,
+  setStartAnimal,
   setFinishSignUp,
 }) {
   const [showMbtiModal, setShowMbtiModal] = useState(false);
@@ -37,6 +40,7 @@ export default function MbtiCheck({
 
   useEffect(() => {
     const backAction = () => {
+      setStartCertify(true);
       setStartMbti(false);
       return true;
     };
@@ -251,9 +255,10 @@ export default function MbtiCheck({
           mode="contained"
           color={mbti ? '#000069' : 'gray'}
           onPress={() => {
-            setFinishSignUp(true);
+            setStartMbti(false);
+            setStartAnimal(true);
           }}>
-          <Text style={styles.nextButtonText}>작성완료</Text>
+          <Text style={styles.nextButtonText}>다음</Text>
         </FancyButton>
       </View>
     </LinearGradient>
