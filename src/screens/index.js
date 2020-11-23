@@ -8,7 +8,7 @@ import StateTake from './StateTake';
 import Chat from './Chat';
 import AddMeeting from './AddMeeting';
 import GoogleMap from './GoogleMap';
-
+import Messages from './Messages';
 export {
   List,
   Login,
@@ -18,6 +18,7 @@ export {
   StateGive,
   StateTake,
   Chat,
+  Messages,
   AddMeeting,
   GoogleMap,
 };

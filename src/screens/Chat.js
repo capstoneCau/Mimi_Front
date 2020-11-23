@@ -27,11 +27,12 @@ import {
 import {FancyButton, FancyFonts, backAction} from '../common/common';
 import {getOwnsRoomList} from '../modules/meetingInfo';
 import {myFriendList} from '../modules/myFriend';
+import firestore from '@react-native-firebase/firestore';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-export default function Chat() {
+export default function Chat({navigation}) {
   // useEffect(() => {
   //   BackHandler.addEventListener('hardwareBackPress', backAction);
 
@@ -43,6 +44,8 @@ export default function Chat() {
   const dispatch = useDispatch();
   const myInfo = useSelector((state) => state.login);
   const roomInfo = useSelector((state) => state.meetingInfo);
+  const [threads, setThreads] = useState([]);
+  const [loading, setLoading] = useState(true);
   const myFriend = useCallback((token) => dispatch(myFriendList(token)), [
     dispatch,
   ]);
@@ -57,6 +60,39 @@ export default function Chat() {
     myFriend(myInfo.token);
     getRoom();
   }, [restart]);
+
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collectionGroup('CHATINGS')
+      .where('users', 'array-contains', myInfo.userInfo.kakao_auth_id)
+      .orderBy('latestMessage.createdAt', 'desc')
+      .onSnapshot(
+        (querySnapshot) => {
+          console.log(querySnapshot.docs);
+          const _threads = querySnapshot.docs.map((documentSnapshot) => {
+            return {
+              _id: documentSnapshot.id,
+              name: '',
+              latestMessage: {text: ''},
+              users: [],
+              ...documentSnapshot.data(),
+            };
+          });
+
+          setThreads(_threads);
+          console.log(_threads);
+          if (loading) {
+            setLoading(false);
+          }
+        },
+        (error) => {
+          console.log(error);
+        },
+      );
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <Appbar.Header style={{backgroundColor: 'white'}}>
@@ -69,6 +105,7 @@ export default function Chat() {
         />
       </Appbar.Header>
       <Text style={styles.titleText}>Matching</Text>
+      {/* 방을 슬라이드 or 쭉 클릭하면 방 삭제하는 버튼 만들어야 함. */}
       <FlatList
         data={roomInfos}
         renderItem={({item, index}) => (
@@ -81,7 +118,11 @@ export default function Chat() {
                 : {display: 'none'},
             ]}
             onPress={() => {
-              console.log('chatting');
+              threads.forEach((val, idx) => {
+                if (item.room.id == val.roomId) {
+                  navigation.navigate('Messages', {thread: val});
+                }
+              });
             }}>
             <View style={styles.list}>
               <Text style={styles.peopleCount}>
