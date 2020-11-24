@@ -21,6 +21,8 @@ export const logoutAsync = (token) => async (dispatch, getState) => {
       Authorization: `Token ${token}`,
     },
   });
+  await infoToLocal('kakaoId', null);
+  console.log('hi');
   dispatch({type: LOGOUT});
 };
 export const registerUserInfoAsync = (userInfo) => async (
@@ -63,8 +65,8 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
     return false;
   } else {
     // await infoToLocal('kakaoId', '1111111111');
-    await infoToLocal('kakaoId', '6666666666');
-    // await infoToLocal('kakaoId', kakaoId); //실제 배포할 경우 사용할 코드
+    // await infoToLocal('kakaoId', '6666666666');
+    await infoToLocal('kakaoId', kakaoId); //실제 배포할 경우 사용할 코드
     const res = await fetch(SERVER_DOMAIN + `user/fcmToken/${kakaoId}/`, {
       method: 'PATCH',
       mode: 'cors',
@@ -106,6 +108,9 @@ export default function login(state = initialState, action) {
     case LOGOUT:
       return {
         ...state,
+        isLogin: false,
+        userInfo: undefined,
+        token: undefined,
       };
     case REGISTER_USER_INFO:
       return {

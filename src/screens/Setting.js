@@ -1,172 +1,129 @@
-// import React from 'react';
-// import {
-//   SafeAreaView,
-//   StyleSheet,
-//   View,
-//   Text,
-//   TouchableOpacity,
-// } from 'react-native';
-
-// export default function Setting() {
-//   return (
-//     <View>
-//       <TouchableOpacity>
-//         <Text>설정</Text>
-//       </TouchableOpacity>
-//     </View>
-//   );
-// }
-
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
-  View,
-  TouchableOpacity,
-  Button,
-  PermissionsAndroid,
-  Image,
+  SafeAreaView,
+  ScrollView,
   StyleSheet,
+  View,
   Text,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
-import {RNCamera} from 'react-native-camera';
-import {FlatList} from 'react-native-gesture-handler';
-import uploadImage from '../modules/imageUpload';
+import {
+  Appbar,
+  List,
+  TextInput,
+  Button,
+  Card,
+  Title,
+  Paragraph,
+  Portal,
+  Dialog,
+  useTheme,
+  RadioButton,
+} from 'react-native-paper';
+import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {FancyButton, FancyFonts} from '../common/common';
-import {ProgressBar, Colors} from 'react-native-paper';
+import {logoutAsync} from '../modules/login';
+import KakaoLogins from '@react-native-seoul/kakao-login';
 
-export default function Setting() {
-  const cameraRef = React.useRef(null); // useRef로 camera를 위한 ref를 하나 만들어주고
-  const [category, setCategory] = useState([]);
-  const [predict, setPredict] = useState([]);
-  const [result, setResult] = useState([]);
-  const [imageUri, setImageUri] = useState();
-  const [checkRun, setCheckRun] = useState(true);
-  const takePhoto = async () => {
-    if (cameraRef) {
-      setCheckRun(false);
-      setCategory([]);
-      setPredict([]);
-      const data = await cameraRef.current.takePictureAsync({
-        quality: 1,
-        exif: true,
-      });
-      const {uri} = data;
-      setImageUri(uri);
-      setResult(await uploadImage(uri, 'male'));
-    }
+export default function Setting({navigation}) {
+  const myInfo = useSelector((state) => state.login);
+  const dispatch = useDispatch();
+  const logout = useCallback((token) => dispatch(logoutAsync(token)), [
+    dispatch,
+  ]);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  // const [unlinkLoading, setUnlinkLoading] = useState(false);
+  const [token, setToken] = useState(TOKEN_EMPTY);
+  const [profile, setProfile] = useState(PROFILE_EMPTY);
+  const user = useSelector((state) => state.login);
+
+  const logCallback = (log, callback) => {
+    console.log(log);
+    callback;
   };
-  const requestLocationPermission = async () => {
+
+  const TOKEN_EMPTY = 'token has not fetched';
+  const PROFILE_EMPTY = {
+    id: 'profile has not fetched',
+    email: 'profile has not fetched',
+    profile_image_url: '',
+  };
+
+  const kakaoLogout = async () => {
+    logCallback('Logout Start', setLogoutLoading(true));
     try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        {
-          title: 'Mimi',
-          message: 'To use the animal service, you need to use camera.',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        // alert("You can use the location");
-      } else {
-        console.log('camera permission denied');
-        // alert("Location permission denied");
-      }
+      const result = await KakaoLogins.logout();
+      setToken(TOKEN_EMPTY);
+      setProfile(PROFILE_EMPTY);
+      logCallback(`Logout Finished:${result}`, setLogoutLoading(false));
     } catch (err) {
-      console.warn(err);
+      logCallback(
+        `Logout Failed:${err.code} ${err.message}`,
+        setLogoutLoading(false),
+      );
     }
   };
-  useEffect(() => {
-    requestLocationPermission();
-  });
   return (
     <View style={styles.container}>
-      <RNCamera
-        ref={cameraRef}
-        style={{
-          width: 100,
-          height: 80,
-          marginTop: 60,
-        }}
-        captureAudio={false}
-        type={RNCamera.Constants.Type.front}
-      />
-      <Image
-        style={{
-          width: 100,
-          height: 80,
-          marginTop: 60,
-          borderRadius: 30,
-        }}
-        source={{
-          uri: imageUri,
-        }}
-      />
-
-      <View>
-        {checkRun ? (
-          <FancyButton
-            style={styles.button}
-            icon="camera"
-            title="Take"
-            onPress={() => takePhoto()}>
-            촬영
-          </FancyButton>
-        ) : (
-          <FancyButton
-            style={styles.button}
-            icon="camera-retake-outline"
-            title="Take"
+      <Appbar.Header style={{backgroundColor: 'white'}}>
+        <Appbar.Content title="설정" />
+      </Appbar.Header>
+      <ScrollView>
+        <List.Section title="개인/보안">
+          <List.Item
+            title="내정보"
+            left={(props) => <List.Icon {...props} icon="account" />}
+          />
+          <List.Item
+            title="로그아웃"
+            left={(props) => <List.Icon {...props} icon="logout" />}
             onPress={() => {
-              setCheckRun(true);
-            }}>
-            재촬영
-          </FancyButton>
-        )}
-      </View>
-      <Text style={styles.titleText}>[당신과 닮은 동물 Best3]</Text>
-      <FlatList
-        data={result}
-        renderItem={({item, index}) => (
-          <TouchableOpacity>
-            <View style={styles.textContainer}>
-              <Text style={styles.text}>{item.category}</Text>
-              <Text style={styles.text}>{item.predict_rate}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(_item, index) => `${index}`}
-      />
+              Alert.alert(
+                '로그아웃',
+                '접속중인 기기에서 로그아웃 하시겠습니까?',
+                [
+                  {
+                    text: '아니오',
+                    style: 'cancel',
+                  },
+                  {
+                    text: '네',
+                    onPress: () => {
+                      logout(myInfo.token);
+                      kakaoLogout();
+                      navigation.navigate('Login');
+                      //navigation stack초기화 해야함
+                    },
+                  },
+                ],
+                {cancelable: false},
+              );
+            }}
+          />
+          <List.Item
+            title="고각센터/도움말"
+            left={(props) => <List.Icon {...props} icon="account-question" />}
+          />
+        </List.Section>
+        <List.Section title="안전귀가서비스">
+          <List.Item
+            title="자동서비스"
+            left={(props) => <List.Icon {...props} icon="android-auto" />}
+          />
+          <List.Item
+            title="목적지설정"
+            left={(props) => <List.Icon {...props} icon="home" />}
+          />
+        </List.Section>
+      </ScrollView>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-  },
-  button: {
-    // width: 50,
-    // height: 50,
-    // borderRadius: 30,
-    // borderStyle: 'solid',
-    // borderColor: 'gray',
-    // borderWidth: 10,
-    marginTop: 80,
-    backgroundColor: 'white',
-  },
-  tinyLogo: {},
-  textContainer: {
-    flexDirection: 'row',
-  },
-  titleText: {
-    fontFamily: FancyFonts.BMDOHYEON,
-    fontSize: 20,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  text: {
-    fontFamily: FancyFonts.BMDOHYEON,
-    margin: 20,
+    flexDirection: 'column',
+    backgroundColor: '#FFFFFF',
   },
 });

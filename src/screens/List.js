@@ -135,7 +135,7 @@ export default function List({navigation}) {
             setRestart(!restart);
           }}
         />
-        <Appbar.Action icon="comment-search-outline" onPress={handleAdd} />
+        <Appbar.Action icon="comment-search-outline" />
         <Appbar.Action icon="comment-plus-outline" onPress={handleAdd} />
       </Appbar.Header>
       <FlatList
