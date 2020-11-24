@@ -92,11 +92,9 @@ const App = () => {
         if (kakaoId.length === 10) {
           setInitDestination('Home');
         }
-        return kakaoId
+        return kakaoId;
       })
-      .then((kakaoId) => {
-        
-      })
+      .then((kakaoId) => {});
   }, [isLogin]);
 
   useEffect(() => {

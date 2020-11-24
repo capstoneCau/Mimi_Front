@@ -327,7 +327,7 @@ export default function CertifySchool({
           mode="contained"
           color={isAuth ? '#000069' : 'gray'}
           onPress={async () => {
-            if (!isAuth) {
+            if (isAuth) {
               email = emailHost + '@' + schoolAddress;
               setStartCertify(false);
               setStartMbti(true);
