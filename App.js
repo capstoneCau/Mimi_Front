@@ -14,6 +14,8 @@ import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {fcmTokenAsync} from './src/modules/login';
 import localToInfo from './src/common/LocalToInfo';
 import {requestKaKaoAuthIdAsync} from './src/modules/login';
+import auth from '@react-native-firebase/auth';
+import infoToLocal from './src/common/InfoToLocal';
 
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -43,6 +45,7 @@ const App = () => {
     StateGive,
     StateTake,
     Chat,
+    Messages,
     Setting,
     AddMeeting,
     GoogleMap,
@@ -50,16 +53,17 @@ const App = () => {
   const [pushToken, setPushToken] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
   const [initDestination, setInitDestination] = useState('Login');
+  const [initializing, setInitializing] = useState(true);
   const dispatch = useDispatch();
   const onLoginUser = useCallback(
     (kakaoId, fcmToken) => dispatch(requestKaKaoAuthIdAsync(kakaoId, fcmToken)),
     [dispatch],
   );
   //const myInfo = useSelector((state) => state.login); //상단에 쓰면 왜 무한 리렌더링??
-  const onFcmToken = useCallback(
-    (fcmToken, kakaoId) => dispatch(fcmTokenAsync(fcmToken, kakaoId)),
-    [dispatch],
-  );
+  // const onFireBaseAuthUid = useCallback(
+  //   (user) => dispatch(firebaseAuthUid(user)),
+  //   [dispatch],
+  // );
   const foregroundListener = useCallback(() => {
     messaging().onMessage(async (remoteMessage) => {
       console.log(remoteMessage);
@@ -74,7 +78,7 @@ const App = () => {
     if (enabled) {
       const fcmToken = await messaging().getToken();
       if (fcmToken) {
-        onLoginUser(kakaoId, fcmToken);
+        return onLoginUser(kakaoId, fcmToken);
       }
     } else {
       const authorizaed = await messaging.requestPermission();
@@ -83,18 +87,19 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    localToInfo('kakaoId')
-      .then((kakaoId) => {
-        handlePushToken(kakaoId);
-        return kakaoId;
-      })
-      .then((kakaoId) => {
-        if (kakaoId.length === 10) {
-          setInitDestination('Home');
-        }
-        return kakaoId;
-      })
-      .then((kakaoId) => {});
+    // infoToLocal('kakaoId', '1496391237').then(() => {
+    infoToLocal('kakaoId', '1489710892').then(() => {
+      localToInfo('kakaoId')
+        .then((kakaoId) => {
+          return handlePushToken(kakaoId);
+        })
+        .then((_isLogin) => {
+          if (_isLogin) {
+            setInitializing(!_isLogin);
+            setInitDestination('Home');
+          }
+        });
+    });
   }, [isLogin]);
 
   useEffect(() => {
@@ -124,6 +129,21 @@ const App = () => {
         <Stack.Navigator initialRouteName="List">
           <Stack.Screen name="List" component={List} />
           <Stack.Screen name="AddMeeting" component={AddMeeting} />
+        </Stack.Navigator>
+      );
+    };
+
+    const ChatStack = () => {
+      return (
+        <Stack.Navigator initialRouteName="Chat">
+          <Stack.Screen name="Chat" component={Chat} />
+          <Stack.Screen
+            name="Messages"
+            component={Messages}
+            options={({route}) => ({
+              title: route.params.thread.name,
+            })}
+          />
         </Stack.Navigator>
       );
     };
@@ -159,7 +179,7 @@ const App = () => {
           />
           <BottomTabs.Screen
             name="Chat"
-            component={Chat}
+            component={ChatStack}
             options={{
               tabBarIcon: ({focused}) => {
                 return focused ? (
@@ -219,6 +239,7 @@ const App = () => {
       </NavigationContainer>
     );
   };
+  if (initializing) return null;
   return <Navigator />;
 };
 
