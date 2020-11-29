@@ -87,15 +87,14 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    infoToLocal('kakaoId', '1496391237').then(() => {
-      // infoToLocal('kakaoId', '1489710892').then(() => {
+    // infoToLocal('kakaoId', '1496391237').then(() => {
+    infoToLocal('kakaoId', '1489710892').then(() => {
+      // infoToLocal('kakaoId', '1111111111').then(() => {
       localToInfo('kakaoId')
         .then((kakaoId) => {
           return handlePushToken(kakaoId);
         })
         .then((_isLogin) => {
-          console.log('hi');
-
           if (_isLogin) {
             setInitializing(!_isLogin);
             setInitDestination('Home');

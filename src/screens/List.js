@@ -32,7 +32,6 @@ import {requestKaKaoAuthIdAsync} from '../modules/login';
 import {myFriendList, getFriendInfo} from '../modules/myFriend';
 import {getAllRoomList} from '../modules/meetingInfo';
 import {participateAtRoom} from '../modules/requestInfo';
-
 import App from '../../App';
 
 var width = Dimensions.get('window').width;
@@ -108,7 +107,6 @@ export default function List({navigation}) {
         setSearchPeople((state) => state.concat(idx + 2));
       }
     });
-    console.log(searchPeople);
   }, [searchNumId]);
 
   const showFriends = () => {
@@ -204,7 +202,6 @@ export default function List({navigation}) {
       </View>
       <FlatList
         data={roomInfo.allRoomList.map((val) => {
-          console.log(searchPeople.indexOf(val.user_limit));
           if (searchPeople.indexOf(val.user_limit) > -1) {
             return val;
           }
