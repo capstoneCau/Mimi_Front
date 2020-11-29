@@ -67,7 +67,8 @@ export default function KakaoLoginBtn({navigation}) {
         navigation.navigate('Home');
       } else {
         navigation.navigate('SignUp', {
-          gender: profile.gender.toLowerCase(),
+          gender:
+            profile.gender != null ? profile.gender.toLowerCase() : 'male',
           birthday: profile.birthday,
         });
       }

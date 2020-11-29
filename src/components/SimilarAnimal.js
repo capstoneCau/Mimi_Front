@@ -13,14 +13,12 @@ import {
 } from 'react-native';
 import {RNCamera} from 'react-native-camera';
 import {FlatList} from 'react-native-gesture-handler';
-import uploadImage from '../modules/imageUpload';
+import uploadImage, {selectAnimalLabel} from '../modules/imageUpload';
 import {FancyButton, FancyFonts} from '../common/common';
 import {ProgressBar, Modal, Portal, Provider} from 'react-native-paper';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
-
-const dummy = [{category: 'wolf'}, {category: 'dog'}, {category: 'cat'}];
 
 export default function Setting({
   gender,
@@ -30,15 +28,12 @@ export default function Setting({
   setFinishSignUp,
 }) {
   const cameraRef = React.useRef(null); // useRef로 camera를 위한 ref를 하나 만들어주고
-  const [category, setCategory] = useState([]);
-  const [predict, setPredict] = useState([]);
   const [result, setResult] = useState([]);
-  const [imageUri, setImageUri] = useState();
+  const [imageUri, setImageUri] = useState(null);
   const [checkRun, setCheckRun] = useState(true);
-  const [isPhoto, setIsPhoto] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [selectAnimal, setSelectAnimal] = useState('');
+  const [selectAnimal, setSelectAnimal] = useState(false);
   const [myAnimalPicture, setMyAnimalPicture] = useState();
+  const [animalImages, setAnimalImages] = useState([]);
   useEffect(() => {
     const backAction = () => {
       setStartMbti(true);
@@ -54,14 +49,9 @@ export default function Setting({
     return () => backHandler.remove();
   }, []);
 
-  const showModal = () => setVisible(true);
-  const hideModal = () => setVisible(false);
-
   const takePhoto = async () => {
     if (cameraRef) {
       setCheckRun(false);
-      setCategory([]);
-      setPredict([]);
       const data = await cameraRef.current.takePictureAsync({
         quality: 1,
         exif: true,
@@ -71,7 +61,7 @@ export default function Setting({
       setResult(await uploadImage(uri, gender));
     }
   };
-  const requestLocationPermission = async () => {
+  const requestCameraPermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -81,22 +71,21 @@ export default function Setting({
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        // alert("You can use the location");
       } else {
         console.log('camera permission denied');
-        // alert("Location permission denied");
       }
     } catch (err) {
       console.warn(err);
     }
   };
+
   useEffect(() => {
-    requestLocationPermission();
+    requestCameraPermission();
   });
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.bodyContainer}>
-        <View style={[isPhoto ? {display: 'none'} : null]}>
+        <View style={[imageUri ? {display: 'none'} : null]}>
           <RNCamera
             ref={cameraRef}
             style={{
@@ -108,7 +97,7 @@ export default function Setting({
             type={RNCamera.Constants.Type.front}
           />
         </View>
-        <View style={[!isPhoto ? {display: 'none'} : null]}>
+        <View style={[!imageUri ? {display: 'none'} : null]}>
           <Image
             style={{
               width: 100,
@@ -129,7 +118,6 @@ export default function Setting({
               icon="camera"
               title="Take"
               onPress={() => {
-                setIsPhoto(true);
                 takePhoto();
               }}>
               촬영
@@ -140,8 +128,8 @@ export default function Setting({
               icon="camera-retake-outline"
               title="Take"
               onPress={() => {
-                setIsPhoto(false);
                 setCheckRun(true);
+                setImageUri(null);
               }}>
               재촬영
             </FancyButton>
@@ -152,24 +140,44 @@ export default function Setting({
       <View style={styles.contentContainer}>
         <Text style={styles.titleText}>[당신과 닮은 동물 Best3]</Text>
         <FlatList
-          // data={result}
-          data={dummy}
+          data={!selectAnimal ? result : animalImages}
           horizontal={true}
-          renderItem={({item, index}) => (
-            <TouchableOpacity>
-              <View style={styles.textContainer}>
-                <TouchableOpacity
-                  onPress={() => {
-                    setSelectAnimal(item.category);
-                    showModal();
-                  }}>
-                  <Text style={styles.text}>{item.category}</Text>
-                </TouchableOpacity>
-                {/* <Text style={styles.text}>{item.predict_rate}</Text> */}
-              </View>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(_item, index) => ``}
+          renderItem={
+            !selectAnimal
+              ? ({item, index}) => (
+                  <TouchableOpacity>
+                    <View style={styles.textContainer}>
+                      <TouchableOpacity
+                        onPress={async () => {
+                          const {images} = await selectAnimalLabel(
+                            item.category,
+                          );
+                          console.log(
+                            `data:image/jpeg;base64,${images[0].base64}`,
+                          );
+                          setAnimalImages(images);
+                          setSelectAnimal(true);
+                        }}>
+                        <Text style={styles.text}>{item.category}</Text>
+                      </TouchableOpacity>
+                      {/* <Text style={styles.text}>{item.predict_rate}</Text> */}
+                    </View>
+                  </TouchableOpacity>
+                )
+              : ({item, index}) => (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setMyAnimalPicture(item.id);
+                      onChange('profileImg', item.id);
+                    }}>
+                    <Image
+                      style={styles.animal}
+                      source={{uri: `data:image/jpeg;base64,${item.base64}`}}
+                    />
+                  </TouchableOpacity>
+                )
+          }
+          keyExtractor={(_item, index) => `${index}`}
         />
         <Image style={styles.myAnimal} source={myAnimalPicture} />
       </View>
@@ -187,61 +195,9 @@ export default function Setting({
           <Text style={styles.nextButtonText}>가입완료</Text>
         </FancyButton>
       </View>
-      <AnimalModal
-        visible={visible}
-        hideModal={hideModal}
-        animal={selectAnimal}
-        setMyAnimalPicture={setMyAnimalPicture}
-      />
     </SafeAreaView>
   );
 }
-
-const AnimalModal = ({visible, hideModal, animal, setMyAnimalPicture}) => {
-  return (
-    <Provider>
-      <Portal>
-        <Modal
-          visible={visible}
-          onDismiss={hideModal}
-          contentContainerStyle={styles.containerStyle}>
-          <View style={styles.animalContainer}>
-            <TouchableOpacity
-              onPress={() => {
-                setMyAnimalPicture(require('../image/wolf1.png'));
-                hideModal();
-              }}>
-              <Image
-                style={styles.animal}
-                source={require('../image/wolf1.png')}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                setMyAnimalPicture(require('../image/dog1.jpeg'));
-                hideModal();
-              }}>
-              <Image
-                style={styles.animal}
-                source={require('../image/dog1.jpeg')}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                setMyAnimalPicture(require('../image/cat1.jpg'));
-                hideModal();
-              }}>
-              <Image
-                style={styles.animal}
-                source={require('../image/cat1.jpg')}
-              />
-            </TouchableOpacity>
-          </View>
-        </Modal>
-      </Portal>
-    </Provider>
-  );
-};
 
 const styles = StyleSheet.create({
   container: {

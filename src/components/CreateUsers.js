@@ -64,6 +64,7 @@ export default function CreateUsers({route, navigation}) {
     emailHost: '',
     schoolAddress: '',
     fcmToken: user.fcmToken,
+    profileImg: '',
   });
 
   const {
@@ -77,6 +78,7 @@ export default function CreateUsers({route, navigation}) {
     gender,
     birthday,
     birthYear,
+    profileImg,
   } = inputs;
 
   const onChange = (name, value) => {
