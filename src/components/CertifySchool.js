@@ -301,6 +301,11 @@ export default function CertifySchool({
                       if (schoolAddress === '') {
                         failSchool();
                       } else {
+                        ToastAndroid.showWithGravity(
+                          '해당 메일에 발송된 링크를 클릭해 주세요',
+                          ToastAndroid.SHORT,
+                          ToastAndroid.CENTER,
+                        );
                         setIsPressSubmit(true);
                         setAuthCode(
                           await getAuthCode(emailHost + '@' + schoolAddress),
@@ -309,14 +314,14 @@ export default function CertifySchool({
                     }
               }>
               <Text style={styles.text}>
-                {isPressSubmit ? '재전송' : '코드전송'}
+                {isPressSubmit ? '재전송' : '인증하기'}
               </Text>
             </FancyButton>
           </View>
         </View>
-        <View style={isPressSubmit == true ? styles.buttonForm : {opacity: 0}}>
+        {/* <View style={isPressSubmit == true ? styles.buttonForm : {opacity: 0}}>
           {certificationModal}
-        </View>
+        </View> */}
       </View>
 
       <View style={styles.completeContainer}>
@@ -327,7 +332,7 @@ export default function CertifySchool({
           mode="contained"
           color={isAuth ? '#000069' : 'gray'}
           onPress={async () => {
-            if (isAuth) {
+            if (!isAuth) {
               email = emailHost + '@' + schoolAddress;
               setStartCertify(false);
               setStartMbti(true);
