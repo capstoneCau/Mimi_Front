@@ -87,21 +87,19 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    infoToLocal('kakaoId', '1496391237').then(() => {
-      // infoToLocal('kakaoId', '1489710892').then(() => {
-      localToInfo('kakaoId')
-        .then((kakaoId) => {
-          return handlePushToken(kakaoId);
-        })
-        .then((_isLogin) => {
-          console.log('hi');
-
-          if (_isLogin) {
-            setInitializing(!_isLogin);
-            setInitDestination('Home');
-          }
-        });
-    });
+    // infoToLocal('kakaoId', '1496391237').then(() => {
+    // infoToLocal('kakaoId', '1489710892').then(() => {
+    localToInfo('kakaoId')
+      .then((kakaoId) => {
+        return handlePushToken(kakaoId);
+      })
+      .then((_isLogin) => {
+        if (_isLogin) {
+          setInitDestination('Home');
+        }
+        setInitializing(false);
+      });
+    // });
   }, [isLogin]);
 
   useEffect(() => {
@@ -111,7 +109,7 @@ const App = () => {
   const Navigator = () => {
     const loginStack = () => {
       return (
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="Signup">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
         </Stack.Navigator>
