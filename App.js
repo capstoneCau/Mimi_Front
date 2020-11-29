@@ -87,13 +87,15 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    // infoToLocal('kakaoId', '1496391237').then(() => {
-    infoToLocal('kakaoId', '1489710892').then(() => {
+    infoToLocal('kakaoId', '1496391237').then(() => {
+      // infoToLocal('kakaoId', '1489710892').then(() => {
       localToInfo('kakaoId')
         .then((kakaoId) => {
           return handlePushToken(kakaoId);
         })
         .then((_isLogin) => {
+          console.log('hi');
+
           if (_isLogin) {
             setInitializing(!_isLogin);
             setInitDestination('Home');
@@ -109,7 +111,7 @@ const App = () => {
   const Navigator = () => {
     const loginStack = () => {
       return (
-        <Stack.Navigator initialRouteName="SignUp">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
         </Stack.Navigator>
@@ -232,7 +234,7 @@ const App = () => {
 
     return (
       <NavigationContainer theme={MyTheme}>
-        <Stack.Navigator initialRouteName="Login" headerMode="false">
+        <Stack.Navigator initialRouteName={initDestination} headerMode="false">
           <Stack.Screen name="Login" component={loginStack} />
           <Stack.Screen name="Home" component={homeStack} />
         </Stack.Navigator>
