@@ -188,20 +188,9 @@ const ChattingMenu = ({name, visible, hideDialog, setRoomName}) => {
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={hideDialog}>
-        <Dialog.Title style={{fontWeight: 'bold'}}>Alert</Dialog.Title>
-        <TouchableOpacity onPress={() => {}}>
-          <Dialog.Content>
-            <Paragraph style={styles.dialogText}>채팅방 이름 설정</Paragraph>
-          </Dialog.Content>
-        </TouchableOpacity>
+        <Dialog.Title style={{fontWeight: 'bold'}}>기능</Dialog.Title>
         <Dialog.Content>
-          <Paragraph style={styles.dialogText}>채팅방 상단 고정</Paragraph>
-        </Dialog.Content>
-        <Dialog.Content>
-          <Paragraph style={styles.dialogText}>즐겨찾기에 추가</Paragraph>
-        </Dialog.Content>
-        <Dialog.Content>
-          <Paragraph style={styles.dialogText}>나가기</Paragraph>
+          <Paragraph style={styles.dialogText}>미팅종료</Paragraph>
         </Dialog.Content>
       </Dialog>
     </Portal>
