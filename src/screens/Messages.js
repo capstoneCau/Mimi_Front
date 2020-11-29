@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import {GiftedChat} from 'react-native-gifted-chat';
+import {Appbar} from 'react-native-paper';
+import {Bubble, GiftedChat} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import {useSelector, shallowEqual} from 'react-redux';
 export default function Messages({route}) {
-  const {thread} = route.params;
+  const {thread, info} = route.params;
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const user = useSelector((state) => state.login, shallowEqual);
@@ -30,7 +31,6 @@ export default function Messages({route}) {
             createdAt: new Date().getTime(),
             ...firebaseData,
           };
-
           if (!firebaseData.system) {
             data.user = {
               ...firebaseData.user,
@@ -61,7 +61,8 @@ export default function Messages({route}) {
         createdAt: new Date().getTime(),
         user: {
           _id: user.uid,
-          displayName: user.displayName,
+          displayName: user.userInfo.name,
+          // avatar:
         },
       });
     await firestore()
@@ -80,16 +81,29 @@ export default function Messages({route}) {
   if (loading) {
     return <ActivityIndicator size="large" color="#555" />;
   }
+
   return (
     <>
       {/* 상단 메뉴 필요함, 방 정보(상대방 프로필 리스트), 방 종료하기*/}
+      <Appbar.Header>
+        <Appbar.Content title={['그룹채팅  ', info.user_limit * 2]} />
+        <Appbar.Action icon="magnify" onPress={() => {}} />
+      </Appbar.Header>
       <GiftedChat
+        renderUsernameOnMessage={true}
         messages={messages}
         onSend={(newMessage) => handleSend(newMessage)}
         user={{
           _id: user.uid,
+          name: user.displayName,
         }}
       />
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  name: {
+    fontSize: 20,
+  },
+});
