@@ -53,11 +53,12 @@ export default function List({navigation}) {
   const [roomType, setRoomType] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearch, setIsSearch] = useState(false);
-  const [searchNumId, setSeacrhNumId] = useState([
+  const [searchNumId, setSearchNumId] = useState([
     {state: true},
     {state: true},
     {state: true},
   ]);
+  const [searchPeople, setSearchPeople] = useState([2, 3, 4]);
   //List 출력전 전부 해야하는 부분//
   const dispatch = useDispatch();
   const getUser = useCallback(
@@ -99,6 +100,16 @@ export default function List({navigation}) {
       setRemoveFriend(false);
     }
   }, [removeFriend]);
+
+  useEffect(() => {
+    setSearchPeople([]);
+    searchNumId.forEach((val, idx) => {
+      if (val.state) {
+        setSearchPeople((state) => state.concat(idx + 2));
+      }
+    });
+    console.log(searchPeople);
+  }, [searchNumId]);
 
   const showFriends = () => {
     setFriends([]);
@@ -168,7 +179,7 @@ export default function List({navigation}) {
             onPress={() => {
               let newArr = [...searchNumId];
               newArr[0].state = !newArr[0].state;
-              setSeacrhNumId(newArr);
+              setSearchNumId(newArr);
             }}
           />
           <Checkbox.Item
@@ -177,7 +188,7 @@ export default function List({navigation}) {
             onPress={() => {
               let newArr = [...searchNumId];
               newArr[1].state = !newArr[1].state;
-              setSeacrhNumId(newArr);
+              setSearchNumId(newArr);
             }}
           />
           <Checkbox.Item
@@ -186,13 +197,18 @@ export default function List({navigation}) {
             onPress={() => {
               let newArr = [...searchNumId];
               newArr[2].state = !newArr[2].state;
-              setSeacrhNumId(newArr);
+              setSearchNumId(newArr);
             }}
           />
         </View>
       </View>
       <FlatList
-        data={roomInfo.allRoomList}
+        data={roomInfo.allRoomList.map((val) => {
+          console.log(searchPeople.indexOf(val.user_limit));
+          if (searchPeople.indexOf(val.user_limit) > -1) {
+            return val;
+          }
+        })}
         renderItem={({item, index}) => (
           <TouchableOpacity
             style={[
