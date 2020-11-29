@@ -19,10 +19,12 @@ import {
   Card,
   Title,
   Paragraph,
+  Checkbox,
   Portal,
   Dialog,
   useTheme,
   RadioButton,
+  Searchbar,
 } from 'react-native-paper';
 import StateInfoModal from '../components/StateInfoModal';
 import {FancyButton, FancyFonts, backAction} from '../common/common';
@@ -49,6 +51,13 @@ export default function List({navigation}) {
   const [visible, setVisible] = useState(false);
   // const [requestId, setRequestId] = useState(0);
   const [roomType, setRoomType] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearch, setIsSearch] = useState(false);
+  const [searchNumId, setSeacrhNumId] = useState([
+    {state: true},
+    {state: true},
+    {state: true},
+  ]);
   //List 출력전 전부 해야하는 부분//
   const dispatch = useDispatch();
   const getUser = useCallback(
@@ -111,6 +120,9 @@ export default function List({navigation}) {
   const showModal = () => setVisible(true);
 
   const hideModal = () => setVisible(false);
+
+  const onChangeSearch = (query) => setSearchQuery(query);
+
   return (
     <SafeAreaView style={styles.container}>
       {showFriendModal && (
@@ -135,9 +147,50 @@ export default function List({navigation}) {
             setRestart(!restart);
           }}
         />
-        <Appbar.Action icon="comment-search-outline" onPress={handleAdd} />
+        <Appbar.Action
+          icon={isSearch ? 'cancel' : 'comment-search-outline'}
+          onPress={() => {
+            setIsSearch(!isSearch);
+          }}
+        />
         <Appbar.Action icon="comment-plus-outline" onPress={handleAdd} />
       </Appbar.Header>
+      <View style={[isSearch ? null : {display: 'none'}]}>
+        <Searchbar
+          placeholder="Search"
+          onChangeText={onChangeSearch}
+          value={searchQuery}
+        />
+        <View style={styles.Checkbox}>
+          <Checkbox.Item
+            label="2명"
+            status={searchNumId[0].state ? 'checked' : 'unchecked'}
+            onPress={() => {
+              let newArr = [...searchNumId];
+              newArr[0].state = !newArr[0].state;
+              setSeacrhNumId(newArr);
+            }}
+          />
+          <Checkbox.Item
+            label="3명"
+            status={searchNumId[1].state ? 'checked' : 'unchecked'}
+            onPress={() => {
+              let newArr = [...searchNumId];
+              newArr[1].state = !newArr[1].state;
+              setSeacrhNumId(newArr);
+            }}
+          />
+          <Checkbox.Item
+            label="4명"
+            status={searchNumId[2].state ? 'checked' : 'unchecked'}
+            onPress={() => {
+              let newArr = [...searchNumId];
+              newArr[2].state = !newArr[2].state;
+              setSeacrhNumId(newArr);
+            }}
+          />
+        </View>
+      </View>
       <FlatList
         data={roomInfo.allRoomList}
         renderItem={({item, index}) => (
@@ -308,6 +361,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     marginTop: 0.5,
+  },
+  Checkbox: {
+    flexDirection: 'row',
   },
   addBtn_container: {
     alignItems: 'center',

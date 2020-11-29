@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,7 +6,9 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  BackHandler,
 } from 'react-native';
+import {backAction} from '../common/common';
 import KakaoLogins from '@react-native-seoul/kakao-login';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {requestKaKaoAuthIdAsync} from '../modules/login';
@@ -18,7 +20,7 @@ export default function KakaoLoginBtn({navigation}) {
   // const [unlinkLoading, setUnlinkLoading] = useState(false);
   const [token, setToken] = useState(TOKEN_EMPTY);
   const [profile, setProfile] = useState(PROFILE_EMPTY);
-  const user = useSelector(state => state.login);
+  const user = useSelector((state) => state.login);
   const dispatch = useDispatch();
   const onLoginUser = useCallback(
     (kakaoId, fcmToken) => dispatch(requestKaKaoAuthIdAsync(kakaoId, fcmToken)),
@@ -37,6 +39,12 @@ export default function KakaoLoginBtn({navigation}) {
     profile_image_url: '',
   };
 
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () =>
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+  }, []);
   const kakaoLogin = async () => {
     logCallback('Login Start', setLoginLoading(true));
     try {
@@ -54,7 +62,7 @@ export default function KakaoLoginBtn({navigation}) {
         `Get Profile Finished:${JSON.stringify(profile)}`,
         setProfileLoading(false),
       );
-      console.log(user)
+      console.log(user);
       if (await onLoginUser(profile.id, user.fcmToken)) {
         navigation.navigate('Home');
       } else {

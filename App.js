@@ -109,7 +109,7 @@ const App = () => {
   const Navigator = () => {
     const loginStack = () => {
       return (
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="SignUp">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
         </Stack.Navigator>
@@ -232,7 +232,7 @@ const App = () => {
 
     return (
       <NavigationContainer theme={MyTheme}>
-        <Stack.Navigator initialRouteName={initDestination} headerMode="false">
+        <Stack.Navigator initialRouteName="Login" headerMode="false">
           <Stack.Screen name="Login" component={loginStack} />
           <Stack.Screen name="Home" component={homeStack} />
         </Stack.Navigator>

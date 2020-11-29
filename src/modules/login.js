@@ -23,6 +23,8 @@ export const logoutAsync = (token) => async (dispatch, getState) => {
       Authorization: `Token ${token}`,
     },
   });
+  await infoToLocal('kakaoId', null);
+  console.log('hi');
   dispatch({type: LOGOUT});
 };
 export const registerUserInfoAsync = (userInfo) => async (
@@ -100,7 +102,6 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
       if (error.code === 'auth/invalid-email-verified') {
         console.log('invalid-email-verified');
       }
-
       return false;
     }
   }
@@ -124,6 +125,9 @@ export default function login(state = initialState, action) {
     case LOGOUT:
       return {
         ...state,
+        isLogin: false,
+        userInfo: undefined,
+        token: undefined,
       };
     case REGISTER_USER_INFO:
       return {
