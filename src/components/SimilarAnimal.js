@@ -147,44 +147,45 @@ export default function Setting({
             </FancyButton>
           )}
         </View>
-        <View style={styles.contentContainer}>
-          <Text style={styles.titleText}>[당신과 닮은 동물 Best3]</Text>
-          <FlatList
-            // data={result}
-            data={dummy}
-            horizontal={true}
-            renderItem={({item, index}) => (
-              <TouchableOpacity>
-                <View style={styles.textContainer}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setSelectAnimal(item.category);
-                      showModal();
-                    }}>
-                    <Text style={styles.text}>{item.category}</Text>
-                  </TouchableOpacity>
-                  {/* <Text style={styles.text}>{item.predict_rate}</Text> */}
-                </View>
-              </TouchableOpacity>
-            )}
-            keyExtractor={(_item, index) => ``}
-          />
-          <Image style={styles.myAnimal} source={myAnimalPicture} />
-        </View>
-        <View style={styles.completeContainer}>
-          <FancyButton
-            style={{
-              width: width * 0.8,
-            }}
-            mode="contained"
-            color={!myAnimalPicture ? 'gray' : '#000069'}
-            onPress={() => {
-              setStartAnimal(false);
-              setFinishSignUp(true);
-            }}>
-            <Text style={styles.nextButtonText}>다음</Text>
-          </FancyButton>
-        </View>
+      </View>
+
+      <View style={styles.contentContainer}>
+        <Text style={styles.titleText}>[당신과 닮은 동물 Best3]</Text>
+        <FlatList
+          // data={result}
+          data={dummy}
+          horizontal={true}
+          renderItem={({item, index}) => (
+            <TouchableOpacity>
+              <View style={styles.textContainer}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelectAnimal(item.category);
+                    showModal();
+                  }}>
+                  <Text style={styles.text}>{item.category}</Text>
+                </TouchableOpacity>
+                {/* <Text style={styles.text}>{item.predict_rate}</Text> */}
+              </View>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(_item, index) => ``}
+        />
+        <Image style={styles.myAnimal} source={myAnimalPicture} />
+      </View>
+      <View style={styles.completeContainer}>
+        <FancyButton
+          style={{
+            width: width * 0.8,
+          }}
+          mode="contained"
+          color={!myAnimalPicture ? 'gray' : '#000069'}
+          onPress={() => {
+            setStartAnimal(false);
+            setFinishSignUp(true);
+          }}>
+          <Text style={styles.nextButtonText}>가입완료</Text>
+        </FancyButton>
       </View>
       <AnimalModal
         visible={visible}
@@ -248,16 +249,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   bodyContainer: {
-    flex: 6,
+    flex: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   contentContainer: {
-    flex: 6,
+    flex: 8,
+    alignItems: 'center',
   },
   completeContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   nextButtonText: {
     color: '#ffffff',
@@ -287,7 +289,8 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontFamily: FancyFonts.BMDOHYEON,
     marginTop: 40,
-    marginRight: 40,
+    marginLeft: 20,
+    marginRight: 20,
   },
   containerStyle: {
     width: width * 0.95,
@@ -314,5 +317,6 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 30,
     alignSelf: 'center',
+    marginBottom: 50,
   },
 });
