@@ -109,7 +109,7 @@ const App = () => {
   const Navigator = () => {
     const loginStack = () => {
       return (
-        <Stack.Navigator initialRouteName="Signup">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
         </Stack.Navigator>
