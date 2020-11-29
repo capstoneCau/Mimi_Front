@@ -65,8 +65,10 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
     return false;
   } else {
     // await infoToLocal('kakaoId', '1111111111');
+    // await infoToLocal('kakaoId', '2222222222');
     // await infoToLocal('kakaoId', '6666666666');
-    await infoToLocal('kakaoId', kakaoId); //실제 배포할 경우 사용할 코드
+    await infoToLocal('kakaoId', '1496391237');
+    // await infoToLocal('kakaoId', kakaoId); //실제 배포할 경우 사용할 코드
     const res = await fetch(SERVER_DOMAIN + `user/fcmToken/${kakaoId}/`, {
       method: 'PATCH',
       mode: 'cors',
