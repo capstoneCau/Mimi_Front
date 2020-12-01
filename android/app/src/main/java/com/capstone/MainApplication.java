@@ -32,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 import com.ocetnik.timer.BackgroundTimerPackage;
 import org.reactnative.camera.RNCameraPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 public class MainApplication extends Application implements ReactApplication {
 
     private final ReactNativeHost mReactNativeHost =
