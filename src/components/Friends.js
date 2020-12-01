@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import {StyleSheet, View, Dimensions, FlatList} from 'react-native';
-import {Text, Portal, Dialog, RadioButton} from 'react-native-paper';
+import {Text, Portal, Dialog, Switch, RadioButton} from 'react-native-paper';
 
 import {FancyButton, FancyFonts} from '../common/common';
 import State from '../screens/StateGive';
@@ -27,12 +27,26 @@ export default function Friends({
     friendId.push(val.to_user.kakao_auth_id);
     checkBoxArray.push(false);
   });
+  const [isEmpty, setIsEmpty] = useState(false);
   const [isAdd, setIsAdd] = useState(checkBoxArray);
+  const [isSwitchOn, setIsSwitchOn] = useState(false);
+  const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
 
+  useEffect(() => {
+    if (friends.length > 0) {
+      setIsEmpty(true);
+    } else {
+      setIsEmpty(false);
+    }
+  }, [friends]);
+  console.log(friendsName);
   return (
     <View>
       <Portal>
         <Dialog visible={showFriendModal} onDismiss={hideFriends}>
+          {type == 'a' ? null : (
+            <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
+          )}
           <Dialog.Title style={styles.text}>
             {type == 'a' ? '멤버추가' : '수신자추가'}
           </Dialog.Title>
@@ -97,7 +111,11 @@ export default function Friends({
             </View>
           </Dialog.Content>
           <Dialog.Actions>
-            <FancyButton mode="outlined" color="#000069" onPress={hideFriends}>
+            <FancyButton
+              disabled={!isEmpty}
+              mode="outlined"
+              color="#000069"
+              onPress={hideFriends}>
               완료
             </FancyButton>
           </Dialog.Actions>

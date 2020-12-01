@@ -77,12 +77,12 @@ export default function Setting({navigation, route}) {
 
   const showFriends = () => {
     setFriends([]);
+    setFriendsName([]);
     setShowFriendModal(true);
   };
   const hideFriends = () => {
     setShowFriendModal(false);
   };
-  console.log(friends);
   return (
     <View style={styles.container}>
       {showFriendModal && (
