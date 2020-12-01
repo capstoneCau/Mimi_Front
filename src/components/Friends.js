@@ -1,6 +1,13 @@
 import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import {StyleSheet, View, Dimensions, FlatList} from 'react-native';
-import {Text, Portal, Dialog, Switch, RadioButton} from 'react-native-paper';
+import {
+  Text,
+  Portal,
+  Dialog,
+  Switch,
+  RadioButton,
+  Divider,
+} from 'react-native-paper';
 
 import {FancyButton, FancyFonts} from '../common/common';
 import State from '../screens/StateGive';
@@ -30,16 +37,16 @@ export default function Friends({
     friendId.push(val.to_user.kakao_auth_id);
     checkBoxArray.push(false);
   });
-  const [isEmpty, setIsEmpty] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(true);
   const [isAdd, setIsAdd] = useState(checkBoxArray);
   const [isSwitchOn, setIsSwitchOn] = useState(false);
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
 
   useEffect(() => {
     if (friends.length > 0) {
-      setIsEmpty(true);
-    } else {
       setIsEmpty(false);
+    } else {
+      setIsEmpty(true);
     }
   }, [friends]);
   console.log(friendsName);
@@ -54,11 +61,21 @@ export default function Friends({
             type == 'a' ? onChange('peopleCount', 1) : onChange([]);
           }}>
           {type == 's' ? (
-            <Switch
-              color="#9370DB"
-              value={isSwitchOn}
-              onValueChange={onToggleSwitch}
-            />
+            <View>
+              <View style={styles.switchContainer}>
+                <Text>미팅멤버On/Off</Text>
+                <Switch
+                  style={styles.switch}
+                  color="#9370DB"
+                  value={isSwitchOn}
+                  onValueChange={onToggleSwitch}
+                />
+              </View>
+              <Divider />
+              <View>
+                <Text>미팅멤버이름적는곳 + {friendsName}</Text>
+              </View>
+            </View>
           ) : null}
           <Dialog.Title style={styles.text}>
             {type == 's' ? '수신자추가' : '멤버추가'}
@@ -110,7 +127,7 @@ export default function Friends({
           </Dialog.Content>
           <Dialog.Actions>
             <FancyButton
-              disabled={!isEmpty}
+              disabled={isEmpty && !isSwitchOn}
               mode="outlined"
               color="#000069"
               onPress={() => {
@@ -140,5 +157,13 @@ const styles = StyleSheet.create({
 
   memberContainer: {
     flexDirection: 'row',
+  },
+  switchContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  switch: {
+    margin: 20,
   },
 });
