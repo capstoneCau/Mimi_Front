@@ -46,4 +46,4 @@ export const backAction = () => {
 
 export const SERVER_DOMAIN =
   'http://ec2-15-164-49-126.ap-northeast-2.compute.amazonaws.com/';
-// export const SERVER_DOMAIN = 'https://mimi-server-akuui.run.goorm.io/';
+// export const SERVER_DOMAIN = 'http://192.168.0.8:8000/';
