@@ -43,7 +43,13 @@ export default function Friends({
   return (
     <View>
       <Portal>
-        <Dialog visible={showFriendModal} onDismiss={hideFriends}>
+        <Dialog
+          visible={showFriendModal}
+          onDismiss={() => {
+            hideFriends();
+            setFriends([]);
+            type == 'a' ? onChange('peopleCount', 1) : onChange([]);
+          }}>
           {type == 'a' ? null : (
             <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
           )}
