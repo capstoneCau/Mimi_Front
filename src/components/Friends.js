@@ -1,8 +1,9 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {StyleSheet, View, Dimensions} from 'react-native';
+import React, {useState, useEffect, useCallback, useMemo} from 'react';
+import {StyleSheet, View, Dimensions, FlatList} from 'react-native';
 import {Text, Portal, Dialog, RadioButton} from 'react-native-paper';
 
 import {FancyButton, FancyFonts} from '../common/common';
+import State from '../screens/StateGive';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -11,48 +12,88 @@ export default function Friends({
   showFriendModal,
   hideFriends,
   onChange,
+  friendsName,
   peopleCount,
   friendInfo,
   friends,
   setFriends,
+  type,
 }) {
-  const [add, setAdd] = useState([]);
-  const [isAdd1, setIsAdd1] = useState(false);
-  const [isAdd2, setIsAdd2] = useState(false);
-  const [isAdd3, setIsAdd3] = useState(false);
-  const [isAdd4, setIsAdd4] = useState(false);
-  const [isAdd5, setIsAdd5] = useState(false);
-  const [isAdd6, setIsAdd6] = useState(false);
   let friendName = [];
   let friendId = [];
+  let checkBoxArray = [];
   friendInfo.forEach((val) => {
     friendName.push(val.to_user.name);
     friendId.push(val.to_user.kakao_auth_id);
+    checkBoxArray.push(false);
   });
+  const [isAdd, setIsAdd] = useState(checkBoxArray);
 
   return (
     <View>
       <Portal>
         <Dialog visible={showFriendModal} onDismiss={hideFriends}>
-          <Dialog.Title style={styles.text}>멤버추가</Dialog.Title>
+          <Dialog.Title style={styles.text}>
+            {type == 'a' ? '멤버추가' : '수신자추가'}
+          </Dialog.Title>
           <Dialog.Content>
             <View style={styles.memberContainer}>
-              <RadioButton
+              <FlatList
+                data={friendInfo}
+                renderItem={({item, index}) => (
+                  <View style={styles.checkBox}>
+                    <RadioButton
+                      value={item.to_user.name}
+                      onPress={() => {
+                        if (isAdd[index]) {
+                          type == 'a'
+                            ? onChange('peopleCount', peopleCount - 1)
+                            : onChange(
+                                friendsName.filter(
+                                  (e) => e !== friendName[index],
+                                ),
+                              );
+                          setFriends(
+                            friends.filter((e) => e !== friendId[index]),
+                          );
+                        } else {
+                          type == 'a'
+                            ? onChange('peopleCount', peopleCount + 1)
+                            : onChange((old) => [...old, friendName[index]]);
+                          setFriends((old) => [...old, friendId[index]]);
+                        }
+                        let newArray = [];
+                        newArray = isAdd.map((val, idx) =>
+                          idx === index ? !val : val,
+                        );
+                        setIsAdd(newArray);
+                      }}
+                      status={isAdd[index] ? 'checked' : 'unchecked'}
+                    />
+                    <Text style={styles.memberText}>{item.to_user.name}</Text>
+                  </View>
+                )}
+                keyExtractor={(_item, index) => `${index}`}
+              />
+              {/* <RadioButton
                 onPress={() => {
                   if (isAdd1 === false) {
                     onChange('peopleCount', peopleCount + 1);
-                    setFriends((old) => [...old, friendId[0]]);
+                    type == 'a'
+                      ? setFriends((old) => [...old, friendId[0]])
+                      : setFriends((old) => [...old, friendName[0]]);
                   } else {
                     onChange('peopleCount', peopleCount - 1);
-                    setFriends(friends.filter((e) => e !== friendId[0]));
+                    type == 'a'
+                      ? setFriends(friends.filter((e) => e !== friendId[0]))
+                      : setFriends(friends.filter((e) => e !== friendName[0]));
                   }
-                  /* 3항연산자로 하면 왜 안될까? */
+                  /* 3항연산자로 하면 왜 안될까? 
                   setIsAdd1(!isAdd1);
                 }}
                 value={friendName[0]}
                 status={isAdd1 ? 'checked' : 'unchecked'}
-              />
-              <Text style={styles.memberText}>{friendName[0]}</Text>
+              /> */}
             </View>
           </Dialog.Content>
           <Dialog.Actions>
@@ -67,6 +108,9 @@ export default function Friends({
 }
 
 const styles = StyleSheet.create({
+  checkBox: {
+    flexDirection: 'row',
+  },
   text: {
     fontFamily: FancyFonts.BMDOHYEON,
   },

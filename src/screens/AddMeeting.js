@@ -130,6 +130,7 @@ export default function AddMeeting({navigation}) {
           setRemove={setRemoveFriend}
           friends={friends}
           setFriends={setFriends}
+          tyep="a"
         />
       )}
       <View style={styles.titleContainer}>
