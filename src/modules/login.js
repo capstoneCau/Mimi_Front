@@ -24,7 +24,6 @@ export const logoutAsync = (token) => async (dispatch, getState) => {
     },
   });
   await infoToLocal('kakaoId', null);
-  console.log('hi');
   dispatch({type: LOGOUT});
 };
 export const registerUserInfoAsync = (userInfo) => async (

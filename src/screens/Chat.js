@@ -3,6 +3,7 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
+  Text,
   TouchableOpacity,
   FlatList,
   Dimensions,
@@ -14,15 +15,10 @@ import {
   Appbar,
   Avatar,
   TextInput,
-  Text,
   Button,
-  Card,
-  Title,
   Paragraph,
-  Portal,
   Dialog,
-  useTheme,
-  RadioButton,
+  Portal,
 } from 'react-native-paper';
 import {FancyButton, FancyFonts, backAction} from '../common/common';
 import {getOwnsRoomList} from '../modules/meetingInfo';
@@ -46,6 +42,8 @@ export default function Chat({navigation}) {
   const roomInfo = useSelector((state) => state.meetingInfo);
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [roomName, setRoomName] = useState([]);
+  const [visible, setVisible] = useState(false);
   const myFriend = useCallback((token) => dispatch(myFriendList(token)), [
     dispatch,
   ]);
@@ -53,6 +51,9 @@ export default function Chat({navigation}) {
     (token) => dispatch(getOwnsRoomList(token)),
     [dispatch],
   );
+
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
   useEffect(() => {
     const getRoom = async () => {
       setRoomInfos(await getMatchedRoom(myInfo.token));
@@ -68,7 +69,7 @@ export default function Chat({navigation}) {
       .orderBy('latestMessage.createdAt', 'desc')
       .onSnapshot(
         (querySnapshot) => {
-          console.log(querySnapshot.docs);
+          // console.log(querySnapshot.docs);
           const _threads = querySnapshot.docs.map((documentSnapshot) => {
             return {
               _id: documentSnapshot.id,
@@ -80,7 +81,6 @@ export default function Chat({navigation}) {
           });
 
           setThreads(_threads);
-          console.log(_threads);
           if (loading) {
             setLoading(false);
           }
@@ -96,7 +96,7 @@ export default function Chat({navigation}) {
   return (
     <SafeAreaView style={styles.container}>
       <Appbar.Header style={{backgroundColor: 'white'}}>
-        <Appbar.Content title="채팅창" />
+        <Appbar.Content title="채팅" />
         <Appbar.Action
           icon="autorenew"
           onPress={() => {
@@ -104,7 +104,7 @@ export default function Chat({navigation}) {
           }}
         />
       </Appbar.Header>
-      <Text style={styles.titleText}>Matching</Text>
+      {/* <Text style={styles.titleText}>Matching</Text> */}
       {/* 방을 슬라이드 or 쭉 클릭하면 방 삭제하는 버튼 만들어야 함. */}
       <FlatList
         data={roomInfos}
@@ -117,27 +117,50 @@ export default function Chat({navigation}) {
                   : {display: 'none'}
                 : {display: 'none'},
             ]}
+            onLongPress={() => {
+              showDialog();
+            }}
             onPress={() => {
+              // console.log('aa' + JSON.stringify(threads));
               threads.forEach((val, idx) => {
                 if (item.room.id == val.roomId) {
-                  navigation.navigate('Messages', {thread: val});
+                  navigation.navigate('Messages', {
+                    thread: val,
+                    info: item.room,
+                  });
                 }
               });
             }}>
             <View style={styles.list}>
               <Text style={styles.peopleCount}>
-                {typeof item !== 'undefined' ? item.room.user_limit : ''}
+                {typeof item !== 'undefined' ? item.room.user_limit * 2 : ''}
               </Text>
               <View style={styles.content}>
-                <Text style={styles.school}>
+                <Text style={styles.name}>
                   {typeof item !== 'undefined'
-                    ? item.room.meeting.map((v) => {
-                        return v.mbti + '/';
+                    ? item.room.meeting.map((v, idx) => {
+                        if (idx < 3) {
+                          // if (myInfo.userInfo.name == v.name) {
+                          //   return null;
+                          // }
+                          if (idx == item.room.user_limit * 2 - 1) {
+                            return v.name;
+                          }
+                          return v.name + ', ';
+                        } else {
+                          return '...';
+                        }
                       })
                     : ''}
                 </Text>
                 <Text style={styles.intro}>
-                  {typeof item !== 'undefined' ? item.room.introduction : ''}
+                  {typeof item !== 'undefined'
+                    ? threads.map((val, idx) => {
+                        if (item.room.id == val.roomId) {
+                          return val.latestMessage.text;
+                        }
+                      })
+                    : ''}
                 </Text>
               </View>
               <Text style={styles.dates}>
@@ -152,9 +175,28 @@ export default function Chat({navigation}) {
         )}
         keyExtractor={(_item, index) => `${index}`}
       />
+      <ChattingMenu
+        visible={visible}
+        hideDialog={hideDialog}
+        setRoomName={setRoomName}
+      />
     </SafeAreaView>
   );
 }
+
+const ChattingMenu = ({name, visible, hideDialog, setRoomName}) => {
+  return (
+    <Portal>
+      <Dialog visible={visible} onDismiss={hideDialog}>
+        <Dialog.Title style={{fontWeight: 'bold'}}>기능</Dialog.Title>
+        <Dialog.Content>
+          <Paragraph style={styles.dialogText}>미팅종료</Paragraph>
+        </Dialog.Content>
+      </Dialog>
+    </Portal>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -187,16 +229,18 @@ const styles = StyleSheet.create({
     flex: 5,
     flexDirection: 'column',
   },
-  school: {
+  name: {
     alignSelf: 'flex-start',
     fontSize: 20,
     padding: 10,
+    marginTop: 10,
     fontFamily: FancyFonts.BMDOHYEON,
   },
   intro: {
     alignSelf: 'flex-start',
-    fontSize: 17,
+    fontSize: 15,
     padding: 15,
+    color: 'gray',
     fontFamily: FancyFonts.BMDOHYEON,
   },
   dates: {
@@ -209,5 +253,8 @@ const styles = StyleSheet.create({
     fontFamily: FancyFonts.BMDOHYEON,
     textAlign: 'center',
     marginTop: 10,
+  },
+  dialogText: {
+    fontFamily: FancyFonts.BMDOHYEON,
   },
 });

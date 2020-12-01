@@ -9,6 +9,8 @@ import Chat from './Chat';
 import AddMeeting from './AddMeeting';
 import GoogleMap from './GoogleMap';
 import Messages from './Messages';
+import DestinationSetting from './DestinationSetting';
+
 export {
   List,
   Login,
@@ -21,4 +23,5 @@ export {
   Messages,
   AddMeeting,
   GoogleMap,
+  DestinationSetting,
 };

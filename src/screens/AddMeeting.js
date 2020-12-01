@@ -37,7 +37,7 @@ import {
   FancyFonts,
   backAction,
 } from '../common/common';
-import DateTimePicker from 'react-native-modal-datetime-picker';
+import Friends from '../components/Friends';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -130,6 +130,7 @@ export default function AddMeeting({navigation}) {
           setRemove={setRemoveFriend}
           friends={friends}
           setFriends={setFriends}
+          type="a"
         />
       )}
       <View style={styles.titleContainer}>
@@ -311,144 +312,6 @@ function AddFriend({onChange, showFriends}) {
         }}>
         <Text style={styles.text}>멤버추가</Text>
       </FancyButton>
-    </View>
-  );
-}
-
-function Friends({
-  showFriendModal,
-  hideFriends,
-  onChange,
-  peopleCount,
-  friendInfo,
-  friends,
-  setFriends,
-}) {
-  const [add, setAdd] = useState([]);
-  const [isAdd1, setIsAdd1] = useState(false);
-  const [isAdd2, setIsAdd2] = useState(false);
-  const [isAdd3, setIsAdd3] = useState(false);
-  const [isAdd4, setIsAdd4] = useState(false);
-  const [isAdd5, setIsAdd5] = useState(false);
-  const [isAdd6, setIsAdd6] = useState(false);
-  let friendName = [];
-  let friendId = [];
-  friendInfo.forEach((val) => {
-    friendName.push(val.to_user.name);
-    friendId.push(val.to_user.kakao_auth_id);
-  });
-
-  return (
-    <View>
-      <Portal>
-        <Dialog visible={showFriendModal} onDismiss={hideFriends}>
-          <Dialog.Title style={styles.text}>멤버추가</Dialog.Title>
-          <Dialog.Content>
-            <View style={styles.memberContainer}>
-              <RadioButton
-                onPress={() => {
-                  if (isAdd1 === false) {
-                    onChange('peopleCount', peopleCount + 1);
-                    setFriends((old) => [...old, friendId[0]]);
-                  } else {
-                    onChange('peopleCount', peopleCount - 1);
-                    setFriends(friends.filter((e) => e !== friendId[0]));
-                  }
-                  /* 3항연산자로 하면 왜 안될까? */
-                  setIsAdd1(!isAdd1);
-                }}
-                value={friendName[0]}
-                status={isAdd1 ? 'checked' : 'unchecked'}
-              />
-              <Text style={styles.memberText}>{friendName[0]}</Text>
-            </View>
-            {/* <View style={styles.memberContainer}>
-              <RadioButton
-                onPress={() => {
-                  if (isAdd2 === false) {
-                    onChange('peopleCount', peopleCount + 1);
-                    setFriends((old) => [...old, friendId[1]]);
-                  } else {
-                    onChange('peopleCount', peopleCount - 1);
-                    setFriends(friends.filter((e) => e !== friendId[1]));
-                  }
-                  setIsAdd2(!isAdd2);
-                }}
-                value={friendName[1]}
-                status={isAdd2 ? 'checked' : 'unchecked'}
-              />
-              <Text style={styles.memberText}>{friendName[1]}</Text>
-            </View> */}
-            {/* <View style={styles.memberContainer}>
-              <RadioButton
-                onPress={() => {
-                  if (isAdd3 === false) {
-                    onChange('peopleCount', peopleCount + 1);
-                    setFriends((old) => [...old, friendId[2]]);
-                  } else {
-                    onChange('peopleCount', peopleCount - 1);
-                    setFriends(friends.filter((e) => e !== friendId[2]));
-                  }
-                  setIsAdd3(!isAdd3);
-                }}
-                value={friendName[2]}
-                status={isAdd3 ? 'checked' : 'unchecked'}
-              />
-              <Text style={styles.memberText}>{friendName[2]}</Text>
-            </View> */}
-            {/* <View style={styles.memberContainer}>
-              <RadioButton
-                onPress={() => {
-                  if (isAdd4 === false) {
-                    onChange('peopleCount', peopleCount + 1);
-                  } else {
-                    onChange('peopleCount', peopleCount - 1);
-                  }
-                  setIsAdd4(!isAdd4);
-                }}
-                value="김준오"
-                status={isAdd4 ? 'checked' : 'unchecked'}
-              />
-              <Text style={styles.memberText}>김준오</Text>
-            </View>
-            <View style={styles.memberContainer}>
-              <RadioButton
-                onPress={() => {
-                  if (isAdd5 === false) {
-                    onChange('peopleCount', peopleCount + 1);
-                  } else {
-                    onChange('peopleCount', peopleCount - 1);
-                  }
-                  setIsAdd5(!isAdd5);
-                }}
-                value="김정빈"
-                status={isAdd5 ? 'checked' : 'unchecked'}
-              />
-              <Text style={styles.memberText}>김정빈</Text>
-            </View>
-            <View style={styles.memberContainer}>
-              <RadioButton
-                onPress={() => {
-                  if (isAdd6 === false) {
-                    onChange('peopleCount', peopleCount + 1);
-                  } else {
-                    onChange('peopleCount', peopleCount - 1);
-                  }
-                  setIsAdd6(!isAdd6);
-                }}
-                value="서재훈"
-                status={isAdd6 ? 'checked' : 'unchecked'}
-              />
-              <Text style={styles.memberText}>서재훈</Text>
-            </View> */}
-          </Dialog.Content>
-          <Dialog.Actions>
-            <FancyButton mode="outlined" color="#000069" onPress={hideFriends}>
-              완료
-            </FancyButton>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
     </View>
   );
 }

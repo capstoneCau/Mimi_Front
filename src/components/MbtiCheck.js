@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   titleText: {
-    fontSize: 25,
+    fontSize: 23,
     fontFamily: FancyFonts.BMDOHYEON,
   },
   checkContainer: {
