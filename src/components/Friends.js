@@ -11,7 +11,7 @@ import {
 
 import {FancyButton, FancyFonts} from '../common/common';
 import State from '../screens/StateGive';
-
+import infoToLocal from '../common/InfoToLocal';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -132,6 +132,8 @@ export default function Friends({
               color="#000069"
               onPress={() => {
                 hideFriends();
+                infoToLocal('notiReceiver', friendId);
+                // console.log(friendId);
                 type == 'l' ? participateRoom(friends, roomNum, token) : null;
               }}>
               완료
