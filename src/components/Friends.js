@@ -17,6 +17,9 @@ export default function Friends({
   friendInfo,
   friends,
   setFriends,
+  participateRoom,
+  roomNum,
+  token,
   type,
 }) {
   let friendName = [];
@@ -50,11 +53,15 @@ export default function Friends({
             setFriends([]);
             type == 'a' ? onChange('peopleCount', 1) : onChange([]);
           }}>
-          {type == 'a' ? null : (
-            <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
-          )}
+          {type == 's' ? (
+            <Switch
+              color="#9370DB"
+              value={isSwitchOn}
+              onValueChange={onToggleSwitch}
+            />
+          ) : null}
           <Dialog.Title style={styles.text}>
-            {type == 'a' ? '멤버추가' : '수신자추가'}
+            {type == 's' ? '수신자추가' : '멤버추가'}
           </Dialog.Title>
           <Dialog.Content>
             <View style={styles.memberContainer}>
@@ -68,18 +75,22 @@ export default function Friends({
                         if (isAdd[index]) {
                           type == 'a'
                             ? onChange('peopleCount', peopleCount - 1)
-                            : onChange(
+                            : type == 's'
+                            ? onChange(
                                 friendsName.filter(
                                   (e) => e !== friendName[index],
                                 ),
-                              );
+                              )
+                            : null;
                           setFriends(
                             friends.filter((e) => e !== friendId[index]),
                           );
                         } else {
                           type == 'a'
                             ? onChange('peopleCount', peopleCount + 1)
-                            : onChange((old) => [...old, friendName[index]]);
+                            : type == 's'
+                            ? onChange((old) => [...old, friendName[index]])
+                            : null;
                           setFriends((old) => [...old, friendId[index]]);
                         }
                         let newArray = [];
@@ -95,25 +106,6 @@ export default function Friends({
                 )}
                 keyExtractor={(_item, index) => `${index}`}
               />
-              {/* <RadioButton
-                onPress={() => {
-                  if (isAdd1 === false) {
-                    onChange('peopleCount', peopleCount + 1);
-                    type == 'a'
-                      ? setFriends((old) => [...old, friendId[0]])
-                      : setFriends((old) => [...old, friendName[0]]);
-                  } else {
-                    onChange('peopleCount', peopleCount - 1);
-                    type == 'a'
-                      ? setFriends(friends.filter((e) => e !== friendId[0]))
-                      : setFriends(friends.filter((e) => e !== friendName[0]));
-                  }
-                  /* 3항연산자로 하면 왜 안될까? 
-                  setIsAdd1(!isAdd1);
-                }}
-                value={friendName[0]}
-                status={isAdd1 ? 'checked' : 'unchecked'}
-              /> */}
             </View>
           </Dialog.Content>
           <Dialog.Actions>
@@ -121,7 +113,10 @@ export default function Friends({
               disabled={!isEmpty}
               mode="outlined"
               color="#000069"
-              onPress={hideFriends}>
+              onPress={() => {
+                hideFriends();
+                type == 'l' ? participateRoom(friends, roomNum, token) : null;
+              }}>
               완료
             </FancyButton>
           </Dialog.Actions>

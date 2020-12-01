@@ -32,7 +32,7 @@ import {requestKaKaoAuthIdAsync} from '../modules/login';
 import {myFriendList, getFriendInfo} from '../modules/myFriend';
 import {getAllRoomList} from '../modules/meetingInfo';
 import {participateAtRoom} from '../modules/requestInfo';
-import App from '../../App';
+import Friends from '../components/Friends';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -139,13 +139,12 @@ export default function List({navigation}) {
           showFriendModal={showFriendModal}
           hideFriends={hideFriends}
           friendInfo={friendInfo.myFriend}
-          removeFriend={removeFriend}
-          setRemove={setRemoveFriend}
           friends={friends}
           setFriends={setFriends}
           participateRoom={participateRoom}
           roomNum={roomNum}
           token={myInfo.token}
+          type="l"
         />
       )}
       <Appbar.Header style={{backgroundColor: 'white'}}>
@@ -260,106 +259,76 @@ export default function List({navigation}) {
   );
 }
 
-function Friends({
-  showFriendModal,
-  hideFriends,
-  friendInfo,
-  friends,
-  setFriends,
-  participateRoom,
-  roomNum,
-  token,
-}) {
-  const [isAdd1, setIsAdd1] = useState(false);
-  const [isAdd2, setIsAdd2] = useState(false);
-  const [isAdd3, setIsAdd3] = useState(false);
-  const [isAdd4, setIsAdd4] = useState(false);
-  const [isAdd5, setIsAdd5] = useState(false);
-  const [isAdd6, setIsAdd6] = useState(false);
-  let friendName = [];
-  let friendId = [];
-  friendInfo.forEach((val) => {
-    friendName.push(val.to_user.name);
-    friendId.push(val.to_user.kakao_auth_id);
-  });
-  return (
-    <View>
-      <Portal>
-        <Dialog visible={showFriendModal} onDismiss={hideFriends}>
-          <Dialog.Title style={styles.text}>멤버추가</Dialog.Title>
-          <Dialog.Content>
-            <View style={styles.memberContainer}>
-              <RadioButton
-                onPress={() => {
-                  if (isAdd1 === false) {
-                    setFriends((old) => [...old, friendId[0]]);
-                  } else {
-                    setFriends(friends.filter((e) => e !== friendId[0]));
-                  }
-                  /* 3항연산자로 하면 왜 안될까? */
-                  setIsAdd1(!isAdd1);
-                }}
-                value={friendName[0]}
-                status={isAdd1 ? 'checked' : 'unchecked'}
-              />
-              <Text style={styles.memberText}>{friendName[0]}</Text>
-            </View>
-            {/* <View style={styles.memberContainer}>
-              <RadioButton
-                onPress={() => {
-                  if (isAdd2 === false) {
-                    setFriends((old) => [...old, friendId[1]]);
-                  } else {
-                    setFriends(friends.filter((e) => e !== friendId[1]));
-                  }
-                  setIsAdd2(!isAdd2);
-                }}
-                value={friendName[1]}
-                status={isAdd2 ? 'checked' : 'unchecked'}
-              />
-              <Text style={styles.memberText}>{friendName[1]}</Text>
-            </View> */}
-            {/* <View style={styles.memberContainer}>
-              <RadioButton
-                onPress={() => {
-                  if (isAdd3 === false) {
-                    setFriends((old) => [...old, friendId[2]]);
-                  } else {
-                    setFriends(friends.filter((e) => e !== friendId[2]));
-                  }
-                  setIsAdd3(!isAdd3);
-                }}
-                value={friendName[2]}
-                status={isAdd3 ? 'checked' : 'unchecked'}
-              />
-              <Text style={styles.memberText}>{friendName[2]}</Text>
-            </View> */}
-          </Dialog.Content>
-          <Dialog.Actions>
-            <FancyButton
-              mode="outlined"
-              color="#000069"
-              onPress={() => {
-                hideFriends();
-                setFriends([]);
-              }}>
-              취소
-            </FancyButton>
-            <FancyButton
-              mode="outlined"
-              color="#000069"
-              onPress={() => {
-                participateRoom(friends, roomNum, token);
-                hideFriends();
-              }}>
-              완료
-            </FancyButton>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-    </View>
-  );
-}
+// function Friends({
+//   showFriendModal,
+//   hideFriends,
+//   friendInfo,
+//   friends,
+//   setFriends,
+//   participateRoom,
+//   roomNum,
+//   token,
+// }) {
+//   const [isAdd1, setIsAdd1] = useState(false);
+//   const [isAdd2, setIsAdd2] = useState(false);
+//   const [isAdd3, setIsAdd3] = useState(false);
+//   const [isAdd4, setIsAdd4] = useState(false);
+//   const [isAdd5, setIsAdd5] = useState(false);
+//   const [isAdd6, setIsAdd6] = useState(false);
+//   let friendName = [];
+//   let friendId = [];
+//   friendInfo.forEach((val) => {
+//     friendName.push(val.to_user.name);
+//     friendId.push(val.to_user.kakao_auth_id);
+//   });
+//   return (
+//     <View>
+//       <Portal>
+//         <Dialog visible={showFriendModal} onDismiss={hideFriends}>
+//           <Dialog.Title style={styles.text}>멤버추가</Dialog.Title>
+//           <Dialog.Content>
+//             <View style={styles.memberContainer}>
+//               <RadioButton
+//                 onPress={() => {
+//                   if (isAdd1 === false) {
+//                     setFriends((old) => [...old, friendId[0]]);
+//                   } else {
+//                     setFriends(friends.filter((e) => e !== friendId[0]));
+//                   }
+//                   /* 3항연산자로 하면 왜 안될까? */
+//                   setIsAdd1(!isAdd1);
+//                 }}
+//                 value={friendName[0]}
+//                 status={isAdd1 ? 'checked' : 'unchecked'}
+//               />
+//               <Text style={styles.memberText}>{friendName[0]}</Text>
+//             </View>
+//           </Dialog.Content>
+//           <Dialog.Actions>
+//             <FancyButton
+//               mode="outlined"
+//               color="#000069"
+//               onPress={() => {
+//                 hideFriends();
+//                 setFriends([]);
+//               }}>
+//               취소
+//             </FancyButton>
+//             <FancyButton
+//               mode="outlined"
+//               color="#000069"
+//               onPress={() => {
+//                 participateRoom(friends, roomNum, token);
+//                 hideFriends();
+//               }}>
+//               완료
+//             </FancyButton>
+//           </Dialog.Actions>
+//         </Dialog>
+//       </Portal>
+//     </View>
+//   );
+// }
 
 const styles = StyleSheet.create({
   container: {
