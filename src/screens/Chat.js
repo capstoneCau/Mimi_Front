@@ -21,6 +21,7 @@ import {
   Portal,
 } from 'react-native-paper';
 import {FancyButton, FancyFonts, backAction} from '../common/common';
+import {removeMeeting} from '../modules/requestInfo';
 import {getOwnsRoomList} from '../modules/meetingInfo';
 import {myFriendList} from '../modules/myFriend';
 import firestore from '@react-native-firebase/firestore';
@@ -44,11 +45,17 @@ export default function Chat({navigation}) {
   const [loading, setLoading] = useState(true);
   const [roomName, setRoomName] = useState([]);
   const [visible, setVisible] = useState(false);
+  const [selectRoomId, setSelectRoomId] = useState(0);
   const myFriend = useCallback((token) => dispatch(myFriendList(token)), [
     dispatch,
   ]);
   const getMatchedRoom = useCallback(
     (token) => dispatch(getOwnsRoomList(token)),
+    [dispatch],
+  );
+
+  const _removeMeeting = useCallback(
+    (_roomId, _token) => dispatch(removeMeeting(_roomId, _token)),
     [dispatch],
   );
 
@@ -118,10 +125,10 @@ export default function Chat({navigation}) {
                 : {display: 'none'},
             ]}
             onLongPress={() => {
+              setSelectRoomId(item.room.id);
               showDialog();
             }}
             onPress={() => {
-              // console.log('aa' + JSON.stringify(threads));
               threads.forEach((val, idx) => {
                 if (item.room.id == val.roomId) {
                   navigation.navigate('Messages', {
@@ -179,18 +186,39 @@ export default function Chat({navigation}) {
         visible={visible}
         hideDialog={hideDialog}
         setRoomName={setRoomName}
+        deleteMeeting={_removeMeeting}
+        token={myInfo.token}
+        roomId={selectRoomId}
       />
     </SafeAreaView>
   );
 }
 
-const ChattingMenu = ({name, visible, hideDialog, setRoomName}) => {
+const ChattingMenu = ({
+  name,
+  visible,
+  hideDialog,
+  setRoomName,
+  deleteMeeting,
+  token,
+  roomId,
+}) => {
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={hideDialog}>
         <Dialog.Title style={{fontWeight: 'bold'}}>기능</Dialog.Title>
         <Dialog.Content>
           <Paragraph style={styles.dialogText}>미팅종료</Paragraph>
+        </Dialog.Content>
+        <Dialog.Content>
+          <TouchableOpacity
+            onPress={() => {
+              console.log(roomId, token);
+              hideDialog();
+              deleteMeeting(roomId, token);
+            }}>
+            <Paragraph style={styles.dialogText}>미팅삭제</Paragraph>
+          </TouchableOpacity>
         </Dialog.Content>
       </Dialog>
     </Portal>
