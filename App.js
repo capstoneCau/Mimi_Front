@@ -49,6 +49,7 @@ const App = () => {
     Setting,
     AddMeeting,
     GoogleMap,
+    DestinationSetting,
   } = name;
   const [pushToken, setPushToken] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
@@ -87,19 +88,20 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    // infoToLocal('kakaoId', '1496391237').then(() => {
-    // infoToLocal('kakaoId', '1489710892').then(() => {
-    localToInfo('kakaoId')
-      .then((kakaoId) => {
-        return handlePushToken(kakaoId);
-      })
-      .then((_isLogin) => {
-        if (_isLogin) {
-          setInitDestination('Home');
-        }
-        setInitializing(false);
-      });
-    // });
+    infoToLocal('kakaoId', '1496391237').then(() => {
+      // infoToLocal('kakaoId', '1489710892').then(() => {
+      // infoToLocal('kakaoId', '1111111111').then(() => {
+      localToInfo('kakaoId')
+        .then((kakaoId) => {
+          return handlePushToken(kakaoId);
+        })
+        .then((_isLogin) => {
+          if (_isLogin) {
+            setInitializing(!_isLogin);
+            setInitDestination('Home');
+          }
+        });
+    });
   }, [isLogin]);
 
   useEffect(() => {
@@ -143,6 +145,18 @@ const App = () => {
             options={({route}) => ({
               title: route.params.thread.name,
             })}
+          />
+        </Stack.Navigator>
+      );
+    };
+
+    const SettingStack = () => {
+      return (
+        <Stack.Navigator initialRouteName="Setting">
+          <Stack.Screen name="Setting" component={Setting} />
+          <Stack.Screen
+            name="DestinationSetting"
+            component={DestinationSetting}
           />
         </Stack.Navigator>
       );
@@ -205,7 +219,7 @@ const App = () => {
           />
           <BottomTabs.Screen
             name="Setting"
-            component={Setting}
+            component={SettingStack}
             options={{
               tabBarIcon: ({focused}) => {
                 return focused ? (

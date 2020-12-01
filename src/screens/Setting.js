@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -25,9 +25,11 @@ import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {FancyButton, FancyFonts} from '../common/common';
 import {logoutAsync} from '../modules/login';
 import KakaoLogins from '@react-native-seoul/kakao-login';
+import Friends from '../components/Friends';
 
-export default function Setting({navigation}) {
+export default function Setting({navigation, route}) {
   const myInfo = useSelector((state) => state.login);
+  const friendInfo = useSelector((state) => state.myFriend);
   const dispatch = useDispatch();
   const logout = useCallback((token) => dispatch(logoutAsync(token)), [
     dispatch,
@@ -36,13 +38,21 @@ export default function Setting({navigation}) {
   // const [unlinkLoading, setUnlinkLoading] = useState(false);
   const [token, setToken] = useState(TOKEN_EMPTY);
   const [profile, setProfile] = useState(PROFILE_EMPTY);
+  const [destination, setDestination] = useState(); // 목적지
+  const [friends, setFriends] = useState([]); // friends kakao auth Id
+  const [friendsName, setFriendsName] = useState([]);
+  const [showFriendModal, setShowFriendModal] = useState(false);
   const user = useSelector((state) => state.login);
+  const _destination =
+    typeof route.params == 'undefined' ? '' : route.params.destination;
+  useEffect(() => {
+    setDestination(_destination);
+  }, [_destination]);
 
   const logCallback = (log, callback) => {
     console.log(log);
     callback;
   };
-
   const TOKEN_EMPTY = 'token has not fetched';
   const PROFILE_EMPTY = {
     id: 'profile has not fetched',
@@ -64,8 +74,29 @@ export default function Setting({navigation}) {
       );
     }
   };
+
+  const showFriends = () => {
+    setFriends([]);
+    setShowFriendModal(true);
+  };
+  const hideFriends = () => {
+    setShowFriendModal(false);
+  };
+  console.log(friends);
   return (
     <View style={styles.container}>
+      {showFriendModal && (
+        <Friends
+          showFriendModal={showFriendModal}
+          hideFriends={hideFriends}
+          onChange={setFriendsName}
+          friendsName={friendsName}
+          friendInfo={friendInfo.myFriend}
+          friends={friends}
+          setFriends={setFriends}
+          type="s"
+        />
+      )}
       <Appbar.Header style={{backgroundColor: 'white'}}>
         <Appbar.Content title="설정" />
       </Appbar.Header>
@@ -107,14 +138,38 @@ export default function Setting({navigation}) {
           />
         </List.Section>
         <List.Section title="안전귀가서비스">
-          <List.Item
-            title="자동서비스"
-            left={(props) => <List.Icon {...props} icon="android-auto" />}
-          />
-          <List.Item
-            title="목적지설정"
-            left={(props) => <List.Icon {...props} icon="home" />}
-          />
+          <TouchableOpacity>
+            <List.Item
+              title="자동서비스"
+              left={(props) => <List.Icon {...props} icon="android-auto" />}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <List.Item
+              title="수동서비스"
+              left={(props) => <List.Icon {...props} icon="android-auto" />}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('DestinationSetting', {destination});
+            }}>
+            <List.Item
+              title="목적지설정"
+              description={destination}
+              left={(props) => <List.Icon {...props} icon="home" />}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                showFriends();
+              }}>
+              <List.Item
+                title="수신자설정"
+                description={friendsName}
+                left={(props) => <List.Icon {...props} icon="account-alert" />}
+              />
+            </TouchableOpacity>
+          </TouchableOpacity>
         </List.Section>
       </ScrollView>
     </View>
