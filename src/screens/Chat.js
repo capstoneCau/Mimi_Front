@@ -46,6 +46,7 @@ export default function Chat({navigation}) {
   const [roomName, setRoomName] = useState([]);
   const [visible, setVisible] = useState(false);
   const [selectRoomId, setSelectRoomId] = useState(0);
+  const [selectChatId, setSelectChatId] = useState(0);
   const myFriend = useCallback((token) => dispatch(myFriendList(token)), [
     dispatch,
   ]);
@@ -55,7 +56,8 @@ export default function Chat({navigation}) {
   );
 
   const _removeMeeting = useCallback(
-    (_roomId, _token) => dispatch(removeMeeting(_roomId, _token)),
+    (_roomId, _chatId, isNotification, _token) =>
+      dispatch(removeMeeting(_roomId, _chatId, isNotification, _token)),
     [dispatch],
   );
 
@@ -114,72 +116,123 @@ export default function Chat({navigation}) {
       {/* <Text style={styles.titleText}>Matching</Text> */}
       {/* 방을 슬라이드 or 쭉 클릭하면 방 삭제하는 버튼 만들어야 함. */}
       <FlatList
-        data={roomInfos}
-        renderItem={({item, index}) => (
-          <TouchableOpacity
-            style={[
-              typeof item !== 'undefined'
-                ? item.room.status == 'm'
-                  ? styles.list_container
-                  : {display: 'none'}
-                : {display: 'none'},
-            ]}
-            onLongPress={() => {
-              setSelectRoomId(item.room.id);
-              showDialog();
-            }}
-            onPress={() => {
-              threads.forEach((val, idx) => {
-                if (item.room.id == val.roomId) {
-                  navigation.navigate('Messages', {
-                    thread: val,
-                    info: item.room,
-                  });
-                }
-              });
-            }}>
-            <View style={styles.list}>
-              <Text style={styles.peopleCount}>
-                {typeof item !== 'undefined' ? item.room.user_limit * 2 : ''}
-              </Text>
-              <View style={styles.content}>
-                <Text style={styles.name}>
-                  {typeof item !== 'undefined'
-                    ? item.room.meeting.map((v, idx) => {
-                        if (idx < 3) {
-                          // if (myInfo.userInfo.name == v.name) {
-                          //   return null;
-                          // }
-                          if (idx == item.room.user_limit * 2 - 1) {
-                            return v.name;
+        // data={roomInfos}
+        data={threads}
+        renderItem={
+          roomInfos.length == 0
+            ? ({item, index}) => {
+                return null;
+              }
+            : ({item, index}) => {
+                let room = null;
+                roomInfos.forEach((val, idx) => {
+                  if (item.roomId == val.room.id) {
+                    room = val.room;
+                  }
+                });
+                // console.log(roomInfos, threads, room);
+                return (
+                  <TouchableOpacity
+                    // style={[
+                    //   typeof item !== 'undefined'
+                    //     ? item.room.status == 'm'
+                    //       ? styles.list_container
+                    //       : {display: 'none'}
+                    //     : {display: 'none'},
+                    // ]}
+                    style={styles.list_container}
+                    onLongPress={() => {
+                      setSelectRoomId(item.roomId);
+                      setSelectChatId(item._id);
+                      // threads.forEach((val, idx) => {
+                      //   if (item.room.id == val.roomId) {
+                      //     setSelectChatId(val._id);
+                      //   }
+                      // });
+                      showDialog();
+                    }}
+                    onPress={() => {
+                      navigation.navigate('Messages', {
+                        thread: item,
+                        // info:
+                      });
+                      // threads.forEach((val, idx) => {
+                      //   if (item.room.id == val.roomId) {
+                      //     navigation.navigate('Messages', {
+                      //       thread: val,
+                      //       info: item.room,
+                      //     });
+                      //   }
+                      // });
+                    }}>
+                    <View style={styles.list}>
+                      <Text style={styles.peopleCount}>
+                        {/* {typeof item !== 'undefined' ? item.room.user_limit * 2 : ''} */}
+                        {room.user_limit * 2}
+                      </Text>
+                      <View style={styles.content}>
+                        <Text style={styles.name}>
+                          {item.name}
+                          {/* {room.meeting.map((v, idx) => {
+                            if (idx < 3) {
+                              // if (myInfo.userInfo.name == v.name) {
+                              //   return null;
+                              // }
+                              if (idx == room.user_limit * 2 - 1) {
+                                return v.name;
+                              }
+                              return v.name + ', ';
+                            } else {
+                              return '...';
+                            }
+                          })} */}
+                          {/* {typeof item !== 'undefined'
+                      ? item.room.meeting.map((v, idx) => {
+                          if (idx < 3) {
+                            // if (myInfo.userInfo.name == v.name) {
+                            //   return null;
+                            // }
+                            if (idx == item.room.user_limit * 2 - 1) {
+                              return v.name;
+                            }
+                            return v.name + ', ';
+                          } else {
+                            return '...';
                           }
-                          return v.name + ', ';
-                        } else {
-                          return '...';
-                        }
-                      })
-                    : ''}
-                </Text>
-                <Text style={styles.intro}>
-                  {typeof item !== 'undefined'
-                    ? threads.map((val, idx) => {
-                        if (item.room.id == val.roomId) {
-                          return val.latestMessage.text;
-                        }
-                      })
-                    : ''}
-                </Text>
-              </View>
-              <Text style={styles.dates}>
-                {typeof item !== 'undefined'
-                  ? item.room.available_dates.map(
-                      (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
-                    )
-                  : ''}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
+                        })
+                      : ''} */}
+                        </Text>
+                        <Text style={styles.intro}>
+                          {item.latestMessage.text}
+                          {/* {typeof item !== 'undefined'
+                      ? threads.map((val, idx) => {
+                          if (item.room.id == val.roomId) {
+                            return val.latestMessage.text;
+                          }
+                        })
+                      : ''} */}
+                        </Text>
+                      </View>
+                      <Text style={styles.dates}>
+                        {room.available_dates.map(
+                          (v) =>
+                            v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
+                        )}
+                        {/* {typeof item !== 'undefined'
+                          ? item.room.available_dates.map(
+                              (v) =>
+                                v.split('-')[1] +
+                                '월' +
+                                v.split('-')[2] +
+                                '일\n',
+                            )
+                          : ''} */}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              }
+        }
         keyExtractor={(_item, index) => `${index}`}
       />
       <ChattingMenu
@@ -189,6 +242,7 @@ export default function Chat({navigation}) {
         deleteMeeting={_removeMeeting}
         token={myInfo.token}
         roomId={selectRoomId}
+        chatId={selectChatId}
       />
     </SafeAreaView>
   );
@@ -202,20 +256,28 @@ const ChattingMenu = ({
   deleteMeeting,
   token,
   roomId,
+  chatId,
 }) => {
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={hideDialog}>
         <Dialog.Title style={{fontWeight: 'bold'}}>기능</Dialog.Title>
         <Dialog.Content>
-          <Paragraph style={styles.dialogText}>미팅종료</Paragraph>
+          <TouchableOpacity
+            onPress={() => {
+              console.log(roomId, token, chatId);
+              hideDialog();
+              deleteMeeting(roomId, chatId, true, token);
+            }}>
+            <Paragraph style={styles.dialogText}>미팅종료</Paragraph>
+          </TouchableOpacity>
         </Dialog.Content>
         <Dialog.Content>
           <TouchableOpacity
             onPress={() => {
-              console.log(roomId, token);
+              console.log(roomId, token, chatId);
               hideDialog();
-              deleteMeeting(roomId, token);
+              deleteMeeting(roomId, chatId, false, token);
             }}>
             <Paragraph style={styles.dialogText}>미팅삭제</Paragraph>
           </TouchableOpacity>
