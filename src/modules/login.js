@@ -2,6 +2,7 @@ import auth from '@react-native-firebase/auth';
 
 import {SERVER_DOMAIN} from '../common/common';
 import infoToLocal from '../common/InfoToLocal';
+import localToInfo from '../common/LocalToInfo';
 //Action Type
 const LOGIN_USER = 'login/LOGIN_USER';
 const LOGOUT = 'login/LOGOUT';
@@ -73,6 +74,7 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
       const {uid} = userCredential.user;
       dispatch({type: FIREBASE_AUTH_UID, uid});
       await infoToLocal('kakaoId', kakaoId);
+      await infoToLocal('token', result.token);
       const res = await fetch(SERVER_DOMAIN + `user/fcmToken/${kakaoId}/`, {
         method: 'PATCH',
         mode: 'cors',

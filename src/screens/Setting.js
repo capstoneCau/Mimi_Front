@@ -26,6 +26,8 @@ import {FancyButton, FancyFonts} from '../common/common';
 import {logoutAsync} from '../modules/login';
 import KakaoLogins from '@react-native-seoul/kakao-login';
 import Friends from '../components/Friends';
+import localToInfo from '../common/LocalToInfo';
+import infoToLocal from '../common/InfoToLocal';
 
 export default function Setting({navigation, route}) {
   const myInfo = useSelector((state) => state.login);
@@ -138,13 +140,27 @@ export default function Setting({navigation, route}) {
           />
         </List.Section>
         <List.Section title="안전귀가서비스">
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={async () => {
+              const des = await localToInfo('destination');
+              if (des) {
+                infoToLocal('autoSafeReturn', true);
+                console.log(des);
+                Alert.alert('자동으로 안전 귀가 서비스가 실행됩니다.');
+              } else {
+                Alert.alert('목적지를 먼저 설정하여야 합니다.');
+              }
+            }}>
             <List.Item
               title="자동서비스"
               left={(props) => <List.Icon {...props} icon="android-auto" />}
             />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              infoToLocal('autoSafeReturn', false);
+              Alert.alert('수동으로 안전 귀가 서비스가 실행됩니다.');
+            }}>
             <List.Item
               title="수동서비스"
               left={(props) => <List.Icon {...props} icon="android-auto" />}

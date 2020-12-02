@@ -9,7 +9,8 @@ import {
   Dimensions,
 } from 'react-native';
 import {FancyButton, FancyFonts, backAction} from '../common/common';
-
+import infoToLocal from '../common/InfoToLocal';
+import {getAddressPosition} from '../components/SafeReturn';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -22,6 +23,7 @@ export default function YourView({navigation}) {
         jsOptions={{animated: true}}
         onSelected={(data) => {
           setDestination(data.address);
+          console.log(data.address);
         }}
       />
       <View style={styles.destination}>
@@ -29,7 +31,9 @@ export default function YourView({navigation}) {
         <FancyButton
           mode="outlined"
           color="#000069"
-          onPress={() => {
+          onPress={async () => {
+            console.log(destination);
+            infoToLocal('destination', await getAddressPosition(destination));
             navigation.navigate('Setting', {destination});
           }}>
           목적지 설정

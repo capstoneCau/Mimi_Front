@@ -200,6 +200,7 @@ dependencies {
     implementation project(':react-native-background-timer')
     implementation project(':react-native-camera')
     implementation project(':rn-fetch-blob')
+    implementation project(':react-native-push-notification')
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
     }

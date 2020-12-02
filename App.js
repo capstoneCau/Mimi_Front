@@ -16,7 +16,7 @@ import localToInfo from './src/common/LocalToInfo';
 import {requestKaKaoAuthIdAsync} from './src/modules/login';
 import auth from '@react-native-firebase/auth';
 import infoToLocal from './src/common/InfoToLocal';
-
+import {startSafeReturnFunc} from './src/components/SafeReturn';
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 const TopTabs = createMaterialTopTabNavigator();
@@ -67,9 +67,20 @@ const App = () => {
   // );
   const foregroundListener = useCallback(() => {
     messaging().onMessage(async (remoteMessage) => {
-      console.log(remoteMessage);
+      const {title: dataTitle, body: dataBody} = remoteMessage.data;
       const {body, title} = remoteMessage.notification;
-      Alert.alert(title, body);
+      console.log(dataTitle, dataBody, title, body);
+      if (dataTitle == 'SAFE_RETURN') {
+        const autoSafeReturn = await localToInfo('autoSafeReturn');
+        if (autoSafeReturn) {
+          Alert.alert(title, body);
+          startSafeReturnFunc(JSON.parse(dataBody));
+        } else {
+          console.log(autoSafeReturn);
+        }
+      } else {
+        Alert.alert(title, body);
+      }
     });
   }, []);
 
@@ -88,20 +99,20 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    infoToLocal('kakaoId', '1496391237').then(() => {
-      // infoToLocal('kakaoId', '1489710892').then(() => {
-      // infoToLocal('kakaoId', '1111111111').then(() => {
-      localToInfo('kakaoId')
-        .then((kakaoId) => {
-          return handlePushToken(kakaoId);
-        })
-        .then((_isLogin) => {
-          if (_isLogin) {
-            setInitializing(!_isLogin);
-            setInitDestination('Home');
-          }
-        });
-    });
+    // infoToLocal('kakaoId', '1496391237').then(() => {
+    // infoToLocal('kakaoId', '1489710892').then(() => {
+    // infoToLocal('kakaoId', '1111111111').then(() => {
+    localToInfo('kakaoId')
+      .then((kakaoId) => {
+        return handlePushToken(kakaoId);
+      })
+      .then((_isLogin) => {
+        if (_isLogin) {
+          setInitDestination('Home');
+        }
+        setInitializing(false);
+      });
+    // });
   }, [isLogin]);
 
   useEffect(() => {

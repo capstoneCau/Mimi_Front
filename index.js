@@ -12,9 +12,17 @@ import {createStore, applyMiddleware} from 'redux';
 import rootReducer from './src/modules/index';
 import ReduxThunk from 'redux-thunk';
 import messaging from '@react-native-firebase/messaging';
-
+import localToInfo from './src/common/LocalToInfo';
+import BackgroundTimer from 'react-native-background-timer';
+import {startSafeReturnFunc} from './src/components/SafeReturn';
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-  console.log('Message handled in the background!', remoteMessage);
+  const {title, body} = remoteMessage.data;
+  const autoSafeReturn = await localToInfo('autoSafeReturn');
+  if (title == 'SAFE_RETURN' && autoSafeReturn) {
+    startSafeReturnFunc(JSON.parse(body));
+  } else {
+    console.log(autoSafeReturn);
+  }
 });
 
 const store = createStore(rootReducer, applyMiddleware(ReduxThunk));

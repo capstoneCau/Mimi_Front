@@ -222,7 +222,7 @@ export default function StateInfoModal({
                       : null}
                   </TouchableOpacity>
                 )}
-                keyExtractor={(_item, index) => ``}
+                keyExtractor={(_item, index) => `${index}`}
               />
             </View>
             <View style={styles.buttonContainer}>
