@@ -1,22 +1,42 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   StyleSheet,
   Text,
+  Modal,
+  Image,
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
-import {Appbar} from 'react-native-paper';
+import {Appbar, Avatar, Button} from 'react-native-paper';
 import {Bubble, GiftedChat} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
-import {useSelector, shallowEqual} from 'react-redux';
+import {useSelector, shallowEqual, useDispatch} from 'react-redux';
+import {getParticipatedUserInfoList} from '../modules/meetingInfo';
+
+var width = Dimensions.get('window').width;
+var height = Dimensions.get('window').height;
+
 export default function Messages({route}) {
   // const {thread, info} = route.params;
   const {thread} = route.params;
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(false);
+  const [selectUser, setSelectUser] = useState();
+  const [memberInfo, setMemberInfo] = useState();
+  const [userNum, setUserNum] = useState();
   const user = useSelector((state) => state.login, shallowEqual);
+  const dispatch = useDispatch();
+  const getUserInfoList = useCallback(
+    (roomId, token) => dispatch(getParticipatedUserInfoList(roomId, token)),
+    [dispatch],
+  );
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
+
   useEffect(() => {
     const unsubscribeListener = firestore()
       .collection('CHATINGS')
@@ -86,29 +106,139 @@ export default function Messages({route}) {
     return <ActivityIndicator size="large" color="#555" />;
   }
 
+  const stateInfo = (_user) => {
+    getUserInfoList(thread.roomId, user.token)
+      .then((response) => response)
+      .then((result) => {
+        setMemberInfo(result);
+        return result;
+      })
+      .then((result) => {
+        result.forEach((val, idx) => {
+          if (val.user.name == _user.displayName) {
+            setUserNum(idx);
+          }
+        });
+      });
+
+    showModal();
+    setSelectUser(_user);
+  };
+
+  const renderBubble = (props) => {
+    return (
+      <Bubble
+        {...props}
+        textStyle={{
+          right: {
+            color: 'black',
+          },
+          left: {
+            color: 'black',
+          },
+        }}
+        wrapperStyle={{
+          right: {
+            backgroundColor: '#FFD232',
+          },
+          left: {
+            backgroundColor: 'white',
+          },
+        }}
+      />
+    );
+  };
+  // console.log(memberInfo);
+
   return (
-    <>
-      {/* 상단 메뉴 필요함, 방 정보(상대방 프로필 리스트), 방 종료하기*/}
+    <View style={styles.container}>
+      {/* 상단 메뉴 필요함, 방 정보(상대방 프로필 리스트)*/}
       <Appbar.Header>
         <Appbar.Content title={thread.name} />
-        <Appbar.Action icon="magnify" onPress={() => {}} />
+        {/* <Appbar.Action icon="magnify" onPress={() => {}} /> */}
       </Appbar.Header>
       <GiftedChat
         renderUsernameOnMessage={true}
+        renderAvatarOnTop={true}
+        renderBubble={renderBubble}
         showUserAvatar={true}
         messages={messages}
         onSend={(newMessage) => handleSend(newMessage)}
+        onPressAvatar={stateInfo}
         user={{
           _id: user.uid,
           name: user.displayName,
         }}
       />
-    </>
+      <Modal
+        animationType={'slide'}
+        transparent={false}
+        visible={visible}
+        onDismiss={hideModal}>
+        <View>
+          {typeof selectUser == 'undefined' ? null : (
+            <View style={styles.modalContainer}>
+              <TouchableOpacity style={styles.header} onPress={hideModal}>
+                <Text style={styles.closeButton}>X</Text>
+              </TouchableOpacity>
+              {typeof memberInfo == 'undefined' ? null : typeof userNum ==
+                'undefined' ? null : (
+                <View style={styles.introContainer}>
+                  <Text style={styles.introText}>
+                    {memberInfo[userNum].user.chinese_zodiac}
+                  </Text>
+                  <Text style={styles.introText}>
+                    {memberInfo[userNum].user.mbti}
+                  </Text>
+                  <Text style={styles.introText}>
+                    {memberInfo[userNum].user.school}
+                  </Text>
+                </View>
+              )}
+
+              <View style={styles.introduce}>
+                <Avatar.Image
+                  size={240}
+                  source={{uri: `${selectUser.avatar}`}}
+                />
+                <Text style={styles.text}>{selectUser.displayName}</Text>
+              </View>
+            </View>
+          )}
+        </View>
+      </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#9BC3FF',
+  },
+
   name: {
     fontSize: 20,
+  },
+  modalContainer: {},
+  header: {
+    margin: 30,
+  },
+  introduce: {
+    marginTop: height * 0.1,
+    alignItems: 'center',
+  },
+  introContainer: {
+    alignItems: 'center',
+  },
+  introText: {
+    fontSize: 20,
+  },
+  text: {
+    fontSize: 30,
+    marginTop: 20,
+  },
+  closeButton: {
+    fontSize: 30,
   },
 });

@@ -154,7 +154,6 @@ export default function Chat({navigation}) {
                     onPress={() => {
                       navigation.navigate('Messages', {
                         thread: item,
-                        // info:
                       });
                       // threads.forEach((val, idx) => {
                       //   if (item.room.id == val.roomId) {
@@ -167,8 +166,8 @@ export default function Chat({navigation}) {
                     }}>
                     <View style={styles.list}>
                       <Text style={styles.peopleCount}>
-                        {/* {typeof item !== 'undefined' ? item.room.user_limit * 2 : ''} */}
-                        {room.user_limit * 2}
+                        {typeof item !== 'undefined' ? room.user_limit * 2 : ''}
+                        {/* {room.user_limit * 2} */}
                       </Text>
                       <View style={styles.content}>
                         <Text style={styles.name}>
@@ -265,7 +264,6 @@ const ChattingMenu = ({
         <Dialog.Content>
           <TouchableOpacity
             onPress={() => {
-              console.log(roomId, token, chatId);
               hideDialog();
               deleteMeeting(roomId, chatId, true, token);
             }}>
@@ -275,7 +273,6 @@ const ChattingMenu = ({
         <Dialog.Content>
           <TouchableOpacity
             onPress={() => {
-              console.log(roomId, token, chatId);
               hideDialog();
               deleteMeeting(roomId, chatId, false, token);
             }}>
