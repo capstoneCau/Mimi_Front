@@ -10,16 +10,17 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
-import {Appbar, Avatar, Button} from 'react-native-paper';
+import {Appbar, Avatar, Button, ProgressBar, Colors} from 'react-native-paper';
 import {Bubble, GiftedChat} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import {useSelector, shallowEqual, useDispatch} from 'react-redux';
 import {getParticipatedUserInfoList} from '../modules/meetingInfo';
+import {getCompatibility} from '../modules/getInformation';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
-export default function Messages({route}) {
+export default function Messages({navigation, route}) {
   // const {thread, info} = route.params;
   const {thread} = route.params;
   const [messages, setMessages] = useState([]);
@@ -28,6 +29,8 @@ export default function Messages({route}) {
   const [selectUser, setSelectUser] = useState();
   const [memberInfo, setMemberInfo] = useState();
   const [userNum, setUserNum] = useState();
+  const [mbtiList, setMbtiList] = useState();
+  const [mbtiNum, setMbtiNum] = useState();
   const user = useSelector((state) => state.login, shallowEqual);
   const dispatch = useDispatch();
   const getUserInfoList = useCallback(
@@ -107,6 +110,9 @@ export default function Messages({route}) {
   }
 
   const stateInfo = (_user) => {
+    setUserNum(undefined);
+    setMbtiNum(undefined);
+
     getUserInfoList(thread.roomId, user.token)
       .then((response) => response)
       .then((result) => {
@@ -118,6 +124,23 @@ export default function Messages({route}) {
           if (val.user.name == _user.displayName) {
             setUserNum(idx);
           }
+          getCompatibility(user.token, 'mbti', 'room', thread.roomId)
+            .then((response) => response)
+            .then((res) => {
+              setMbtiList(res);
+              return res;
+            })
+            .then((res) => {
+              res.forEach((mbtiVal, mbtiIdx) => {
+                result.forEach((userVal) => {
+                  // if (userVal.user.name == _user.displayName) {
+                  if (mbtiVal.user == userVal.user.kakao_auth_id) {
+                    setMbtiNum(mbtiVal.compatibility);
+                  }
+                  // }
+                });
+              });
+            });
         });
       });
 
@@ -148,12 +171,16 @@ export default function Messages({route}) {
       />
     );
   };
-  // console.log(memberInfo);
 
   return (
     <View style={styles.container}>
       {/* 상단 메뉴 필요함, 방 정보(상대방 프로필 리스트)*/}
       <Appbar.Header>
+        <Appbar.BackAction
+          onPress={() => {
+            navigation.pop();
+          }}
+        />
         <Appbar.Content title={thread.name} />
         {/* <Appbar.Action icon="magnify" onPress={() => {}} /> */}
       </Appbar.Header>
@@ -184,14 +211,24 @@ export default function Messages({route}) {
               {typeof memberInfo == 'undefined' ? null : typeof userNum ==
                 'undefined' ? null : (
                 <View style={styles.introContainer}>
-                  <Text style={styles.introText}>
+                  {/* <Text style={styles.introText}>
                     {memberInfo[userNum].user.chinese_zodiac}
-                  </Text>
+                  </Text> */}
                   <Text style={styles.introText}>
                     {memberInfo[userNum].user.mbti}
                   </Text>
+                  {typeof mbtiNum == 'undefined' ? null : (
+                    <View style={styles.mbti}>
+                      <Text style={styles.mbtiText}>{mbtiNum}</Text>
+                      <ProgressBar
+                        progress={mbtiNum}
+                        color={Colors.yellow900}
+                        style={styles.mbtiBar}
+                      />
+                    </View>
+                  )}
                   <Text style={styles.introText}>
-                    {memberInfo[userNum].user.school}
+                    {memberInfo[userNum].user.school.split('학교')[0]}
                   </Text>
                 </View>
               )}
@@ -225,7 +262,7 @@ const styles = StyleSheet.create({
     margin: 30,
   },
   introduce: {
-    marginTop: height * 0.1,
+    marginTop: height * 0.08,
     alignItems: 'center',
   },
   introContainer: {
@@ -240,5 +277,17 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     fontSize: 30,
+  },
+  mbti: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  mbtiText: {
+    fontSize: 20,
+  },
+  mbtiBar: {
+    width: 200,
+    height: 50,
+    margin: 20,
   },
 });
