@@ -1,6 +1,10 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useLayoutEffect} from 'react';
 import {SafeAreaView, StyleSheet, View, Text} from 'react-native';
-import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
+import {
+  NavigationContainer,
+  DefaultTheme,
+  getFocusedRouteNameFromRoute,
+} from '@react-navigation/native';
 import merge from 'deepmerge';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -99,8 +103,9 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    // infoToLocal('kakaoId', '1496391237').then(() => {
-    // infoToLocal('kakaoId', '1489710892').then(() => {
+    // infoToLocal('kakaoId', '1496391237');
+    // .then(() => {
+    // infoToLocal('kakaoId', '1489710892');
     // infoToLocal('kakaoId', '1111111111').then(() => {
     localToInfo('kakaoId')
       .then((kakaoId) => {
@@ -146,7 +151,15 @@ const App = () => {
       );
     };
 
-    const ChatStack = () => {
+    const ChatStack = ({navigation, route}) => {
+      useLayoutEffect(() => {
+        const routeName = getFocusedRouteNameFromRoute(route);
+        if (routeName === 'Messages') {
+          navigation.setOptions({tabBarVisible: false});
+        } else {
+          navigation.setOptions({tabBarVisible: true});
+        }
+      }, [navigation, route]);
       return (
         <Stack.Navigator initialRouteName="Chat">
           <Stack.Screen name="Chat" component={Chat} />
