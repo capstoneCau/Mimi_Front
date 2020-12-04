@@ -259,77 +259,6 @@ export default function List({navigation}) {
   );
 }
 
-// function Friends({
-//   showFriendModal,
-//   hideFriends,
-//   friendInfo,
-//   friends,
-//   setFriends,
-//   participateRoom,
-//   roomNum,
-//   token,
-// }) {
-//   const [isAdd1, setIsAdd1] = useState(false);
-//   const [isAdd2, setIsAdd2] = useState(false);
-//   const [isAdd3, setIsAdd3] = useState(false);
-//   const [isAdd4, setIsAdd4] = useState(false);
-//   const [isAdd5, setIsAdd5] = useState(false);
-//   const [isAdd6, setIsAdd6] = useState(false);
-//   let friendName = [];
-//   let friendId = [];
-//   friendInfo.forEach((val) => {
-//     friendName.push(val.to_user.name);
-//     friendId.push(val.to_user.kakao_auth_id);
-//   });
-//   return (
-//     <View>
-//       <Portal>
-//         <Dialog visible={showFriendModal} onDismiss={hideFriends}>
-//           <Dialog.Title style={styles.text}>멤버추가</Dialog.Title>
-//           <Dialog.Content>
-//             <View style={styles.memberContainer}>
-//               <RadioButton
-//                 onPress={() => {
-//                   if (isAdd1 === false) {
-//                     setFriends((old) => [...old, friendId[0]]);
-//                   } else {
-//                     setFriends(friends.filter((e) => e !== friendId[0]));
-//                   }
-//                   /* 3항연산자로 하면 왜 안될까? */
-//                   setIsAdd1(!isAdd1);
-//                 }}
-//                 value={friendName[0]}
-//                 status={isAdd1 ? 'checked' : 'unchecked'}
-//               />
-//               <Text style={styles.memberText}>{friendName[0]}</Text>
-//             </View>
-//           </Dialog.Content>
-//           <Dialog.Actions>
-//             <FancyButton
-//               mode="outlined"
-//               color="#000069"
-//               onPress={() => {
-//                 hideFriends();
-//                 setFriends([]);
-//               }}>
-//               취소
-//             </FancyButton>
-//             <FancyButton
-//               mode="outlined"
-//               color="#000069"
-//               onPress={() => {
-//                 participateRoom(friends, roomNum, token);
-//                 hideFriends();
-//               }}>
-//               완료
-//             </FancyButton>
-//           </Dialog.Actions>
-//         </Dialog>
-//       </Portal>
-//     </View>
-//   );
-// }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -340,9 +269,11 @@ const styles = StyleSheet.create({
     height: height / 6,
     width: width,
     justifyContent: 'center',
+    alignSelf: 'center',
     borderRadius: 10,
-    borderWidth: 1,
-    marginTop: 0.5,
+    borderBottomWidth: 0.2,
+    backgroundColor: '#FDF5E6',
+    marginTop: 3,
   },
   Checkbox: {
     flexDirection: 'row',
@@ -375,7 +306,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     fontSize: 17,
     padding: 15,
-    fontFamily: FancyFonts.BMDOHYEON,
   },
   dates: {
     fontSize: 15,

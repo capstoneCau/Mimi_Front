@@ -235,9 +235,11 @@ const styles = StyleSheet.create({
     height: height / 6,
     width: width,
     justifyContent: 'center',
+    alignSelf: 'center',
     borderRadius: 10,
-    borderWidth: 1,
-    marginTop: 0.5,
+    borderBottomWidth: 0.2,
+    backgroundColor: '#FDF5E6',
+    marginTop: 3,
   },
   addBtn_container: {
     alignItems: 'center',

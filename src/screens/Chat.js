@@ -119,7 +119,7 @@ export default function Chat({navigation}) {
         // data={roomInfos}
         data={threads}
         renderItem={
-          roomInfos.length == 0
+          typeof roomInfos == 'undefined'
             ? ({item, index}) => {
                 return null;
               }
@@ -130,7 +130,6 @@ export default function Chat({navigation}) {
                     room = val.room;
                   }
                 });
-                // console.log(roomInfos, threads, room);
                 return (
                   <TouchableOpacity
                     // style={[

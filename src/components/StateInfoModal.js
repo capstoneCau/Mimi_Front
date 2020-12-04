@@ -180,8 +180,8 @@ export default function StateInfoModal({
                           <Text style={[styles.text, styles.subText]}>
                             {typeof item !== 'undefined'
                               ? roomState == 'S'
-                                ? item.user.star
-                                : item.star
+                                ? item.user.star + '자리'
+                                : item.star + '자리'
                               : ''}
                           </Text>
                           <Text style={[styles.text, styles.subText]}>

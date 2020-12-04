@@ -71,10 +71,6 @@ export default function Friends({
                   onValueChange={onToggleSwitch}
                 />
               </View>
-              <Divider />
-              <View>
-                <Text>미팅멤버이름적는곳 + {friendsName}</Text>
-              </View>
             </View>
           ) : null}
           <Dialog.Title style={styles.text}>
