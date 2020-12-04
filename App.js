@@ -52,7 +52,7 @@ const App = () => {
     Messages,
     Setting,
     AddMeeting,
-    GoogleMap,
+    Friend,
     DestinationSetting,
   } = name;
   const [pushToken, setPushToken] = useState(null);
@@ -204,7 +204,7 @@ const App = () => {
           />
           <BottomTabs.Screen
             name="State"
-            component={topTab}
+            component={State}
             options={{
               tabBarIcon: ({focused}) => {
                 return focused ? (
@@ -229,14 +229,14 @@ const App = () => {
             }}
           />
           <BottomTabs.Screen
-            name="Map"
-            component={GoogleMap}
+            name="Friend"
+            component={Friend}
             options={{
               tabBarIcon: ({focused}) => {
                 return focused ? (
-                  <Icon name="navigate-sharp" size={30} />
+                  <Icon name="person-add-sharp" size={30} />
                 ) : (
-                  <Icon name="navigate-outline" size={30} />
+                  <Icon name="person-add-outline" size={30} />
                 );
               },
             }}
