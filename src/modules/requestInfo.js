@@ -234,8 +234,8 @@ export const participateAtRoom = (
 
 export const removeMeeting = (
   room_id,
-  chat_id,
-  is_notification,
+  chat_id = null,
+  is_notification = false,
   token,
 ) => async (dispatch, getState) => {
   console.log(chat_id, is_notification);
