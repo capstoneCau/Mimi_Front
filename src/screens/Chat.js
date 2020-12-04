@@ -56,8 +56,8 @@ export default function Chat({navigation}) {
   );
 
   const _removeMeeting = useCallback(
-    (_roomId, _chatId, isNotification, _token) =>
-      dispatch(removeMeeting(_roomId, _chatId, isNotification, _token)),
+    (_roomId, isNotification, _token) =>
+      dispatch(removeMeeting(_roomId, isNotification, _token)),
     [dispatch],
   );
 
@@ -269,7 +269,7 @@ const ChattingMenu = ({
           <TouchableOpacity
             onPress={() => {
               hideDialog();
-              deleteMeeting(roomId, chatId, true, token);
+              deleteMeeting(roomId, true, token);
             }}>
             <Paragraph style={styles.dialogText}>미팅종료</Paragraph>
           </TouchableOpacity>
@@ -278,7 +278,7 @@ const ChattingMenu = ({
           <TouchableOpacity
             onPress={() => {
               hideDialog();
-              deleteMeeting(roomId, chatId, false, token);
+              deleteMeeting(roomId, false, token);
             }}>
             <Paragraph style={styles.dialogText}>미팅삭제</Paragraph>
           </TouchableOpacity>

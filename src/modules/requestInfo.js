@@ -234,11 +234,9 @@ export const participateAtRoom = (
 
 export const removeMeeting = (
   room_id,
-  chat_id = null,
-  is_notification = false,
   token,
+  is_notification = false,
 ) => async (dispatch, getState) => {
-  console.log(chat_id, is_notification);
   const res = await fetch(SERVER_DOMAIN + `meeting/roomList/${room_id}/`, {
     method: 'DELETE',
     mode: 'cors',
@@ -247,7 +245,6 @@ export const removeMeeting = (
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      chatId: chat_id,
       isNotification: is_notification,
     }),
   });
