@@ -166,7 +166,7 @@ export default function Chat({navigation}) {
                     }}>
                     <View style={styles.list}>
                       <Text style={styles.peopleCount}>
-                        {typeof item !== 'undefined' ? room.user_limit * 2 : ''}
+                        {room !== null ? room.user_limit * 2 : ''}
                         {/* {room.user_limit * 2} */}
                       </Text>
                       <View style={styles.content}>
@@ -213,10 +213,15 @@ export default function Chat({navigation}) {
                         </Text>
                       </View>
                       <Text style={styles.dates}>
-                        {room.available_dates.map(
-                          (v) =>
-                            v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
-                        )}
+                        {room !== null
+                          ? room.available_dates.map(
+                              (v) =>
+                                v.split('-')[1] +
+                                '월' +
+                                v.split('-')[2] +
+                                '일\n',
+                            )
+                          : null}
                         {/* {typeof item !== 'undefined'
                           ? item.room.available_dates.map(
                               (v) =>
