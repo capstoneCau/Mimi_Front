@@ -24,6 +24,7 @@ import {FancyButton, FancyFonts, backAction} from '../common/common';
 import {removeMeeting} from '../modules/requestInfo';
 import {getOwnsRoomList} from '../modules/meetingInfo';
 import {myFriendList} from '../modules/myFriend';
+import {getInformation} from '../modules/getInformation';
 import firestore from '@react-native-firebase/firestore';
 
 var width = Dimensions.get('window').width;
@@ -47,6 +48,8 @@ export default function Chat({navigation}) {
   const [visible, setVisible] = useState(false);
   const [selectRoomId, setSelectRoomId] = useState(0);
   const [selectChatId, setSelectChatId] = useState(0);
+  const [profileImgBase64, setProfileImgBase64] = useState();
+
   const myFriend = useCallback((token) => dispatch(myFriendList(token)), [
     dispatch,
   ]);
@@ -68,9 +71,13 @@ export default function Chat({navigation}) {
       setRoomInfos(await getMatchedRoom(myInfo.token));
     };
     myFriend(myInfo.token);
+    getInformation(myInfo.token, 'profile')
+      .then((response) => response)
+      .then((result) => {
+        setProfileImgBase64(result.image);
+      });
     getRoom();
   }, [restart]);
-
   useEffect(() => {
     const unsubscribe = firestore()
       .collectionGroup('CHATINGS')
@@ -153,6 +160,7 @@ export default function Chat({navigation}) {
                     onPress={() => {
                       navigation.navigate('Messages', {
                         thread: item,
+                        myImg: profileImgBase64,
                       });
                       // threads.forEach((val, idx) => {
                       //   if (item.room.id == val.roomId) {
