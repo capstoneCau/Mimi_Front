@@ -7,10 +7,12 @@ import {
   Text,
   TouchableOpacity,
   Alert,
+  Modal,
 } from 'react-native';
 import {
   Appbar,
   List,
+  Avatar,
   TextInput,
   Button,
   Card,
@@ -24,6 +26,7 @@ import {
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {FancyButton, FancyFonts} from '../common/common';
 import {logoutAsync} from '../modules/login';
+import {getInformation} from '../modules/getInformation';
 import KakaoLogins from '@react-native-seoul/kakao-login';
 import Friends from '../components/Friends';
 import localToInfo from '../common/LocalToInfo';
@@ -44,12 +47,26 @@ export default function Setting({navigation, route}) {
   const [friends, setFriends] = useState([]); // friends kakao auth Id
   const [friendsName, setFriendsName] = useState([]);
   const [showFriendModal, setShowFriendModal] = useState(false);
+  const [visibleMyInfo, setVisibleMyInfo] = useState(false);
+  const [profileImgBase64, setProfileImgBase64] = useState();
   const user = useSelector((state) => state.login);
   const _destination =
     typeof route.params == 'undefined' ? '' : route.params.destination;
+
+  useEffect(() => {
+    getInformation(myInfo.token, 'profile')
+      .then((response) => response)
+      .then((result) => {
+        setProfileImgBase64(result.image);
+      });
+  }, []);
+
   useEffect(() => {
     setDestination(_destination);
   }, [_destination]);
+
+  const showMyInfo = () => setVisibleMyInfo(true);
+  const hideMyInfo = () => setVisibleMyInfo(false);
 
   const logCallback = (log, callback) => {
     console.log(log);
@@ -103,42 +120,6 @@ export default function Setting({navigation, route}) {
         <Appbar.Content title="설정" />
       </Appbar.Header>
       <ScrollView>
-        <List.Section title="개인/보안">
-          <List.Item
-            title="내정보"
-            left={(props) => <List.Icon {...props} icon="account" />}
-          />
-          <List.Item
-            title="로그아웃"
-            left={(props) => <List.Icon {...props} icon="logout" />}
-            onPress={() => {
-              Alert.alert(
-                '로그아웃',
-                '접속중인 기기에서 로그아웃 하시겠습니까?',
-                [
-                  {
-                    text: '아니오',
-                    style: 'cancel',
-                  },
-                  {
-                    text: '네',
-                    onPress: () => {
-                      logout(myInfo.token);
-                      kakaoLogout();
-                      navigation.navigate('Login');
-                      //navigation stack초기화 해야함
-                    },
-                  },
-                ],
-                {cancelable: false},
-              );
-            }}
-          />
-          <List.Item
-            title="고각센터/도움말"
-            left={(props) => <List.Icon {...props} icon="account-question" />}
-          />
-        </List.Section>
         <List.Section title="안전귀가서비스">
           <TouchableOpacity
             onPress={async () => {
@@ -187,7 +168,80 @@ export default function Setting({navigation, route}) {
             </TouchableOpacity>
           </TouchableOpacity>
         </List.Section>
+        <List.Section title="개인/보안">
+          <List.Item
+            title="내정보"
+            left={(props) => <List.Icon {...props} icon="account" />}
+            onPress={() => {
+              showMyInfo();
+            }}
+          />
+          <List.Item
+            title="로그아웃"
+            left={(props) => <List.Icon {...props} icon="logout" />}
+            onPress={() => {
+              Alert.alert(
+                '로그아웃',
+                '접속중인 기기에서 로그아웃 하시겠습니까?',
+                [
+                  {
+                    text: '아니오',
+                    style: 'cancel',
+                  },
+                  {
+                    text: '네',
+                    onPress: () => {
+                      logout(myInfo.token);
+                      kakaoLogout();
+                      navigation.navigate('Login');
+                      //navigation stack초기화 해야함
+                    },
+                  },
+                ],
+                {cancelable: false},
+              );
+            }}
+          />
+          <List.Item
+            title="고각센터/도움말"
+            left={(props) => <List.Icon {...props} icon="account-question" />}
+          />
+        </List.Section>
       </ScrollView>
+      <Modal
+        animationType={'slide'}
+        transparent={false}
+        visible={visibleMyInfo}
+        onDismiss={hideMyInfo}>
+        <View style={styles.modalContainer}>
+          <TouchableOpacity style={styles.header} onPress={hideMyInfo}>
+            <Text style={styles.closeButton}>X</Text>
+          </TouchableOpacity>
+          <View style={styles.nameContainer}>
+            <Avatar.Image
+              size={150}
+              source={{uri: `data:image/jpeg;base64,${profileImgBase64}`}}
+            />
+            <View style={styles.idContainer}>
+              <Text style={styles.nameText}>{myInfo.userInfo.name}</Text>
+              <Text style={styles.idText}>
+                ({myInfo.userInfo.kakao_auth_id})
+              </Text>
+            </View>
+          </View>
+
+          {/* <Text>{myInfo.userInfo.gender}</Text> */}
+          <View style={styles.bodyContainer}>
+            <Text style={styles.schoolText}>{myInfo.userInfo.school}</Text>
+            <Text style={styles.emailText}>({myInfo.userInfo.email})</Text>
+            <Text style={styles.bodyText}>{myInfo.userInfo.mbti}</Text>
+            <Text style={styles.bodyText}>{myInfo.userInfo.star}</Text>
+            <Text style={styles.bodyText}>
+              {myInfo.userInfo.chinese_zodiac}
+            </Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -196,5 +250,44 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
+  },
+  modalContainer: {},
+  header: {
+    margin: 30,
+  },
+  closeButton: {
+    fontSize: 30,
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    marginLeft: 30,
+  },
+  idContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  nameText: {
+    fontSize: 40,
+    marginLeft: 30,
+  },
+  idText: {
+    fontSize: 17,
+    marginLeft: 30,
+  },
+  bodyContainer: {
+    marginLeft: 40,
+    marginTop: 40,
+  },
+  schoolText: {
+    fontSize: 30,
+  },
+  bodyText: {
+    marginTop: 20,
+    fontSize: 30,
+  },
+  emailText: {
+    fontSize: 17,
   },
 });

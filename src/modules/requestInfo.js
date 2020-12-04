@@ -19,7 +19,33 @@ const REMOVE_MEETING = 'request/REMOVE_MEETING';
 const REMOVE_PARTICIPATE = 'request/REMOVE_PARTICIPATE';
 const GET_MATCHING_SELECT_INFO = 'request/GET_MATCHING_SELECT_INFO';
 const MATCH_MEETING = 'request/MATCH_MEETING';
+const GET_PROFILE_IMG = 'request/GET_PROFILE_IMG';
+
 //Thunk
+export const getProfileImg = (token, users) => async (dispatch, getState) => {
+  const res = await fetch(
+    SERVER_DOMAIN + `etcInformation/profile?users=${users}`,
+    {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    },
+  );
+  const profileBase64 = await res.json();
+  if (JSON.error) {
+    console.log(JSON.detail);
+    return false;
+  } else {
+    dispatch({
+      type: GET_PROFILE_IMG,
+      profileBase64,
+    });
+    return true;
+  }
+};
+
 export const getInviterParticipateRequest = (token) => async (
   dispatch,
   getState,
@@ -340,6 +366,10 @@ export default function meetingInfo(state = initialState, action) {
         ...state,
       };
     case MATCH_MEETING:
+      return {
+        ...state,
+      };
+    case GET_PROFILE_IMG:
       return {
         ...state,
       };
