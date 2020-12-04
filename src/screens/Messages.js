@@ -175,7 +175,7 @@ export default function Messages({navigation, route}) {
   return (
     <View style={styles.container}>
       {/* 상단 메뉴 필요함, 방 정보(상대방 프로필 리스트)*/}
-      <Appbar.Header>
+      <Appbar.Header style={styles.appbar}>
         <Appbar.BackAction
           onPress={() => {
             navigation.pop();
@@ -251,6 +251,9 @@ export default function Messages({navigation, route}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#9BC3FF',
+  },
+  appbar: {
     backgroundColor: '#9BC3FF',
   },
 
