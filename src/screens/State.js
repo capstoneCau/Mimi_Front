@@ -84,6 +84,9 @@ export default function State() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Appbar.Header style={{backgroundColor: 'white'}}>
+        <Appbar.Content title="내 미팅" />
+      </Appbar.Header>
       <FancyButton
         icon="autorenew"
         mode="outlined"

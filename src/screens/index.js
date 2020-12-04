@@ -7,7 +7,7 @@ import StateGive from './StateGive';
 import StateTake from './StateTake';
 import Chat from './Chat';
 import AddMeeting from './AddMeeting';
-import GoogleMap from './GoogleMap';
+import Friend from './Friend';
 import Messages from './Messages';
 import DestinationSetting from './DestinationSetting';
 
@@ -22,6 +22,6 @@ export {
   Chat,
   Messages,
   AddMeeting,
-  GoogleMap,
+  Friend,
   DestinationSetting,
 };
