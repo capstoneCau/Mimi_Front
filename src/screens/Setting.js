@@ -51,7 +51,7 @@ export default function Setting({navigation, route}) {
   const [profileImgBase64, setProfileImgBase64] = useState();
   const _destination =
     typeof route.params == 'undefined' ? '' : route.params.destination;
-
+  console.log(_destination);
   useEffect(() => {
     getInformation(myInfo.token, 'profile')
       .then((response) => response)
@@ -224,16 +224,15 @@ export default function Setting({navigation, route}) {
             />
             <View style={styles.idContainer}>
               <Text style={styles.nameText}>{myInfo.userInfo.name}</Text>
-              <Text style={styles.idText}>
-                ({myInfo.userInfo.kakao_auth_id})
+              <Text style={styles.schoolText}>
+                ({myInfo.userInfo.school.replace('학교', '학교 ')})
               </Text>
             </View>
           </View>
 
           {/* <Text>{myInfo.userInfo.gender}</Text> */}
           <View style={styles.bodyContainer}>
-            <Text style={styles.schoolText}>{myInfo.userInfo.school}</Text>
-            <Text style={styles.emailText}>({myInfo.userInfo.email})</Text>
+            {/* <Text style={styles.emailText}>({myInfo.userInfo.email})</Text> */}
             <Text style={styles.bodyText}>{myInfo.userInfo.mbti}</Text>
             <Text style={styles.bodyText}>{myInfo.userInfo.star}</Text>
             <Text style={styles.bodyText}>
@@ -281,7 +280,8 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   schoolText: {
-    fontSize: 30,
+    fontSize: 17,
+    marginLeft: 30,
   },
   bodyText: {
     marginTop: 20,

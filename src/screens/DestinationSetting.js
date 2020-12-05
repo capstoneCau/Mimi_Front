@@ -16,29 +16,30 @@ var height = Dimensions.get('window').height;
 
 export default function YourView({navigation}) {
   const [destination, setDestination] = useState();
+  const syncFunction = (address) => {
+    return new Promise((res, rej) => {
+      setDestination(address);
+      res(address);
+    });
+  };
+
   return (
     <View style={styles.container}>
       <Postcode
         style={styles.postcode}
         jsOptions={{animated: true}}
         onSelected={(data) => {
-          setDestination(data.address);
-          console.log(data.address);
+          syncFunction(data.address)
+            .then((response) => response)
+            .then(async (result) => {
+              infoToLocal('destination', await getAddressPosition(result));
+              return result;
+            })
+            .then((result) => {
+              navigation.navigate('Setting', {destination: result});
+            });
         }}
       />
-      <View style={styles.destination}>
-        <Text style={styles.text}>{destination}</Text>
-        <FancyButton
-          mode="outlined"
-          color="#000069"
-          onPress={async () => {
-            console.log(destination);
-            infoToLocal('destination', await getAddressPosition(destination));
-            navigation.navigate('Setting', {destination});
-          }}>
-          목적지 설정
-        </FancyButton>
-      </View>
     </View>
   );
 }
