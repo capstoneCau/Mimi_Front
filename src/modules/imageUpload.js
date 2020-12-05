@@ -1,7 +1,7 @@
 import {SERVER_DOMAIN} from '../common/common';
 import RNFetchBlob from 'rn-fetch-blob';
 
-export const uploadImage = async (uri, gender) => {
+export const uploadImage = async (uri, gender, fcm) => {
   const data = await RNFetchBlob.fs.readFile(uri, 'base64');
   const res = await fetch(SERVER_DOMAIN + 'image/detect/', {
     method: 'POST',
@@ -12,6 +12,7 @@ export const uploadImage = async (uri, gender) => {
     body: JSON.stringify({
       base64: data,
       gender: gender,
+      fcm: fcm,
     }),
   });
   const json = await res.json();

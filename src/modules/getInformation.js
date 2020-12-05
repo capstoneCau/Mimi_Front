@@ -40,6 +40,19 @@ export const getInformation = async (
   return list;
 };
 
+export const getMbtiList = async () => {
+  const res = await fetch(SERVER_DOMAIN + 'etcInformation/mbti/', {
+    method: 'GET',
+    mode: 'cors',
+  });
+  if (JSON.error) {
+    console.log(JSON.detail);
+    return false;
+  }
+  const list = await res.json();
+  return list;
+};
+
 export const getCompatibility = async (token, param, type, value) => {
   const res = await fetch(
     SERVER_DOMAIN +

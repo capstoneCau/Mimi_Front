@@ -266,7 +266,7 @@ const ChattingMenu = ({
           <TouchableOpacity
             onPress={() => {
               hideDialog();
-              deleteMeeting(roomId, true, token);
+              deleteMeeting(roomId, token, true);
             }}>
             <Paragraph style={styles.dialogText}>미팅종료</Paragraph>
           </TouchableOpacity>
@@ -275,7 +275,7 @@ const ChattingMenu = ({
           <TouchableOpacity
             onPress={() => {
               hideDialog();
-              deleteMeeting(roomId, false, token);
+              deleteMeeting(roomId, token, false);
             }}>
             <Paragraph style={styles.dialogText}>미팅삭제</Paragraph>
           </TouchableOpacity>

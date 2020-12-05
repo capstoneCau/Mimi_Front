@@ -13,7 +13,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '@react-navigation/native';
 import {CONST_VALUE} from '../common/common';
-import {getInformation} from '../modules/getInformation';
+import {getMbtiList} from '../modules/getInformation';
 import {FancyButton, FancyFonts} from '../common/common';
 
 var width = Dimensions.get('window').width;
@@ -25,18 +25,13 @@ export default function MbtiCheck({
   onChange,
   setStartMbti,
   setStartCertify,
-  startAnimal,
   setStartAnimal,
-  setFinishSignUp,
 }) {
   const [showMbtiModal, setShowMbtiModal] = useState(false);
   const [showMbtiTestModal, setShowMbtiTestModal] = useState(false);
-  // const [showStarModal, setShowStarModal] = useState(false);
   const [mbtiSort, setMbtiSort] = useState();
-  const [starSort, setStarSort] = useState();
   const [stage, setStage] = useState(0);
   const {colors} = useTheme();
-  const [tempMbti, setTempMbti] = useState('');
 
   useEffect(() => {
     const backAction = () => {
@@ -55,14 +50,13 @@ export default function MbtiCheck({
 
   useEffect(() => {
     const infor = async () => {
-      setMbtiSort(await getInformation('mbti'));
-      // setStarSort(await getInformation('star'));
+      setMbtiSort(await getMbtiList());
     };
     infor();
   }, []);
 
   const List = (kinds) => {
-    const sort = kinds === 'mbti' ? mbtiSort : starSort;
+    const sort = mbtiSort;
 
     return (
       <SafeAreaView style={styles.modalboxContainer}>
