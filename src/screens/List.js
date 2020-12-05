@@ -130,7 +130,10 @@ export default function List({navigation}) {
 
   const hideModal = () => setVisible(false);
 
-  const onChangeSearch = (query) => setSearchQuery(query);
+  const onChangeSearch = (query) => {
+    setSearchQuery(query.toUpperCase());
+  };
+  console.log(searchQuery);
   return (
     <SafeAreaView style={styles.container}>
       {showFriendModal && (
@@ -165,7 +168,8 @@ export default function List({navigation}) {
       </Appbar.Header>
       <View style={[isSearch ? null : {display: 'none'}]}>
         <Searchbar
-          placeholder="Search"
+          maxLength={4}
+          placeholder="Mbti Search"
           onChangeText={onChangeSearch}
           value={searchQuery}
         />
@@ -202,7 +206,22 @@ export default function List({navigation}) {
       <FlatList
         data={roomInfo.allRoomList.map((val) => {
           if (searchPeople.indexOf(val.user_limit) > -1) {
-            return val;
+            let flag = false;
+            val.meeting.forEach((info) => {
+              let ctr = 0;
+              searchQuery.split('').forEach((ele) => {
+                if (info.mbti.includes(ele)) {
+                  ctr++;
+                }
+              });
+              if (ctr == searchQuery.length) {
+                flag = true;
+              }
+            });
+
+            if (flag) {
+              return val;
+            }
           }
         })}
         renderItem={({item, index}) => (
