@@ -171,10 +171,9 @@ export default function Chat({navigation}) {
                       // });
                     }}>
                     <View style={styles.list}>
-                      <Text style={styles.peopleCount}>
+                      {/* <Text style={styles.peopleCount}>
                         {room !== null ? room.user_limit * 2 : ''}
-                        {/* {room.user_limit * 2} */}
-                      </Text>
+                      </Text> */}
                       <View style={styles.content}>
                         <Text style={styles.name}>
                           {item.name}
@@ -331,7 +330,7 @@ const styles = StyleSheet.create({
   },
   name: {
     alignSelf: 'flex-start',
-    fontSize: 20,
+    fontSize: 17,
     padding: 10,
     marginTop: 10,
     fontFamily: FancyFonts.BMDOHYEON,

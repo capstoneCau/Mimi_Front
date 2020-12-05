@@ -103,7 +103,7 @@ export default function State() {
                 ? item.room.status == 'w'
                   ? styles.list_container
                   : item.room.status == 'a'
-                  ? {backgroundColor: '#dcdcdc'}
+                  ? styles.list_container_accepted
                   : {display: 'none'}
                 : {display: 'none'},
             ]}
@@ -242,6 +242,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#EBFFEB',
     marginTop: 3,
   },
+  list_container_accepted: {
+    height: height / 7,
+    width: width,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    borderRadius: 10,
+    borderBottomWidth: 0.2,
+    backgroundColor: '#dcdcdc',
+    marginTop: 3,
+  },
   addBtn_container: {
     alignItems: 'center',
   },
@@ -270,7 +280,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     fontSize: 17,
     padding: 15,
-    fontFamily: FancyFonts.BMDOHYEON,
   },
   dates: {
     fontSize: 15,

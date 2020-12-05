@@ -196,8 +196,8 @@ export default function StateInfoModal({
                           <Text style={[styles.text, styles.schoolText]}>
                             {typeof item !== 'undefined'
                               ? roomState == 'S'
-                                ? item.user.school.split('학교')[0]
-                                : item.school.split('학교')[0]
+                                ? item.user.school.split('학교')[0] + '학교'
+                                : item.school.split('학교')[0] + '학교'
                               : ''}
                           </Text>
                         </View>
@@ -330,59 +330,63 @@ export default function StateInfoModal({
                       : '삭제하시겠습니까?'
                     : '참여하시겠습니까?'}
                 </Text>
-                <FancyButton
-                  mode="outlined"
-                  color="#000069"
-                  onPress={() => {
-                    if (roomState === 'S') {
-                      if (userRole == 'invitee') {
-                        hideModal();
-                        update(roomType, 'r', requestId, token);
-                      } else {
-                        hideModal();
-                      }
-                    } else if (roomState === 'L') {
-                      hideModal();
-                    }
-                  }}>
-                  <Text style={[styles.text]}>
-                    {roomState == 'S'
-                      ? userRole == 'invitee'
-                        ? '아니오'
-                        : '아니오'
-                      : '아니오'}
-                  </Text>
-                </FancyButton>
-                <FancyButton
-                  mode="outlined"
-                  color="#000069"
-                  onPress={() => {
-                    if (roomState === 'S') {
-                      if (userRole == 'invitee') {
-                        hideModal();
-                        update(roomType, 'a', requestId, token);
-                      } else {
-                        hideModal();
-                        if (roomType == 'create') {
-                          _removeMeeting(roomId, token);
+                <View style={styles.endButtonContainer}>
+                  <FancyButton
+                    mode="contained"
+                    color="#FAFAD2"
+                    style={styles.rejectButton}
+                    onPress={() => {
+                      if (roomState === 'S') {
+                        if (userRole == 'invitee') {
+                          hideModal();
+                          update(roomType, 'r', requestId, token);
                         } else {
                           hideModal();
-                          _removeParticipate(partyId, token);
                         }
+                      } else if (roomState === 'L') {
+                        hideModal();
                       }
-                    } else if (roomState === 'L') {
-                      hideModal();
-                      showFriends();
-                    }
-                  }}>
-                  <Text style={[styles.text]}>
-                    {roomState == 'S'
-                      ? userRole == 'invitee'
-                        ? '참여'
-                        : '삭제'
-                      : '참여'}
-                  </Text>
-                </FancyButton>
+                    }}>
+                    <Text style={[styles.text]}>
+                      {roomState == 'S'
+                        ? userRole == 'invitee'
+                          ? '아니오'
+                          : '아니오'
+                        : '아니오'}
+                    </Text>
+                  </FancyButton>
+                  <FancyButton
+                    mode="contained"
+                    color="#EBFFEB"
+                    style={styles.joinButton}
+                    onPress={() => {
+                      if (roomState === 'S') {
+                        if (userRole == 'invitee') {
+                          hideModal();
+                          update(roomType, 'a', requestId, token);
+                        } else {
+                          hideModal();
+                          if (roomType == 'create') {
+                            _removeMeeting(roomId, token);
+                          } else {
+                            hideModal();
+                            _removeParticipate(partyId, token);
+                          }
+                        }
+                      } else if (roomState === 'L') {
+                        hideModal();
+                        showFriends();
+                      }
+                    }}>
+                    <Text style={[styles.text]}>
+                      {roomState == 'S'
+                        ? userRole == 'invitee'
+                          ? '참여'
+                          : '삭제'
+                        : '참여'}
+                    </Text>
+                  </FancyButton>
+                </View>
               </View>
             </View>
           </View>
@@ -397,7 +401,7 @@ const styles = StyleSheet.create({
     width: width,
     height: height * 0.7,
     backgroundColor: 'white',
-    padding: 20,
+    padding: 10,
     flexDirection: 'column',
   },
   contentContainer: {
@@ -410,7 +414,7 @@ const styles = StyleSheet.create({
   personInfoContainer: {},
   contentM: {
     borderRadius: 10,
-    borderWidth: 2,
+    borderWidth: 3,
     marginTop: 2,
     padding: 15,
     flexDirection: 'row',
@@ -418,7 +422,7 @@ const styles = StyleSheet.create({
   },
   contentF: {
     borderRadius: 10,
-    borderWidth: 2,
+    borderWidth: 3,
     marginTop: 2,
     padding: 15,
     flexDirection: 'row',
@@ -442,7 +446,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   buttonContainer: {
-    flex: 1.3,
+    flex: 1,
+    alignItems: 'center',
   },
   text: {
     fontFamily: FancyFonts.BMDOHYEON,
@@ -453,7 +458,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   schoolText: {
-    fontSize: 20,
+    fontSize: 18,
     marginTop: 4,
   },
   stateText: {
@@ -468,6 +473,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     marginBottom: 5,
+  },
+  endButtonContainer: {
+    flexDirection: 'row',
+    marginTop: 15,
+  },
+  rejectButton: {
+    marginRight: 20,
+  },
+  joinButton: {
+    marginLeft: 20,
   },
   acceptButton: {
     borderRadius: 10,

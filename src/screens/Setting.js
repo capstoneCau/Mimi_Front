@@ -53,6 +53,7 @@ export default function Setting({navigation, route}) {
   const [watchId, setWatchId] = useState();
   const [isSwitchOn, setIsSwitchOn] = useState(false);
   const [isManualOn, setIsManulOn] = useState(false);
+  const [mbtiDescription, setMbtiDescription] = useState('');
   const _destination =
     typeof route.params == 'undefined' ? '' : route.params.destination;
   useEffect(() => {
@@ -60,6 +61,15 @@ export default function Setting({navigation, route}) {
       .then((response) => response)
       .then((result) => {
         setProfileImgBase64(result.image);
+      });
+    getInformation(myInfo.token, 'mbti')
+      .then((response) => response)
+      .then((result) => {
+        result.map((val) => {
+          if (val.name == myInfo.userInfo.mbti) {
+            setMbtiDescription(val.description);
+          }
+        });
       });
   }, []);
 
@@ -247,7 +257,7 @@ export default function Setting({navigation, route}) {
           </TouchableOpacity>
           <View style={styles.nameContainer}>
             <Avatar.Image
-              size={150}
+              size={100}
               source={{uri: `data:image/jpeg;base64,${profileImgBase64}`}}
             />
             <View style={styles.idContainer}>
@@ -261,7 +271,8 @@ export default function Setting({navigation, route}) {
           {/* <Text>{myInfo.userInfo.gender}</Text> */}
           <View style={styles.bodyContainer}>
             {/* <Text style={styles.emailText}>({myInfo.userInfo.email})</Text> */}
-            <Text style={styles.bodyText}>{myInfo.userInfo.mbti}</Text>
+            <Text style={styles.mbtiText}>{myInfo.userInfo.mbti}</Text>
+            <Text style={styles.mbtisubText}>({mbtiDescription})</Text>
             <Text style={styles.bodyText}>{myInfo.userInfo.star}</Text>
             <Text style={styles.bodyText}>
               {myInfo.userInfo.chinese_zodiac}
@@ -310,6 +321,13 @@ const styles = StyleSheet.create({
   schoolText: {
     fontSize: 17,
     marginLeft: 30,
+  },
+  mbtiText: {
+    fontSize: 30,
+    marginTop: 20,
+  },
+  mbtisubText: {
+    fontSize: 20,
   },
   bodyText: {
     marginTop: 20,

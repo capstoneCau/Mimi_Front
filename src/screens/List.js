@@ -216,6 +216,7 @@ export default function List({navigation}) {
             ]}
             onPress={() => {
               showModal();
+              setIsSearch(false);
               setRoomNum(item.id);
             }}>
             <View style={styles.list}>
@@ -225,8 +226,11 @@ export default function List({navigation}) {
               <View style={styles.content}>
                 <Text style={styles.school}>
                   {typeof item !== 'undefined'
-                    ? item.meeting.map((v) => {
-                        return v.mbti + '/';
+                    ? item.meeting.map((v, id) => {
+                        if (item.user_limit == id + 1) {
+                          return v.mbti;
+                        }
+                        return v.mbti + '  ';
                       })
                     : null}
                 </Text>
