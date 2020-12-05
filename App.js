@@ -77,7 +77,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    infoToLocal('kakaoId', '1496391237');
+    // infoToLocal('kakaoId', '1496391237');
     // infoToLocal('kakaoId', '1489710892');
     // infoToLocal('kakaoId', '5555555555');
     // infoToLocal('kakaoId', '6666666666');
