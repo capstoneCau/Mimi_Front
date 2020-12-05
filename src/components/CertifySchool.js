@@ -19,7 +19,6 @@ import {useTheme} from '@react-navigation/native';
 import {CONST_VALUE} from '../common/common';
 import {useSelector, useDispatch} from 'react-redux';
 import {registerUserInfoAsync} from '../modules/login';
-import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
 import {FancyButton, FancyFonts} from '../common/common';
 import {SearchSchool} from './SchoolApi';

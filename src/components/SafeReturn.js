@@ -5,7 +5,7 @@ import BackgroundTimer from 'react-native-background-timer';
 import infoToLocal from '../common/InfoToLocal';
 import localToInfo from '../common/LocalToInfo';
 import {PermissionsAndroid} from 'react-native';
-export const startSafeReturnFunc = async (friends) => {
+export const startSafeReturnFunc = async (friends, name) => {
   const token = await localToInfo('token');
   const kakaoId = await localToInfo('kakaoId');
   // 추후에 테스트 해보아야함
@@ -18,7 +18,10 @@ export const startSafeReturnFunc = async (friends) => {
   const notiReceiver = await localToInfo('notiReceiver');
   if (notiReceiver) {
     friends = [...new Set(friends.concat(notiReceiver))];
-    friends.splice(friends.indexOf(kakaoId), 1);
+    const idx = friends.indexOf(kakaoId);
+    if (idx != -1) {
+      friends.splice(idx, 1);
+    }
   }
   const {lat: latitude, lng: longitude} = await localToInfo('destination');
   const watchingTime = 5;
@@ -62,8 +65,8 @@ export const startSafeReturnFunc = async (friends) => {
             BackgroundTimer.clearInterval(watchId);
             sendNotification(
               friends,
-              '집에 못들어 갔어요',
-              '집에 못들어감 ㅠㅠ',
+              '긴급 구조 요청',
+              name + '님께서 구조 요청을 하셨습니다.',
               token,
             );
           }
@@ -94,8 +97,8 @@ export const startSafeReturnFunc = async (friends) => {
         infoToLocal('safeReturnId', null);
         sendNotification(
           friends,
-          '집에 못들어 갔어요',
-          '집에 못들어감 ㅠㅠ',
+          '긴급 구조 요청',
+          name + '님께서 구조 요청을 하셨습니다.',
           token,
         );
       }, 7000);

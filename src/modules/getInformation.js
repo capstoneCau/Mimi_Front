@@ -16,14 +16,11 @@ export const getUserInfo = async (token, email) => {
   return info;
 };
 
-export const getInformation = async (
-  token,
-  param,
-  type = null,
-  userlist = null,
-) => {
+export const getInformation = async (token, type = null, userlist = null) => {
   const res = await fetch(
-    SERVER_DOMAIN + 'etcInformation/' + param + '?' + `${type}=${userlist}`,
+    type != null
+      ? SERVER_DOMAIN + 'etcInformation/profile' + '?' + `${type}=${userlist}`
+      : SERVER_DOMAIN + 'etcInformation/profile/',
     {
       method: 'GET',
       mode: 'cors',
@@ -32,6 +29,7 @@ export const getInformation = async (
       },
     },
   );
+  console.log(res);
   if (JSON.error) {
     console.log(JSON.detail);
     return false;

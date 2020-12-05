@@ -73,7 +73,7 @@ export default function Chat({navigation}) {
         setRoomInfos(result);
       });
     myFriend(myInfo.token);
-    getInformation(myInfo.token, 'profile')
+    getInformation(myInfo.token)
       .then((response) => response)
       .then((result) => {
         setProfileImgBase64(result.image);
@@ -86,7 +86,6 @@ export default function Chat({navigation}) {
       .orderBy('latestMessage.createdAt', 'desc')
       .onSnapshot(
         (querySnapshot) => {
-          // console.log(querySnapshot.docs);
           const _threads = querySnapshot.docs.map((documentSnapshot) => {
             return {
               _id: documentSnapshot.id,
@@ -96,7 +95,6 @@ export default function Chat({navigation}) {
               ...documentSnapshot.data(),
             };
           });
-          // console.log(_threads);
           setThreads(_threads);
           if (loading) {
             setLoading(false);

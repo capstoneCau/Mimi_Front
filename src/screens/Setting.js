@@ -27,7 +27,7 @@ import {
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {FancyButton, FancyFonts} from '../common/common';
 import {logoutAsync} from '../modules/login';
-import {getInformation} from '../modules/getInformation';
+import {getInformation, getMbtiList} from '../modules/getInformation';
 import KakaoLogins from '@react-native-seoul/kakao-login';
 import Friends from '../components/Friends';
 import localToInfo from '../common/LocalToInfo';
@@ -57,12 +57,12 @@ export default function Setting({navigation}) {
   const [mbtiDescription, setMbtiDescription] = useState('');
 
   useEffect(() => {
-    getInformation(myInfo.token, 'profile')
+    getInformation(myInfo.token)
       .then((response) => response)
       .then((result) => {
         setProfileImgBase64(result.image);
       });
-    getInformation(myInfo.token, 'mbti')
+    getMbtiList()
       .then((response) => response)
       .then((result) => {
         result.map((val) => {
@@ -73,6 +73,9 @@ export default function Setting({navigation}) {
       });
     localToInfo('safeReturnId').then((_safeReturnId) => {
       setSafeReturnId(safeReturnId);
+    });
+    localToInfo('autoSafeReturn').then((_autoSafeReturn) => {
+      setIsSwitchOn(_autoSafeReturn);
     });
   }, []);
 
@@ -164,12 +167,13 @@ export default function Setting({navigation}) {
             onPress={async () => {
               const des = await localToInfo('destination');
               const friends = await localToInfo('notiReceiver');
-              if (des && friends && !safeReturnId) {
+              console.log(des, friends);
+              if (des && friends.length != 0 && !safeReturnId) {
                 Alert.alert('수동으로 안전 귀가 서비스가 실행됩니다.');
-                startSafeReturnFunc(friends);
+                startSafeReturnFunc(friends, myInfo.userInfo.name);
               } else if (!des) {
                 Alert.alert('목적지를 먼저 설정하여야 합니다.');
-              } else if (!friends) {
+              } else if (friends.length == 0) {
                 Alert.alert('수신자를 먼저 설정하여야 합니다.');
               } else if (safeReturnId) {
                 BackgroundTimer.clearInterval(safeReturnId);

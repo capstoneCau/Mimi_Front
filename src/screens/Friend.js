@@ -56,7 +56,7 @@ export default function Friend({navigation}) {
   const hideAddModal = () => setVisibleAddModal(false);
 
   useEffect(() => {
-    getInformation(myInfo.token, 'profile')
+    getInformation(myInfo.token)
       .then((response) => response)
       .then((result) => {
         setProfileMyImg(result.image);
@@ -66,9 +66,8 @@ export default function Friend({navigation}) {
   let kakaoArray = [];
   useEffect(() => {
     getMyFriend(myInfo.token)
-      .then((response) => response)
       .then((result) => {
-        friendInfo.myFriend.forEach((item, val) => {
+        result.forEach((item, val) => {
           kakaoArray.push(item.to_user.kakao_auth_id);
         });
         return kakaoArray;
@@ -78,7 +77,7 @@ export default function Friend({navigation}) {
         return result;
       })
       .then((result) => {
-        getInformation(myInfo.token, 'profile', 'users', result)
+        getInformation(myInfo.token, 'users', result)
           .then((response) => response)
           .then((res) => {
             setFriendImage(res);
