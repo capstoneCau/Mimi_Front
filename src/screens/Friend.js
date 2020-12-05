@@ -65,8 +65,6 @@ export default function Friend({navigation}) {
 
   let kakaoArray = [];
   useEffect(() => {
-    console.log('hi');
-
     getMyFriend(myInfo.token)
       .then((response) => response)
       .then((result) => {
@@ -120,27 +118,29 @@ export default function Friend({navigation}) {
           }}
         />
       </Appbar.Header>
-      <List.Section>
-        <List.Item
-          title={myInfo.userInfo.name}
-          left={() => (
-            <Avatar.Image
-              size={60}
-              source={{uri: `data:image/jpeg;base64,${profileMyImg}`}}
-            />
-          )}
-        />
-      </List.Section>
-      <Divider />
-      <List.Section>
-        <List.Subheader>친구</List.Subheader>
+      <View style={styles.listContainer}>
+        <List.Section>
+          <List.Item
+            title={myInfo.userInfo.name}
+            left={() => (
+              <Avatar.Image
+                size={60}
+                source={{uri: `data:image/jpeg;base64,${profileMyImg}`}}
+              />
+            )}
+          />
+        </List.Section>
+        <Divider />
+        <List.Section>
+          <List.Subheader>친구</List.Subheader>
 
-        {typeof friendInfo == 'undefined'
-          ? null
-          : typeof friendImage == 'undefined'
-          ? null
-          : friendList}
-      </List.Section>
+          {typeof friendInfo == 'undefined'
+            ? null
+            : typeof friendImage == 'undefined'
+            ? null
+            : friendList}
+        </List.Section>
+      </View>
       <Provider>
         <Portal>
           <FAB.Group
@@ -259,6 +259,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
+  },
+  listContainer: {
+    marginLeft: 10,
   },
   fab: {
     position: 'absolute',

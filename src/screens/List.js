@@ -131,7 +131,6 @@ export default function List({navigation}) {
   const hideModal = () => setVisible(false);
 
   const onChangeSearch = (query) => setSearchQuery(query);
-
   return (
     <SafeAreaView style={styles.container}>
       {showFriendModal && (

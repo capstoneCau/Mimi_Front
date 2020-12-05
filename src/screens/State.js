@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 10,
     borderBottomWidth: 0.2,
-    backgroundColor: '#FDF5E6',
+    backgroundColor: '#EBFFEB',
     marginTop: 3,
   },
   addBtn_container: {
