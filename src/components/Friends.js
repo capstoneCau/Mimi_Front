@@ -28,6 +28,7 @@ export default function Friends({
   roomNum,
   token,
   type,
+  gender,
 }) {
   let friendName = [];
   let friendId = [];
@@ -81,7 +82,15 @@ export default function Friends({
               <FlatList
                 data={friendInfo}
                 renderItem={({item, index}) => (
-                  <View style={styles.checkBox}>
+                  <View
+                    style={[
+                      styles.checkBox,
+                      gender !== item.to_user.gender
+                        ? type !== 's'
+                          ? {display: 'none'}
+                          : null
+                        : null,
+                    ]}>
                     <RadioButton
                       value={item.to_user.name}
                       onPress={() => {

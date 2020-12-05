@@ -63,7 +63,6 @@ export default function Chat({navigation}) {
       dispatch(removeMeeting(_roomId, isNotification, _token)),
     [dispatch],
   );
-
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
   useEffect(() => {

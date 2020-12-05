@@ -49,7 +49,6 @@ export default function Setting({navigation, route}) {
   const [showFriendModal, setShowFriendModal] = useState(false);
   const [visibleMyInfo, setVisibleMyInfo] = useState(false);
   const [profileImgBase64, setProfileImgBase64] = useState();
-  const user = useSelector((state) => state.login);
   const _destination =
     typeof route.params == 'undefined' ? '' : route.params.destination;
 
@@ -114,6 +113,7 @@ export default function Setting({navigation, route}) {
           friends={friends}
           setFriends={setFriends}
           type="s"
+          gender={myInfo.userInfo.gender}
         />
       )}
       <Appbar.Header style={{backgroundColor: 'white'}}>

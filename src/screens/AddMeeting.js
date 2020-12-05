@@ -131,6 +131,7 @@ export default function AddMeeting({navigation}) {
           friends={friends}
           setFriends={setFriends}
           type="a"
+          gender={_myInfo.userInfo.gender}
         />
       )}
       <View style={styles.titleContainer}>

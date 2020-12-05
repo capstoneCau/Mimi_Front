@@ -145,6 +145,7 @@ export default function List({navigation}) {
           roomNum={roomNum}
           token={myInfo.token}
           type="l"
+          gender={myInfo.userInfo.gender}
         />
       )}
       <Appbar.Header style={{backgroundColor: 'white'}}>
