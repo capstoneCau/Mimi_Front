@@ -248,7 +248,7 @@ export const removeMeeting = (
       isNotification: is_notification,
     }),
   });
-  const requestInfo = await res.json();
+  // const requestInfo = await res.json();
   dispatch({type: REMOVE_MEETING});
 };
 
@@ -266,7 +266,7 @@ export const removeParticipate = (party_id, token) => async (
       },
     },
   );
-  const requestInfo = await res.json();
+  // const requestInfo = await res.json();
   dispatch({type: REMOVE_PARTICIPATE});
 };
 
