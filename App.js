@@ -9,13 +9,13 @@ import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs
 import * as name from './src/screens/index';
 import Icon from 'react-native-vector-icons/Ionicons';
 import messaging from '@react-native-firebase/messaging';
-import {useDispatch} from 'react-redux';
 import localToInfo from './src/common/LocalToInfo';
 import {requestKaKaoAuthIdAsync} from './src/modules/login';
 import infoToLocal from './src/common/InfoToLocal';
 import {startSafeReturnFunc} from './src/components/SafeReturn';
 import PushNotification from 'react-native-push-notification';
 import {getAnimalSimilarity} from './src/modules/animal';
+import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 const TopTabs = createMaterialTopTabNavigator();
@@ -62,6 +62,7 @@ const App = () => {
     (result) => dispatch(getAnimalSimilarity(result)),
     [dispatch],
   );
+  const myInfo = useSelector((state) => state.login);
 
   const handlePushToken = useCallback(async (kakaoId) => {
     const enabled = await messaging().hasPermission();
@@ -109,10 +110,26 @@ const App = () => {
       }
       if (remoteMessage.data) {
         const {title: dataTitle, body: dataBody} = remoteMessage.data;
+        console.log(dataTitle, dataBody);
         if (dataTitle == 'SAFE_RETURN') {
           const autoSafeReturn = await localToInfo('autoSafeReturn');
+          const isSwitchOn = await localToInfo('isSwitchOn');
+          const friends = [];
+          if (isSwitchOn) {
+            JSON.parse(dataBody).forEach((val) => {
+              if (
+                val.gender == myInfo.userInfo.gender &&
+                val.id != myInfo.userInfo.kakao_auth_id
+              ) {
+                friends.push(val.id);
+              }
+            });
+          }
           if (autoSafeReturn) {
-            startSafeReturnFunc(JSON.parse(dataBody));
+            startSafeReturnFunc(
+              isSwitchOn ? friends : [],
+              myInfo.userInfo.name,
+            );
           } else {
             // console.log(autoSafeReturn);
           }
