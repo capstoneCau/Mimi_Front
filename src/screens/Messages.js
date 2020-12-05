@@ -31,6 +31,9 @@ export default function Messages({navigation, route}) {
   const [userNum, setUserNum] = useState();
   const [mbtiList, setMbtiList] = useState();
   const [mbtiNum, setMbtiNum] = useState();
+  const [starNum, setStarNum] = useState();
+  const [zodiacNum, setZodiacNum] = useState();
+
   const user = useSelector((state) => state.login, shallowEqual);
   const dispatch = useDispatch();
   const getUserInfoList = useCallback(
@@ -128,11 +131,43 @@ export default function Messages({navigation, route}) {
               return res;
             })
             .then((res) => {
-              res.forEach((mbtiVal, mbtiIdx) => {
+              res.forEach((mbtiVal) => {
                 result.forEach((userVal) => {
                   // if (userVal.user.name == _user.displayName) {
                   if (mbtiVal.user == userVal.user.kakao_auth_id) {
                     setMbtiNum(mbtiVal.compatibility);
+                  }
+                  // }
+                });
+              });
+            });
+          getCompatibility(user.token, 'star', 'room', thread.roomId)
+            .then((response) => response)
+            .then((res) => {
+              return res;
+            })
+            .then((res) => {
+              res.forEach((starVal) => {
+                result.forEach((userVal) => {
+                  // if (userVal.user.name == _user.displayName) {
+                  if (starVal.user == userVal.user.kakao_auth_id) {
+                    setStarNum(starVal.compatibility);
+                  }
+                  // }
+                });
+              });
+            });
+          getCompatibility(user.token, 'zodiac', 'room', thread.roomId)
+            .then((response) => response)
+            .then((res) => {
+              return res;
+            })
+            .then((res) => {
+              res.forEach((zodiacVal) => {
+                result.forEach((userVal) => {
+                  // if (userVal.user.name == _user.displayName) {
+                  if (zodiacVal.user == userVal.user.kakao_auth_id) {
+                    setZodiacNum(zodiacVal.compatibility);
                   }
                   // }
                 });
@@ -208,35 +243,75 @@ export default function Messages({navigation, route}) {
               {typeof memberInfo == 'undefined' ? null : typeof userNum ==
                 'undefined' ? null : (
                 <View style={styles.introContainer}>
+                  <View style={styles.introduce}>
+                    <Avatar.Image
+                      size={150}
+                      source={{uri: `${selectUser.avatar}`}}
+                    />
+                    <View style={styles.idContainer}>
+                      <Text style={styles.nameText}>
+                        {selectUser.displayName}
+                      </Text>
+                      <Text style={styles.introText}>
+                        (
+                        {memberInfo[userNum].user.school.replace(
+                          '학교',
+                          '학교 ',
+                        )}
+                        )
+                      </Text>
+                    </View>
+                  </View>
                   {/* <Text style={styles.introText}>
                     {memberInfo[userNum].user.chinese_zodiac}
                   </Text> */}
-                  <Text style={styles.introText}>
-                    {memberInfo[userNum].user.mbti}
-                  </Text>
-                  {typeof mbtiNum == 'undefined' ? null : (
-                    <View style={styles.mbti}>
-                      <Text style={styles.mbtiText}>{mbtiNum}</Text>
-                      <ProgressBar
-                        progress={mbtiNum}
-                        color={Colors.yellow900}
-                        style={styles.mbtiBar}
-                      />
-                    </View>
-                  )}
-                  <Text style={styles.introText}>
-                    {memberInfo[userNum].user.school.split('학교')[0]}
-                  </Text>
+                  <View style={styles.mbtiContainer}>
+                    <Text style={styles.mbtiNameText}>
+                      {memberInfo[userNum].user.mbti}
+                    </Text>
+                    {typeof mbtiNum == 'undefined' ? null : (
+                      <View style={styles.mbti}>
+                        <Text style={styles.mbtiText}>{mbtiNum}</Text>
+                        <ProgressBar
+                          progress={mbtiNum / 100}
+                          color={Colors.red900}
+                          style={styles.mbtiBar}
+                        />
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.mbtiContainer}>
+                    <Text style={styles.mbtiNameText}>
+                      {memberInfo[userNum].user.star}
+                    </Text>
+                    {typeof starNum == 'undefined' ? null : (
+                      <View style={styles.mbti}>
+                        <Text style={styles.mbtiText}>{starNum}</Text>
+                        <ProgressBar
+                          progress={starNum / 100}
+                          color={Colors.green900}
+                          style={styles.mbtiBar}
+                        />
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.mbtiContainer}>
+                    <Text style={styles.mbtiNameText}>
+                      {memberInfo[userNum].user.chinese_zodiac}
+                    </Text>
+                    {typeof zodiacNum == 'undefined' ? null : (
+                      <View style={styles.mbti}>
+                        <Text style={styles.mbtiText}>{zodiacNum}</Text>
+                        <ProgressBar
+                          progress={zodiacNum / 100}
+                          color={Colors.blue900}
+                          style={styles.mbtiBar}
+                        />
+                      </View>
+                    )}
+                  </View>
                 </View>
               )}
-
-              <View style={styles.introduce}>
-                <Avatar.Image
-                  size={240}
-                  source={{uri: `${selectUser.avatar}`}}
-                />
-                <Text style={styles.text}>{selectUser.displayName}</Text>
-              </View>
             </View>
           )}
         </View>
@@ -257,19 +332,28 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
   },
+  idContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
   modalContainer: {},
   header: {
     margin: 30,
   },
   introduce: {
-    marginTop: height * 0.08,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 30,
   },
-  introContainer: {
-    alignItems: 'center',
-  },
+  introContainer: {},
   introText: {
-    fontSize: 20,
+    fontSize: 17,
+    marginLeft: 20,
+  },
+  nameText: {
+    fontSize: 40,
+    marginLeft: 20,
   },
   text: {
     fontSize: 30,
@@ -277,6 +361,14 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     fontSize: 30,
+  },
+  mbtiContainer: {
+    alignItems: 'flex-start',
+    marginLeft: 20,
+  },
+  mbtiNameText: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   mbti: {
     flexDirection: 'row',
@@ -286,8 +378,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   mbtiBar: {
-    width: 200,
+    width: width * 0.7,
     height: 50,
-    margin: 20,
+    marginLeft: 20,
+    marginTop: 13,
+    marginBottom: 20,
   },
 });
