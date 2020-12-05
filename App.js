@@ -76,10 +76,14 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    // infoToLocal('kakaoId', '1496391237');
-    // .then(() => {
+    infoToLocal('kakaoId', '1496391237');
     // infoToLocal('kakaoId', '1489710892');
-    // infoToLocal('kakaoId', '1111111111').then(() => {
+    // infoToLocal('kakaoId', '5555555555');
+    // infoToLocal('kakaoId', '6666666666');
+    // infoToLocal('kakaoId', '1111111111');
+    // infoToLocal('kakaoId', '2222222222');
+    // infoToLocal('kakaoId', '3333333333');
+    // infoToLocal('kakaoId', '4444444444');
     localToInfo('kakaoId')
       .then((kakaoId) => {
         return handlePushToken(kakaoId);
