@@ -7,6 +7,7 @@ import localToInfo from '../common/LocalToInfo';
 import {PermissionsAndroid} from 'react-native';
 export const startSafeReturnFunc = async (friends) => {
   const token = await localToInfo('token');
+  const kakaoId = await localToInfo('kakaoId');
   // 추후에 테스트 해보아야함
   //   const notiReceiver = await localToInfo('notiReceiver');
   //   if (notiReceiver) {
@@ -14,6 +15,11 @@ export const startSafeReturnFunc = async (friends) => {
   //   }
   let orgLocation = null;
   let remainTime = null;
+  const notiReceiver = await localToInfo('notiReceiver');
+  if (notiReceiver) {
+    friends = [...new Set(friends.concat(notiReceiver))];
+    friends.splice(friends.indexOf(kakaoId), 1);
+  }
   const {lat: latitude, lng: longitude} = await localToInfo('destination');
   const watchingTime = 5;
   if (!(await localToInfo('safeReturnId'))) {

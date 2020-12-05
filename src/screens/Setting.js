@@ -32,8 +32,9 @@ import KakaoLogins from '@react-native-seoul/kakao-login';
 import Friends from '../components/Friends';
 import localToInfo from '../common/LocalToInfo';
 import infoToLocal from '../common/InfoToLocal';
-
-export default function Setting({navigation, route}) {
+import {startSafeReturnFunc} from '../components/SafeReturn';
+import BackgroundTimer from 'react-native-background-timer';
+export default function Setting({navigation}) {
   const myInfo = useSelector((state) => state.login);
   const friendInfo = useSelector((state) => state.myFriend);
   const dispatch = useDispatch();
@@ -50,12 +51,11 @@ export default function Setting({navigation, route}) {
   const [showFriendModal, setShowFriendModal] = useState(false);
   const [visibleMyInfo, setVisibleMyInfo] = useState(false);
   const [profileImgBase64, setProfileImgBase64] = useState();
-  const [watchId, setWatchId] = useState();
   const [isSwitchOn, setIsSwitchOn] = useState(false);
+  const [safeReturnId, setSafeReturnId] = useState(null);
   const [isManualOn, setIsManulOn] = useState(false);
   const [mbtiDescription, setMbtiDescription] = useState('');
-  const _destination =
-    typeof route.params == 'undefined' ? '' : route.params.destination;
+
   useEffect(() => {
     getInformation(myInfo.token, 'profile')
       .then((response) => response)
@@ -71,18 +71,8 @@ export default function Setting({navigation, route}) {
           }
         });
       });
-  }, []);
-
-  useEffect(() => {
-    setDestination(_destination);
-  }, [_destination]);
-
-  useEffect(() => {
-    localToInfo('safeReturnId').then((response) => {
-      setWatchId(response);
-      if (response !== null) {
-        setIsSwitchOn(true);
-      }
+    localToInfo('safeReturnId').then((_safeReturnId) => {
+      setSafeReturnId(safeReturnId);
     });
   }, []);
 
@@ -151,6 +141,7 @@ export default function Setting({navigation, route}) {
                 value={isSwitchOn}
                 onValueChange={async () => {
                   const des = await localToInfo('destination');
+
                   // 스위치 off상태
                   if (!isSwitchOn) {
                     if (des) {
@@ -162,6 +153,7 @@ export default function Setting({navigation, route}) {
                     }
                     // 스위치 on상태
                   } else {
+                    infoToLocal('autoSafeReturn', false);
                     setIsSwitchOn(false);
                   }
                 }}
@@ -171,17 +163,21 @@ export default function Setting({navigation, route}) {
           <TouchableOpacity
             onPress={async () => {
               const des = await localToInfo('destination');
-              if (des && !isSwitchOn) {
-                infoToLocal('autoSafeReturn', false);
+              const friends = await localToInfo('notiReceiver');
+              if (des && friends && !safeReturnId) {
                 Alert.alert('수동으로 안전 귀가 서비스가 실행됩니다.');
+                startSafeReturnFunc(friends);
               } else if (!des) {
                 Alert.alert('목적지를 먼저 설정하여야 합니다.');
-              } else if (isSwitchOn) {
-                Alert.alert('안전귀가 서비스 사용중입니다.');
+              } else if (!friends) {
+                Alert.alert('수신자를 먼저 설정하여야 합니다.');
+              } else if (safeReturnId) {
+                BackgroundTimer.clearInterval(safeReturnId);
+                Alert.alert('안전귀가 서비스를 종료합니다.');
               }
             }}>
             <List.Item
-              title={isSwitchOn ? '서비스 종료' : '수동서비스'}
+              title={safeReturnId ? '서비스 종료' : '수동서비스'}
               left={(props) => <List.Icon {...props} icon="android-auto" />}
             />
           </TouchableOpacity>

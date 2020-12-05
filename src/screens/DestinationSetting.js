@@ -36,7 +36,7 @@ export default function YourView({navigation}) {
               return result;
             })
             .then((result) => {
-              navigation.navigate('Setting', {destination: result});
+              navigation.navigate('Setting');
             });
         }}
       />
