@@ -21,6 +21,8 @@ import {
 } from '../modules/requestInfo';
 import {FancyButton, FancyFonts} from '../common/common';
 import {getRoomInfo, getParticipatedUserInfoList} from '../modules/meetingInfo';
+import {getCompatibility} from '../modules/getInformation';
+
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 export default function StateInfoModal({
@@ -40,6 +42,10 @@ export default function StateInfoModal({
   const [userListInfo, setUserListInfo] = useState([]);
   const [userMatchingSelectInfo, setUserMatchingSelectInfo] = useState([]);
   const [userMeetingInfo, setUserMeetingInfo] = useState([]);
+  const [mbtiScore, setMbtiScore] = useState([]);
+  const [starScore, setStarScore] = useState([]);
+  const [zodiacScore, setZodiacScore] = useState([]);
+
   const dispatch = useDispatch();
   const _getUserInfo = useCallback(
     (_requestId, _token) => dispatch(getRequestUserInfo(_requestId, _token)),
@@ -77,6 +83,21 @@ export default function StateInfoModal({
 
   useEffect(() => {
     if (visible === true) {
+      getCompatibility(token, 'mbti', 'room', roomId)
+        .then((response) => response)
+        .then((result) => {
+          setMbtiScore(result);
+        });
+      getCompatibility(token, 'star', 'room', roomId)
+        .then((response) => response)
+        .then((result) => {
+          setStarScore(result);
+        });
+      getCompatibility(token, 'zodiac', 'room', roomId)
+        .then((response) => response)
+        .then((result) => {
+          setZodiacScore(result);
+        });
       if (roomState === 'S' && roomStatus !== '') {
         const setStateUserInfo = async () => {
           const stateUserInfo = await _getUserInfo(requestId, token);
@@ -149,9 +170,20 @@ export default function StateInfoModal({
                 renderItem={({item, index}) => (
                   <TouchableOpacity
                     onPress={() => {
-                      console.log('press');
+                      console.log('stateinfomodal');
                     }}>
-                    <View style={styles.content}>
+                    <View
+                      style={[
+                        typeof item !== 'undefined'
+                          ? roomState == 'S'
+                            ? item.user.gender == 'male'
+                              ? styles.contentM
+                              : styles.contentF
+                            : item.gender == 'male'
+                            ? styles.contentM
+                            : styles.contentF
+                          : '',
+                      ]}>
                       <View style={styles.leftContent}>
                         <View style={styles.infoContent}>
                           <Text style={[styles.text, styles.nameText]}>
@@ -164,33 +196,90 @@ export default function StateInfoModal({
                           <Text style={[styles.text, styles.schoolText]}>
                             {typeof item !== 'undefined'
                               ? roomState == 'S'
-                                ? item.user.school
-                                : item.school
+                                ? item.user.school.split('학교')[0]
+                                : item.school.split('학교')[0]
                               : ''}
                           </Text>
                         </View>
                         <View style={styles.subContent}>
-                          <Text style={[styles.text, styles.subText]}>
-                            {typeof item !== 'undefined'
-                              ? roomState == 'S'
-                                ? item.user.mbti
-                                : item.mbti
-                              : ''}
-                          </Text>
-                          <Text style={[styles.text, styles.subText]}>
-                            {typeof item !== 'undefined'
-                              ? roomState == 'S'
-                                ? item.user.star + '자리'
-                                : item.star + '자리'
-                              : ''}
-                          </Text>
-                          <Text style={[styles.text, styles.subText]}>
-                            {typeof item !== 'undefined'
-                              ? roomState == 'S'
-                                ? item.user.chinese_zodiac + '띠'
-                                : item.chinese_zodiac + '띠'
-                              : ''}
-                          </Text>
+                          <View>
+                            <Text style={[styles.text, styles.subText]}>
+                              {typeof item !== 'undefined'
+                                ? roomState == 'S'
+                                  ? item.user.mbti
+                                  : item.mbti
+                                : ''}
+                            </Text>
+                            <Text style={[styles.text, styles.subText]}>
+                              {typeof item !== 'undefined'
+                                ? roomState == 'S'
+                                  ? mbtiScore.map((score) => {
+                                      if (
+                                        score.user == item.user.kakao_auth_id
+                                      ) {
+                                        return score.compatibility;
+                                      }
+                                    })
+                                  : mbtiScore.map((score) => {
+                                      if (score.user == item.kakao_auth_id) {
+                                        return score.compatibility;
+                                      }
+                                    })
+                                : ''}
+                            </Text>
+                          </View>
+                          <View>
+                            <Text style={[styles.text, styles.subText]}>
+                              {typeof item !== 'undefined'
+                                ? roomState == 'S'
+                                  ? item.user.star
+                                  : item.star
+                                : ''}
+                            </Text>
+                            <Text style={[styles.text, styles.subText]}>
+                              {typeof item !== 'undefined'
+                                ? roomState == 'S'
+                                  ? starScore.map((score) => {
+                                      if (
+                                        score.user == item.user.kakao_auth_id
+                                      ) {
+                                        return score.compatibility;
+                                      }
+                                    })
+                                  : starScore.map((score) => {
+                                      if (score.user == item.kakao_auth_id) {
+                                        return score.compatibility;
+                                      }
+                                    })
+                                : ''}
+                            </Text>
+                          </View>
+                          <View>
+                            <Text style={[styles.text, styles.subText]}>
+                              {typeof item !== 'undefined'
+                                ? roomState == 'S'
+                                  ? item.user.chinese_zodiac + '띠'
+                                  : item.chinese_zodiac + '띠'
+                                : ''}
+                            </Text>
+                            <Text style={[styles.text, styles.subText]}>
+                              {typeof item !== 'undefined'
+                                ? roomState == 'S'
+                                  ? zodiacScore.map((score) => {
+                                      if (
+                                        score.user == item.user.kakao_auth_id
+                                      ) {
+                                        return score.compatibility;
+                                      }
+                                    })
+                                  : zodiacScore.map((score) => {
+                                      if (score.user == item.kakao_auth_id) {
+                                        return score.compatibility;
+                                      }
+                                    })
+                                : ''}
+                            </Text>
+                          </View>
                         </View>
                       </View>
                       <View style={styles.rightContent}>
@@ -319,7 +408,15 @@ const styles = StyleSheet.create({
     flex: 4,
   },
   personInfoContainer: {},
-  content: {
+  contentM: {
+    borderRadius: 10,
+    borderWidth: 2,
+    marginTop: 2,
+    padding: 15,
+    flexDirection: 'row',
+    backgroundColor: '#E8F5FF',
+  },
+  contentF: {
     borderRadius: 10,
     borderWidth: 2,
     marginTop: 2,

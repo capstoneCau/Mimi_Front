@@ -86,15 +86,13 @@ export default function State() {
     <SafeAreaView style={styles.container}>
       <Appbar.Header style={{backgroundColor: 'white'}}>
         <Appbar.Content title="내 미팅" />
+        <Appbar.Action
+          icon="autorenew"
+          onPress={() => {
+            setRestart(!restart);
+          }}
+        />
       </Appbar.Header>
-      <FancyButton
-        icon="autorenew"
-        mode="outlined"
-        color="#000069"
-        onPress={() => {
-          setRestart(!restart);
-        }}
-      />
       <Text style={styles.title}>생성</Text>
       <FlatList
         data={roomInfo.inviterCreateList.concat(roomInfo.inviteeCreateList)}
