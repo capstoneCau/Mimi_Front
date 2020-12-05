@@ -109,7 +109,6 @@ export default function Chat({navigation}) {
 
     return () => unsubscribe();
   }, []);
-  console.log(threads);
   return (
     <SafeAreaView style={styles.container}>
       <Appbar.Header style={{backgroundColor: 'white'}}>
@@ -225,7 +224,17 @@ export default function Chat({navigation}) {
                               ? item.latestMessage.text.substr(0, 14) + '...'
                               : item.latestMessage.text}
                           </Text>
-                          <Text></Text>
+                          <View style={styles.timeContainer}>
+                            <Text style={styles.timeText}>
+                              {new Date(
+                                item.latestMessage.createdAt,
+                              ).getHours()}
+                              :
+                              {new Date(
+                                item.latestMessage.createdAt,
+                              ).getMinutes()}
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
@@ -341,6 +350,15 @@ const styles = StyleSheet.create({
   },
   message: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  timeContainer: {
+    position: 'absolute',
+    right: 20,
+  },
+  timeText: {
+    fontSize: 13,
+    color: 'gray',
   },
   intro: {
     alignSelf: 'flex-start',
