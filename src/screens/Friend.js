@@ -22,7 +22,7 @@ import {
 } from 'react-native-paper';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {FancyButton, FancyFonts} from '../common/common';
-import {getInformation} from '../modules/getInformation';
+import {getInformation, getUserInfo} from '../modules/getInformation';
 import {myFriendList, addFriend} from '../modules/myFriend';
 import infoToLocal from '../common/InfoToLocal';
 import localToInfo from '../common/LocalToInfo';
@@ -38,6 +38,8 @@ export default function Friend({navigation}) {
   const [visibleAddModal, setVisibleAddModal] = useState(false);
   const [modalText, setModalText] = useState('');
   const [isAdd, setIsAdd] = useState(false);
+  const [isFriend, setIsFriend] = useState(false);
+  const [addFriendInfo, setAddFriendInfo] = useState();
   const myInfo = useSelector((state) => state.login, shallowEqual);
   const friendInfo = useSelector((state) => state.myFriend);
   const dispatch = useDispatch();
@@ -147,6 +149,8 @@ export default function Friend({navigation}) {
                 icon: 'plus',
                 label: 'Add',
                 onPress: () => {
+                  setIsFriend(false);
+                  setModalText('');
                   showAddModal();
                 },
               },
@@ -170,18 +174,26 @@ export default function Friend({navigation}) {
             <TouchableOpacity style={styles.header} onPress={hideAddModal}>
               <Text style={styles.closeButton}>X</Text>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>카카오톡 코드로 추가</Text>
+            <Text style={styles.modalTitle}>이메일로 추가</Text>
             <TouchableOpacity
-              disabled={modalText.length == 10 ? false : true}
+              disabled={modalText.includes('@') ? false : true}
               onPress={() => {
-                addFriends(myInfo.token, modalText, 'f');
+                getUserInfo(myInfo.token, modalText)
+                  .then((response) => response)
+                  .then((result) => {
+                    if (result.length == 0) {
+                      setIsFriend(false);
+                    } else {
+                      setIsFriend(true);
+                      setAddFriendInfo(result);
+                    }
+                  });
                 setIsAdd(!isAdd);
-                hideAddModal();
               }}
               style={styles.modalButton}>
               <Text
                 style={[
-                  modalText.length == 10
+                  modalText.includes('@')
                     ? styles.buttonText
                     : styles.buttonDisabled,
                 ]}>
@@ -191,20 +203,44 @@ export default function Friend({navigation}) {
           </View>
           <TextInput
             mode="outlined"
-            maxLength={10}
             style={styles.inputModal}
             underlineColor="#a0a0a0"
             selectionColor="#a0a0a0"
-            placeholder="친구 카카오톡 CODE (10자리)"
+            placeholder="친구 학교 이메일"
             value={modalText}
             onChangeText={(text) => setModalText(text)}
           />
           <View style={styles.explainModal}>
-            <Text style={styles.explainText}>내 CODE</Text>
-            <Text style={styles.explainCode}>
-              {myInfo.userInfo.kakao_auth_id}
-            </Text>
+            <Text style={styles.explainText}>내 이메일</Text>
+            <Text style={styles.explainCode}>{myInfo.userInfo.email}</Text>
           </View>
+          {isFriend ? (
+            typeof addFriendInfo !== 'undefined' ? (
+              <View style={styles.resultContainer}>
+                <View>
+                  <Text style={styles.name}>{addFriendInfo[0].name}</Text>
+                </View>
+                <Text style={styles.schoolText}>
+                  ({addFriendInfo[0].school.replace('학교', '학교 ')})
+                </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    addFriends(
+                      myInfo.token,
+                      addFriendInfo[0].kakao_auth_id,
+                      'f',
+                    );
+                    hideAddModal();
+                  }}>
+                  <Text style={styles.addButtonText}>친구추가</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null
+          ) : (
+            <View style={styles.resultContainer}>
+              <Text style={styles.noText}>검색 결과가 없습니다.</Text>
+            </View>
+          )}
         </View>
       </Modal>
     </View>
@@ -228,7 +264,6 @@ const styles = StyleSheet.create({
   },
   modalHeader: {
     alignItems: 'center',
-
     flexDirection: 'row',
   },
   header: {
@@ -271,5 +306,27 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     margin: 5,
+  },
+  resultContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  name: {
+    fontSize: 30,
+    fontWeight: 'bold',
+  },
+  schoolText: {
+    fontSize: 20,
+  },
+  noText: {
+    color: '#828282',
+  },
+  addButtonText: {
+    marginTop: 10,
+    padding: 10,
+    fontSize: 20,
+    color: '#FF8C0A',
+    borderWidth: 0.2,
   },
 });

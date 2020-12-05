@@ -1,5 +1,21 @@
 import {SERVER_DOMAIN} from '../common/common';
 
+export const getUserInfo = async (token, email) => {
+  const res = await fetch(SERVER_DOMAIN + `user/search?email=${email}`, {
+    method: 'GET',
+    mode: 'cors',
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  });
+  if (JSON.error) {
+    console.log(JSON.detail);
+    return false;
+  }
+  const info = await res.json();
+  return info;
+};
+
 export const getInformation = async (
   token,
   param,
@@ -16,6 +32,10 @@ export const getInformation = async (
       },
     },
   );
+  if (JSON.error) {
+    console.log(JSON.detail);
+    return false;
+  }
   const list = await res.json();
   return list;
 };
