@@ -65,6 +65,8 @@ export default function Friend({navigation}) {
 
   let kakaoArray = [];
   useEffect(() => {
+    console.log('hi');
+
     getMyFriend(myInfo.token)
       .then((response) => response)
       .then((result) => {
@@ -84,7 +86,7 @@ export default function Friend({navigation}) {
             setFriendImage(res);
           });
       });
-  }, [isAdd]);
+  }, [restart]);
 
   const friendList = friendInfo.myFriend.map((item, idx) => {
     return friendImage.map((friend, friendId) => {
@@ -111,7 +113,12 @@ export default function Friend({navigation}) {
     <View style={styles.container}>
       <Appbar.Header style={{backgroundColor: 'white'}}>
         <Appbar.Content title="친구" />
-        <Appbar.Action icon="autorenew" onPress={() => {}} />
+        <Appbar.Action
+          icon="autorenew"
+          onPress={() => {
+            setRestart(!restart);
+          }}
+        />
       </Appbar.Header>
       <List.Section>
         <List.Item
