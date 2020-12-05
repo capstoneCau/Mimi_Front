@@ -49,6 +49,7 @@ export default function Chat({navigation}) {
   const [selectRoomId, setSelectRoomId] = useState(0);
   const [selectChatId, setSelectChatId] = useState(0);
   const [profileImgBase64, setProfileImgBase64] = useState();
+  const [friendImage, setFriendImage] = useState([]);
 
   const myFriend = useCallback((token) => dispatch(myFriendList(token)), [
     dispatch,
@@ -66,16 +67,17 @@ export default function Chat({navigation}) {
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
   useEffect(() => {
-    const getRoom = async () => {
-      setRoomInfos(await getMatchedRoom(myInfo.token));
-    };
+    getMatchedRoom(myInfo.token)
+      .then((response) => response)
+      .then((result) => {
+        setRoomInfos(result);
+      });
     myFriend(myInfo.token);
     getInformation(myInfo.token, 'profile')
       .then((response) => response)
       .then((result) => {
         setProfileImgBase64(result.image);
       });
-    getRoom();
   }, [restart]);
   useEffect(() => {
     const unsubscribe = firestore()
@@ -94,7 +96,7 @@ export default function Chat({navigation}) {
               ...documentSnapshot.data(),
             };
           });
-
+          // console.log(_threads);
           setThreads(_threads);
           if (loading) {
             setLoading(false);
@@ -107,7 +109,7 @@ export default function Chat({navigation}) {
 
     return () => unsubscribe();
   }, []);
-
+  console.log(threads);
   return (
     <SafeAreaView style={styles.container}>
       <Appbar.Header style={{backgroundColor: 'white'}}>
@@ -171,72 +173,61 @@ export default function Chat({navigation}) {
                       // });
                     }}>
                     <View style={styles.list}>
-                      {/* <Text style={styles.peopleCount}>
-                        {room !== null ? room.user_limit * 2 : ''}
-                      </Text> */}
-                      <View style={styles.content}>
-                        <Text style={styles.name}>
-                          {item.name}
-                          {/* {room.meeting.map((v, idx) => {
-                            if (idx < 3) {
-                              // if (myInfo.userInfo.name == v.name) {
-                              //   return null;
-                              // }
-                              if (idx == room.user_limit * 2 - 1) {
-                                return v.name;
-                              }
-                              return v.name + ', ';
-                            } else {
-                              return '...';
-                            }
-                          })} */}
-                          {/* {typeof item !== 'undefined'
-                      ? item.room.meeting.map((v, idx) => {
-                          if (idx < 3) {
-                            // if (myInfo.userInfo.name == v.name) {
-                            //   return null;
-                            // }
-                            if (idx == item.room.user_limit * 2 - 1) {
-                              return v.name;
-                            }
-                            return v.name + ', ';
-                          } else {
-                            return '...';
+                      <View style={styles.imgAlbum}>
+                        <View style={styles.imgAlbumRow}>
+                          <Avatar.Image
+                            size={35}
+                            source={{uri: `${item.avatars[0]}`}}
+                          />
+                          <Avatar.Image
+                            size={35}
+                            source={{uri: `${item.avatars[1]}`}}
+                          />
+                        </View>
+                        <View style={styles.imgAlbumRow}>
+                          <Avatar.Image
+                            size={35}
+                            source={{uri: `${item.avatars[2]}`}}
+                          />
+                          <Avatar.Image
+                            size={35}
+                            source={{uri: `${item.avatars[3]}`}}
+                          />
+                        </View>
+                        {/* {item.avatars.map((img, idx) => {
+                          if (idx < 4) {
+                            return (
+                              <View style={styles.imgAlbum}>
+                                <Avatar.Image
+                                  key={idx}
+                                  size={35}
+                                  source={{uri: `${item.avatars[idx]}`}}
+                                />
+                              </View>
+                            );
                           }
-                        })
-                      : ''} */}
-                        </Text>
-                        <Text style={styles.intro}>
-                          {item.latestMessage.text}
-                          {/* {typeof item !== 'undefined'
-                      ? threads.map((val, idx) => {
-                          if (item.room.id == val.roomId) {
-                            return val.latestMessage.text;
-                          }
-                        })
-                      : ''} */}
-                        </Text>
+                        })} */}
                       </View>
-                      <Text style={styles.dates}>
-                        {room !== null
-                          ? room.available_dates.map(
-                              (v) =>
-                                v.split('-')[1] +
-                                '월' +
-                                v.split('-')[2] +
-                                '일\n',
-                            )
-                          : null}
-                        {/* {typeof item !== 'undefined'
-                          ? item.room.available_dates.map(
-                              (v) =>
-                                v.split('-')[1] +
-                                '월' +
-                                v.split('-')[2] +
-                                '일\n',
-                            )
-                          : ''} */}
-                      </Text>
+                      <View style={styles.content}>
+                        <View style={styles.roomName}>
+                          <Text style={styles.name}>
+                            {item.name.length > 14
+                              ? item.name.substr(0, 13) + '...'
+                              : item.name}
+                          </Text>
+                          <Text style={styles.peopleCount}>
+                            {room !== null ? room.user_limit * 2 : ''}
+                          </Text>
+                        </View>
+                        <View style={styles.message}>
+                          <Text style={styles.intro}>
+                            {item.latestMessage.text.length > 15
+                              ? item.latestMessage.text.substr(0, 14) + '...'
+                              : item.latestMessage.text}
+                          </Text>
+                          <Text></Text>
+                        </View>
+                      </View>
                     </View>
                   </TouchableOpacity>
                 );
@@ -310,6 +301,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F5FF',
     marginTop: 3,
   },
+  imgAlbum: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imgAlbumRow: {
+    flexDirection: 'column',
+    margin: 1,
+  },
   addBtn_container: {
     alignItems: 'center',
   },
@@ -318,26 +318,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   peopleCount: {
-    flex: 1.5,
-    fontSize: 50,
-    alignSelf: 'center',
-    textAlign: 'center',
+    fontSize: 15,
+    color: 'gray',
+    marginTop: 5,
     fontFamily: FancyFonts.BMDOHYEON,
   },
   content: {
     flex: 5,
+    marginLeft: 10,
     flexDirection: 'column',
+  },
+  roomName: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   name: {
     alignSelf: 'flex-start',
-    fontSize: 17,
+    fontSize: 20,
     padding: 10,
     marginTop: 10,
     fontFamily: FancyFonts.BMDOHYEON,
   },
+  message: {
+    flexDirection: 'row',
+  },
   intro: {
     alignSelf: 'flex-start',
-    fontSize: 15,
+    fontSize: 13,
     padding: 15,
     color: 'gray',
     fontFamily: FancyFonts.BMDOHYEON,
