@@ -13,6 +13,7 @@ import {
   Appbar,
   List,
   Avatar,
+  Switch,
   TextInput,
   Button,
   Card,
@@ -49,9 +50,10 @@ export default function Setting({navigation, route}) {
   const [showFriendModal, setShowFriendModal] = useState(false);
   const [visibleMyInfo, setVisibleMyInfo] = useState(false);
   const [profileImgBase64, setProfileImgBase64] = useState();
+  const [watchId, setWatchId] = useState();
+  const [isSwitchOn, setIsSwitchOn] = useState(false);
   const _destination =
     typeof route.params == 'undefined' ? '' : route.params.destination;
-  console.log(_destination);
   useEffect(() => {
     getInformation(myInfo.token, 'profile')
       .then((response) => response)
@@ -63,6 +65,12 @@ export default function Setting({navigation, route}) {
   useEffect(() => {
     setDestination(_destination);
   }, [_destination]);
+
+  useEffect(() => {
+    localToInfo('safeReturnId').then((response) => {
+      setWatchId(response);
+    });
+  }, []);
 
   const showMyInfo = () => setVisibleMyInfo(true);
   const hideMyInfo = () => setVisibleMyInfo(false);
@@ -121,26 +129,37 @@ export default function Setting({navigation, route}) {
       </Appbar.Header>
       <ScrollView>
         <List.Section title="안전귀가서비스">
+          <List.Item
+            title="자동서비스"
+            left={(props) => <List.Icon {...props} icon="android-auto" />}
+            right={(props) => (
+              <Switch
+                value={isSwitchOn}
+                onValueChange={async () => {
+                  const des = await localToInfo('destination');
+                  if (!isSwitchOn) {
+                    if (des) {
+                      infoToLocal('autoSafeReturn', true);
+                      console.log(des);
+                      Alert.alert('자동으로 안전 귀가 서비스가 실행됩니다.');
+                    } else {
+                      Alert.alert('목적지를 먼저 설정하여야 합니다.');
+                    }
+                  }
+                  setIsSwitchOn(!isSwitchOn);
+                }}
+              />
+            )}
+          />
           <TouchableOpacity
             onPress={async () => {
               const des = await localToInfo('destination');
               if (des) {
-                infoToLocal('autoSafeReturn', true);
-                console.log(des);
-                Alert.alert('자동으로 안전 귀가 서비스가 실행됩니다.');
+                infoToLocal('autoSafeReturn', false);
+                Alert.alert('수동으로 안전 귀가 서비스가 실행됩니다.');
               } else {
                 Alert.alert('목적지를 먼저 설정하여야 합니다.');
               }
-            }}>
-            <List.Item
-              title="자동서비스"
-              left={(props) => <List.Icon {...props} icon="android-auto" />}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              infoToLocal('autoSafeReturn', false);
-              Alert.alert('수동으로 안전 귀가 서비스가 실행됩니다.');
             }}>
             <List.Item
               title="수동서비스"
