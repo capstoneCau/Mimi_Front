@@ -237,7 +237,7 @@ export default function Setting({navigation}) {
             }}
           />
           <List.Item
-            title="고각센터/도움말"
+            title="고겍센터/도움말"
             left={(props) => <List.Icon {...props} icon="account-question" />}
           />
         </List.Section>
