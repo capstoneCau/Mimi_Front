@@ -112,7 +112,9 @@ export default function Messages({navigation, route}) {
   const stateInfo = (_user) => {
     setUserNum(undefined);
     setMbtiNum(undefined);
-
+    if (_user.displayName == user.userInfo.name) {
+      return null;
+    }
     getUserInfoList(thread.roomId, user.token)
       .then((response) => response)
       .then((result) => {
@@ -179,7 +181,6 @@ export default function Messages({navigation, route}) {
     showModal();
     setSelectUser(_user);
   };
-
   const renderBubble = (props) => {
     return (
       <Bubble
