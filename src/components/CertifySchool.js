@@ -44,10 +44,12 @@ export default function CertifySchool({
   const [campusName, setCampusName] = useState('');
   const [schoolLink, setSchoolLink] = useState('');
   const [showSchoolModal, setShowSchoolModal] = useState(false);
-  const [authCode, setAuthCode] = useState(12345678);
+  const [authCode, setAuthCode] = useState(1234567);
   const [inputAuthCode, setInputAuthCode] = useState();
   const [isPressSubmit, setIsPressSubmit] = useState(false);
   const [isAuth, setAuth] = useState(false);
+  const [authTime, setAuthTime] = useState();
+  const [authTimeIntervalId, setAuthTimeIntervalId] = useState(null);
   const [schoolSort, setSchoolSort] = useState({
     schoolN: [],
     campusN: [],
@@ -193,6 +195,7 @@ export default function CertifySchool({
                 ToastAndroid.SHORT,
                 ToastAndroid.CENTER,
               );
+              clearInterval(authTimeIntervalId);
               onChange('email', emailHost + '@' + schoolAddress);
               setAuth(true);
             } else {
@@ -205,6 +208,12 @@ export default function CertifySchool({
           }}>
           {isAuth ? '인증성공' : '인증하기'}
         </FancyButton>
+        <Text>
+          {parseInt(authTime / 60)}:
+          {(authTime - parseInt(authTime / 60) * 60).toString().length == 1
+            ? '0' + (authTime - parseInt(authTime / 60) * 60).toString()
+            : (authTime - parseInt(authTime / 60) * 60).toString()}
+        </Text>
       </View>
     </View>
   );
@@ -293,18 +302,62 @@ export default function CertifySchool({
                         ToastAndroid.SHORT,
                         ToastAndroid.CENTER,
                       );
-                      setAuthCode(
-                        await getAuthCode(emailHost + '@' + schoolAddress),
-                      );
+
+                      if (authTimeIntervalId != null) {
+                        clearInterval(authTimeIntervalId);
+                      }
+                      let _authTime = 3;
+                      setAuthTime(_authTime);
+                      const intervalId = setInterval(() => {
+                        _authTime--;
+                        setAuthTime(_authTime);
+                        if (_authTime < 0) {
+                          setAuthTime(0);
+                          clearInterval(intervalId);
+                          ToastAndroid.showWithGravity(
+                            '인증 코드가 만료되었습니다. 재전송버튼을 눌러주세요.',
+                            ToastAndroid.SHORT,
+                            ToastAndroid.CENTER,
+                          );
+                          setAuthCode(null);
+                          setAuthTimeIntervalId(null);
+                        }
+                      }, 1000);
+                      setAuthTimeIntervalId(intervalId);
+                      // setAuthCode(
+                      //   await getAuthCode(emailHost + '@' + schoolAddress),
+                      // );
                     }
                   : async () => {
                       if (schoolAddress === '') {
                         failSchool();
                       } else {
                         setIsPressSubmit(true);
-                        setAuthCode(
-                          await getAuthCode(emailHost + '@' + schoolAddress),
-                        );
+
+                        if (authTimeIntervalId != null) {
+                          clearInterval(authTimeIntervalId);
+                        }
+                        let _authTime = 3;
+                        setAuthTime(_authTime);
+                        const intervalId = setInterval(() => {
+                          _authTime--;
+                          setAuthTime(_authTime);
+                          if (_authTime < 0) {
+                            setAuthTime(0);
+                            clearInterval(intervalId);
+                            ToastAndroid.showWithGravity(
+                              '인증 코드가 만료되었습니다. 재전송버튼을 눌러주세요.',
+                              ToastAndroid.SHORT,
+                              ToastAndroid.CENTER,
+                            );
+                            setAuthCode(null);
+                            setAuthTimeIntervalId(null);
+                          }
+                        }, 1000);
+                        setAuthTimeIntervalId(intervalId);
+                        // setAuthCode(
+                        //   await getAuthCode(emailHost + '@' + schoolAddress),
+                        // );
                       }
                     }
               }>

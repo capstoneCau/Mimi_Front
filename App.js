@@ -1,26 +1,21 @@
 import React, {useState, useEffect, useCallback, useLayoutEffect} from 'react';
-import {SafeAreaView, StyleSheet, View, Text} from 'react-native';
 import {
   NavigationContainer,
-  DefaultTheme,
   getFocusedRouteNameFromRoute,
 } from '@react-navigation/native';
-import merge from 'deepmerge';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import {StackActions} from '@react-navigation/native';
 import * as name from './src/screens/index';
 import Icon from 'react-native-vector-icons/Ionicons';
 import messaging from '@react-native-firebase/messaging';
-import {Alert} from 'react-native';
-import {useSelector, useDispatch, shallowEqual} from 'react-redux';
-import {fcmTokenAsync} from './src/modules/login';
+import {useDispatch} from 'react-redux';
 import localToInfo from './src/common/LocalToInfo';
 import {requestKaKaoAuthIdAsync} from './src/modules/login';
-import auth from '@react-native-firebase/auth';
 import infoToLocal from './src/common/InfoToLocal';
 import {startSafeReturnFunc} from './src/components/SafeReturn';
+import PushNotification from 'react-native-push-notification';
+import {getAnimalSimilarity} from './src/modules/animal';
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 const TopTabs = createMaterialTopTabNavigator();
@@ -55,7 +50,6 @@ const App = () => {
     Friend,
     DestinationSetting,
   } = name;
-  const [pushToken, setPushToken] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
   const [initDestination, setInitDestination] = useState('Login');
   const [initializing, setInitializing] = useState(true);
@@ -64,33 +58,13 @@ const App = () => {
     (kakaoId, fcmToken) => dispatch(requestKaKaoAuthIdAsync(kakaoId, fcmToken)),
     [dispatch],
   );
-  //const myInfo = useSelector((state) => state.login); //상단에 쓰면 왜 무한 리렌더링??
-  // const onFireBaseAuthUid = useCallback(
-  //   (user) => dispatch(firebaseAuthUid(user)),
-  //   [dispatch],
-  // );
-  const foregroundListener = useCallback(() => {
-    messaging().onMessage(async (remoteMessage) => {
-      const {title: dataTitle, body: dataBody} = remoteMessage.data;
-      const {body, title} = remoteMessage.notification;
-      console.log(dataTitle, dataBody, title, body);
-      if (dataTitle == 'SAFE_RETURN') {
-        const autoSafeReturn = await localToInfo('autoSafeReturn');
-        if (autoSafeReturn) {
-          Alert.alert(title, body);
-          startSafeReturnFunc(JSON.parse(dataBody));
-        } else {
-          console.log(autoSafeReturn);
-        }
-      } else {
-        Alert.alert(title, body);
-      }
-    });
-  }, []);
+  const _getAnimalSimilarity = useCallback(
+    (result) => dispatch(getAnimalSimilarity(result)),
+    [dispatch],
+  );
 
   const handlePushToken = useCallback(async (kakaoId) => {
     const enabled = await messaging().hasPermission();
-    // console.log(enabled)
     if (enabled) {
       const fcmToken = await messaging().getToken();
       if (fcmToken) {
@@ -98,7 +72,6 @@ const App = () => {
       }
     } else {
       const authorizaed = await messaging.requestPermission();
-      console.log(authorizaed);
     }
   }, []);
 
@@ -121,7 +94,69 @@ const App = () => {
   }, [isLogin]);
 
   useEffect(() => {
-    foregroundListener();
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      if (remoteMessage.notification) {
+        const {body, title} = remoteMessage.notification;
+        PushNotification.localNotification({
+          channelId: 'fcm_default_channel',
+          title: title,
+          message: body,
+        });
+      }
+      if (remoteMessage.data) {
+        const {title: dataTitle, body: dataBody} = remoteMessage.data;
+        if (dataTitle == 'SAFE_RETURN') {
+          const autoSafeReturn = await localToInfo('autoSafeReturn');
+          if (autoSafeReturn) {
+            startSafeReturnFunc(JSON.parse(dataBody));
+          } else {
+            // console.log(autoSafeReturn);
+          }
+        }
+        if (dataTitle == 'ANIMAL') {
+          _getAnimalSimilarity(JSON.parse(dataBody));
+        }
+      }
+    });
+    PushNotification.configure({
+      onRegister: (token) => {
+        // console.log('Register Handler:', token);
+      },
+      onNotification: (notification) => {
+        // console.log('Notification:', notification);
+      },
+      onAction: (notification) => {
+        // console.log('Action:', notification);
+      },
+      popInitialNotification: true,
+      requestPermissions: true,
+    });
+
+    PushNotification.channelExists('default-channel-id', (exists) => {
+      if (!exists) {
+        PushNotification.createChannel({
+          channelId: 'default-channel-id', // (required)
+          channelName: `Default channel`, // (required)
+          channelDescription: 'A default channel', // (optional) default: undefined.
+          soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+          importance: 4, // (optional) default: 4. Int value of the Android notification importance
+          vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+        });
+      }
+    });
+    PushNotification.channelExists('fcm_default_channel', (exists) => {
+      if (!exists) {
+        PushNotification.createChannel({
+          channelId: 'fcm_default_channel', // (required)
+          channelName: 'FCM default channel', // (required)
+          channelDescription: 'fcm_default_channel', // (optional) default: undefined.
+          soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+          importance: 4, // (optional) default: 4. Int value of the Android notification importance
+          vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+        });
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
   const Navigator = () => {

@@ -118,9 +118,7 @@ export default function CreateUsers({route, navigation}) {
       onChange={onChange}
       setStartMbti={setStartMbti}
       setStartCertify={setStartCertify}
-      startAnimal={startAnimal}
       setStartAnimal={setStartAnimal}
-      setFinishSignUp={setFinishSignUp} //삭제
     />
   ) : null;
   const animalCheck = startAnimal ? (

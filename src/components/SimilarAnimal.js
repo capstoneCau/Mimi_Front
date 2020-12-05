@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   SafeAreaView,
   View,
@@ -10,13 +10,15 @@ import {
   Text,
   BackHandler,
   Dimensions,
+  Alert,
 } from 'react-native';
 import {RNCamera} from 'react-native-camera';
 import {FlatList} from 'react-native-gesture-handler';
 import uploadImage, {selectAnimalLabel} from '../modules/imageUpload';
 import {FancyButton, FancyFonts} from '../common/common';
 import {ProgressBar, Modal, Portal, Provider} from 'react-native-paper';
-
+import {useSelector, shallowEqual, useDispatch} from 'react-redux';
+import {initAnimal} from '../modules/animal';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -34,6 +36,30 @@ export default function Setting({
   const [selectAnimal, setSelectAnimal] = useState(false);
   const [myAnimalPicture, setMyAnimalPicture] = useState();
   const [animalImages, setAnimalImages] = useState([]);
+  const dispatch = useDispatch();
+
+  const _initAnimal = useCallback(() => dispatch(initAnimal()), [dispatch]);
+  const user = useSelector((state) => state.login, shallowEqual);
+  const animal = useSelector((state) => state.animal, shallowEqual);
+
+  useEffect(() => {
+    switch (animal.error) {
+      case 400: {
+        Alert.alert('이미지 파일을 넣어야 합니다.');
+        break;
+      }
+      case 404: {
+        Alert.alert('얼굴을 인식하는데 실패하였습니다. 다시 찍어주세요.');
+        break;
+      }
+      case 409: {
+        Alert.alert('사진에 얼굴이 한 명만 나오도록 찍어주세요.');
+        break;
+      }
+    }
+    _initAnimal();
+  }, [animal.error]);
+
   useEffect(() => {
     const backAction = () => {
       setStartMbti(true);
@@ -58,7 +84,9 @@ export default function Setting({
       });
       const {uri} = data;
       setImageUri(uri);
-      setResult(await uploadImage(uri, gender));
+      console.log(await uploadImage(uri, gender, user.fcmToken));
+      console.log(animal.result);
+      // setResult();
     }
   };
   const requestCameraPermission = async () => {
@@ -81,7 +109,8 @@ export default function Setting({
 
   useEffect(() => {
     requestCameraPermission();
-  });
+    console.log(user, animal);
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.bodyContainer}>
@@ -140,7 +169,7 @@ export default function Setting({
       <View style={styles.contentContainer}>
         <Text style={styles.titleText}>[당신과 닮은 동물 Best3]</Text>
         <FlatList
-          data={!selectAnimal ? result : animalImages}
+          data={!selectAnimal ? animal.result : animalImages}
           horizontal={true}
           renderItem={
             !selectAnimal
@@ -149,6 +178,7 @@ export default function Setting({
                     <View style={styles.textContainer}>
                       <TouchableOpacity
                         onPress={async () => {
+                          console.log(item);
                           const {images} = await selectAnimalLabel(
                             item.category,
                           );
@@ -191,6 +221,7 @@ export default function Setting({
           onPress={() => {
             setStartAnimal(false);
             setFinishSignUp(true);
+            _initAnimal();
           }}>
           <Text style={styles.nextButtonText}>가입완료</Text>
         </FancyButton>
