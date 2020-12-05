@@ -15,13 +15,24 @@ import messaging from '@react-native-firebase/messaging';
 import localToInfo from './src/common/LocalToInfo';
 import BackgroundTimer from 'react-native-background-timer';
 import {startSafeReturnFunc} from './src/components/SafeReturn';
+import PushNotification from 'react-native-push-notification';
+// import NotifService from './NotifService';
+
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-  const {title, body} = remoteMessage.data;
-  const autoSafeReturn = await localToInfo('autoSafeReturn');
-  if (title == 'SAFE_RETURN' && autoSafeReturn) {
-    startSafeReturnFunc(JSON.parse(body));
-  } else {
-    console.log(autoSafeReturn);
+  if (remoteMessage.notification) {
+    const {title: ntitle, body: nbody} = remoteMessage.notification;
+    PushNotification.localNotification({
+      channelId: 'fcm_default_channel',
+      title: ntitle,
+      message: nbody,
+      invokeApp: false,
+    });
+  }
+  if (remoteMessage.data) {
+    const {title, body} = remoteMessage.data;
+    if (title == 'SAFE_RETURN' && (await localToInfo('autoSafeReturn'))) {
+      startSafeReturnFunc(JSON.parse(body));
+    }
   }
 });
 
