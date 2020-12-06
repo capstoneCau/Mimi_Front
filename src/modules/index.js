@@ -3,6 +3,7 @@ import login from './login';
 import requestInfo from './requestInfo';
 import myFriend from './myFriend';
 import animal from './animal';
+import safeReturn from './safeReturn';
 import {combineReducers} from 'redux';
 
 const rootReducer = combineReducers({
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   requestInfo,
   myFriend,
   animal,
+  safeReturn,
 });
 
 export default rootReducer;
