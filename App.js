@@ -15,7 +15,8 @@ import infoToLocal from './src/common/InfoToLocal';
 import {startSafeReturnFunc} from './src/components/SafeReturn';
 import PushNotification from 'react-native-push-notification';
 import {getAnimalSimilarity} from './src/modules/animal';
-import {useSelector, useDispatch, shallowEqual} from 'react-redux';
+import {useDispatch} from 'react-redux';
+
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 const TopTabs = createMaterialTopTabNavigator();
@@ -62,12 +63,12 @@ const App = () => {
     (result) => dispatch(getAnimalSimilarity(result)),
     [dispatch],
   );
-  const myInfo = useSelector((state) => state.login);
 
   const handlePushToken = useCallback(async (kakaoId) => {
     const enabled = await messaging().hasPermission();
     if (enabled) {
       const fcmToken = await messaging().getToken();
+      console.log(fcmToken);
       if (fcmToken) {
         return onLoginUser(kakaoId, fcmToken);
       }
@@ -84,7 +85,7 @@ const App = () => {
     // infoToLocal('kakaoId', '1111111111');
     // infoToLocal('kakaoId', '2222222222');
     // infoToLocal('kakaoId', '3333333333');
-    // infoToLocal('kakaoId', '4444444444');
+    // infoToLocal('kakaoId', '1234512345').then(() => {
     localToInfo('kakaoId')
       .then((kakaoId) => {
         return handlePushToken(kakaoId);
@@ -115,6 +116,7 @@ const App = () => {
           const autoSafeReturn = await localToInfo('autoSafeReturn');
           const isSwitchOn = await localToInfo('isSwitchOn');
           const friends = [];
+          const myInfo = await localToInfo('userInfo');
           if (isSwitchOn) {
             JSON.parse(dataBody).forEach((val) => {
               if (
@@ -152,7 +154,6 @@ const App = () => {
       popInitialNotification: true,
       requestPermissions: true,
     });
-
     PushNotification.channelExists('default-channel-id', (exists) => {
       if (!exists) {
         PushNotification.createChannel({

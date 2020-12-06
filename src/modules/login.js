@@ -60,11 +60,8 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
       kakao_auth_id: kakaoId,
     }),
   });
-  const result = await res.json();
-  if (result['user'] == null) {
-    dispatch({type: REQUEST_KAKAO_AUTH_ID, kakaoId});
-    return false;
-  } else {
+  if (res['ok']) {
+    const result = await res.json();
     try {
       const userCredential = await auth().signInWithEmailAndPassword(
         result.user.email,
@@ -72,9 +69,7 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
       );
 
       const {uid} = userCredential.user;
-      dispatch({type: FIREBASE_AUTH_UID, uid});
-      await infoToLocal('kakaoId', kakaoId);
-      await infoToLocal('token', result.token);
+
       const res = await fetch(SERVER_DOMAIN + `user/fcmToken/${kakaoId}/`, {
         method: 'PATCH',
         mode: 'cors',
@@ -86,7 +81,10 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
         }),
       });
       const json = await res.json();
-
+      await infoToLocal('kakaoId', kakaoId);
+      await infoToLocal('token', result.token);
+      await infoToLocal('userInfo', result.user);
+      dispatch({type: FIREBASE_AUTH_UID, uid});
       dispatch({type: LOGIN_USER, userInfo: result.user, token: result.token});
       return true;
     } catch (error) {
@@ -105,6 +103,9 @@ export const requestKaKaoAuthIdAsync = (kakaoId, fcmToken) => async (
       }
       return false;
     }
+  } else {
+    dispatch({type: REQUEST_KAKAO_AUTH_ID, kakaoId});
+    return false;
   }
 };
 
