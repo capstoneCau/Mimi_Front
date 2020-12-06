@@ -15,6 +15,7 @@ import infoToLocal from './src/common/InfoToLocal';
 import {startSafeReturnFunc} from './src/components/SafeReturn';
 import PushNotification from 'react-native-push-notification';
 import {getAnimalSimilarity} from './src/modules/animal';
+import {initSafeReturnData, startSafeReturn} from './src/modules/safeReturn';
 import {useDispatch} from 'react-redux';
 
 const Stack = createStackNavigator();
@@ -59,6 +60,11 @@ const App = () => {
     (kakaoId, fcmToken) => dispatch(requestKaKaoAuthIdAsync(kakaoId, fcmToken)),
     [dispatch],
   );
+  const _initSafeReturnData = useCallback(
+    () => dispatch(initSafeReturnData()),
+    [dispatch],
+  );
+
   const _getAnimalSimilarity = useCallback(
     (result) => dispatch(getAnimalSimilarity(result)),
     [dispatch],
@@ -86,9 +92,16 @@ const App = () => {
     // infoToLocal('kakaoId', '2222222222');
     // infoToLocal('kakaoId', '3333333333');
     // infoToLocal('kakaoId', '1234512345').then(() => {
+    PushNotification.cancelAllLocalNotifications();
     localToInfo('kakaoId')
       .then((kakaoId) => {
         return handlePushToken(kakaoId);
+      })
+      .then((_isLogin) => {
+        if (_isLogin) {
+          _initSafeReturnData();
+        }
+        return _isLogin;
       })
       .then((_isLogin) => {
         if (_isLogin) {
@@ -103,35 +116,49 @@ const App = () => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       if (remoteMessage.notification) {
         const {body, title} = remoteMessage.notification;
-        PushNotification.localNotification({
-          channelId: 'fcm_default_channel',
-          title: title,
-          message: body,
-        });
+        if (remoteMessage.data && remoteMessage.data.title == 'SAFE_RETURN') {
+          if (await localToInfo('autoSafeReturn')) {
+            PushNotification.localNotification({
+              channelId: 'fcm_default_channel',
+              title: title,
+              message: body,
+            });
+          } else {
+            PushNotification.localNotification({
+              channelId: 'fcm_default_channel',
+              title: '미팅이 종료되었습니다.',
+              message: '미팅이 종료되었습니다.',
+            });
+          }
+        } else {
+          PushNotification.localNotification({
+            channelId: 'fcm_default_channel',
+            title: title,
+            message: body,
+          });
+        }
       }
       if (remoteMessage.data) {
         const {title: dataTitle, body: dataBody} = remoteMessage.data;
         console.log(dataTitle, dataBody);
         if (dataTitle == 'SAFE_RETURN') {
           const autoSafeReturn = await localToInfo('autoSafeReturn');
-          const isSwitchOn = await localToInfo('isSwitchOn');
-          const friends = [];
+          const safeReturnId = await localToInfo('safeReturnId');
+          const isSendMeetingMember = await localToInfo('isSendMeetingMember');
+          const meetingMember = [];
           const myInfo = await localToInfo('userInfo');
-          if (isSwitchOn) {
+          if (isSendMeetingMember) {
             JSON.parse(dataBody).forEach((val) => {
               if (
-                val.gender == myInfo.userInfo.gender &&
-                val.id != myInfo.userInfo.kakao_auth_id
+                val.gender == myInfo.gender &&
+                val.id != myInfo.kakao_auth_id
               ) {
-                friends.push(val.id);
+                meetingMember.push(val.id);
               }
             });
           }
-          if (autoSafeReturn) {
-            startSafeReturnFunc(
-              isSwitchOn ? friends : [],
-              myInfo.userInfo.name,
-            );
+          if (autoSafeReturn && safeReturnId == null) {
+            startSafeReturnFunc(meetingMember, myInfo.name);
           } else {
             // console.log(autoSafeReturn);
           }
