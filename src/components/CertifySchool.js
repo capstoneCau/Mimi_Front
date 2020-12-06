@@ -126,7 +126,6 @@ export default function CertifySchool({
         Alert.alert('잘못된 학교명입니다, 다른 이름으로 검색해주세요.');
       });
   };
-
   const schoolList = (
     <SafeAreaView style={styles.schoolModalboxContainer}>
       <Text style={styles.modalTitleText}>당신의 학교는?</Text>
@@ -136,11 +135,11 @@ export default function CertifySchool({
           <TouchableOpacity
             style={styles.schoolModalbox}
             onPress={() => {
-              setSchoolName(item + ' ' + schoolSort.campusN[index]);
+              setSchoolName(item);
               setInputs((inputs) => {
                 return {
                   ...inputs,
-                  ['school']: item + schoolSort.campusN[index],
+                  ['school']: item,
                 };
               });
               setInputs((inputs) => {
@@ -152,9 +151,7 @@ export default function CertifySchool({
               setShowSchoolModal(false);
               setIsPressSubmit(false);
             }}>
-            <Text style={styles.schoolModalText}>
-              {item} {schoolSort.campusN[index]}
-            </Text>
+            <Text style={styles.schoolModalText}>{item}</Text>
           </TouchableOpacity>
         )}
         keyExtractor={(item, index) => index.toString()}
@@ -205,14 +202,21 @@ export default function CertifySchool({
               );
             }
           }}>
-          {isAuth ? '인증성공' : '인증하기'}
+          <Text style={{fontFamily: FancyFonts.BMDOHYEON}}>
+            {isAuth ? '인증성공' : '인증하기'}
+          </Text>
         </FancyButton>
-        <Text>
-          {parseInt(authTime / 60)}:
-          {(authTime - parseInt(authTime / 60) * 60).toString().length == 1
-            ? '0' + (authTime - parseInt(authTime / 60) * 60).toString()
-            : (authTime - parseInt(authTime / 60) * 60).toString()}
-        </Text>
+        <View style={styles.timer}>
+          <Text
+            style={{
+              fontFamily: FancyFonts.BMDOHYEON,
+            }}>
+            {parseInt(authTime / 60)}:
+            {(authTime - parseInt(authTime / 60) * 60).toString().length == 1
+              ? '0' + (authTime - parseInt(authTime / 60) * 60).toString()
+              : (authTime - parseInt(authTime / 60) * 60).toString()}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -305,7 +309,7 @@ export default function CertifySchool({
                       if (authTimeIntervalId != null) {
                         clearInterval(authTimeIntervalId);
                       }
-                      let _authTime = 3;
+                      let _authTime = 300;
                       setAuthTime(_authTime);
                       const intervalId = setInterval(() => {
                         _authTime--;
@@ -323,9 +327,9 @@ export default function CertifySchool({
                         }
                       }, 1000);
                       setAuthTimeIntervalId(intervalId);
-                      // setAuthCode(
-                      //   await getAuthCode(emailHost + '@' + schoolAddress),
-                      // );
+                      setAuthCode(
+                        await getAuthCode(emailHost + '@' + schoolAddress),
+                      );
                     }
                   : async () => {
                       if (schoolAddress === '') {
@@ -336,7 +340,7 @@ export default function CertifySchool({
                         if (authTimeIntervalId != null) {
                           clearInterval(authTimeIntervalId);
                         }
-                        let _authTime = 3;
+                        let _authTime = 300;
                         setAuthTime(_authTime);
                         const intervalId = setInterval(() => {
                           _authTime--;
@@ -354,9 +358,9 @@ export default function CertifySchool({
                           }
                         }, 1000);
                         setAuthTimeIntervalId(intervalId);
-                        // setAuthCode(
-                        //   await getAuthCode(emailHost + '@' + schoolAddress),
-                        // );
+                        setAuthCode(
+                          await getAuthCode(emailHost + '@' + schoolAddress),
+                        );
                       }
                     }
               }>
@@ -493,6 +497,10 @@ const styles = StyleSheet.create({
   },
   certify: {
     flexDirection: 'row',
+  },
+  timer: {
+    justifyContent: 'center',
+    marginLeft: 10,
   },
   inputCode: {
     width: width * 0.4,
