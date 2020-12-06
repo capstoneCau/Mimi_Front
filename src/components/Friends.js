@@ -137,19 +137,7 @@ export default function Friends({
               color="#000069"
               onPress={() => {
                 hideFriends();
-                if (type == 's') {
-                  const result = [];
-                  isAdd.forEach((val, idx) => {
-                    if (val) {
-                      result.push(friendId[idx]);
-                    }
-                  });
-                  console.log(result, isAdd, isSwitchOn);
-                  infoToLocal('notiReceiver', result);
-                  infoToLocal('isSwitchOn', isSwitchOn);
-                }
 
-                // console.log(friendId);
                 type == 'l' ? participateRoom(friends, roomNum, token) : null;
               }}>
               완료
