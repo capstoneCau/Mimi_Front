@@ -5,48 +5,40 @@ import BackgroundTimer from 'react-native-background-timer';
 import infoToLocal from '../common/InfoToLocal';
 import localToInfo from '../common/LocalToInfo';
 import {PermissionsAndroid} from 'react-native';
+
 export const startSafeReturnFunc = async (friends, name) => {
   const token = await localToInfo('token');
   const kakaoId = await localToInfo('kakaoId');
-  // 추후에 테스트 해보아야함
-  //   const notiReceiver = await localToInfo('notiReceiver');
-  //   if (notiReceiver) {
-  //     friends = friends.concat(notiReceiver);
-  //   }
-  let orgLocation = null;
+
   let remainTime = null;
-  const notiReceiver = await localToInfo('notiReceiver');
-  if (notiReceiver) {
-    friends = [...new Set(friends.concat(notiReceiver))];
+
+  const notiReceiverIds = await localToInfo('notiReceiverIds');
+  if (notiReceiverIds) {
+    friends = [...new Set(friends.concat(notiReceiverIds))];
     const idx = friends.indexOf(kakaoId);
     if (idx != -1) {
       friends.splice(idx, 1);
     }
   }
-  const {lat: latitude, lng: longitude} = await localToInfo('destination');
+  console.log(friends);
+  const {lat: latitude, lng: longitude} = await localToInfo('coordinate');
   const watchingTime = 5;
-  if (!(await localToInfo('safeReturnId'))) {
-    if (latitude != null && longitude != null) {
-      const watchId = BackgroundTimer.setInterval(async () => {
-        Geolocation.getCurrentPosition(
-          (position) => {
-            const {
-              latitude: _latitude,
-              longitude: _longitude,
-            } = position.coords;
-            console.log('In geo ' + _latitude, _longitude);
-            orgLocation = {
-              latitude: _latitude,
-              longitude: _longitude,
-            };
-          },
-          (error) => {
-            console.log(error);
-            BackgroundTimer.clearInterval(watchId);
-            infoToLocal('safeReturnId', null);
-            return;
-          },
-        );
+  let safeReturnId = null;
+
+  let orgLocation = null;
+  Geolocation.getCurrentPosition(
+    (initPos) => {
+      orgLocation = {
+        latitude: initPos.coords.latitude,
+        longitude: initPos.coords.longitude,
+      };
+      safeReturnId = BackgroundTimer.setInterval(async () => {
+        Geolocation.getCurrentPosition((position) => {
+          orgLocation = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+        });
         if (orgLocation != null) {
           if (remainTime == null) {
             const naverTime = await getDistanceTimeByNaver(orgLocation, {
@@ -62,7 +54,8 @@ export const startSafeReturnFunc = async (friends, name) => {
           }
           remainTime -= watchingTime;
           if (remainTime <= 0) {
-            BackgroundTimer.clearInterval(watchId);
+            BackgroundTimer.clearInterval(safeReturnId);
+            infoToLocal('safeReturnId', null);
             sendNotification(
               friends,
               '긴급 구조 요청',
@@ -83,28 +76,23 @@ export const startSafeReturnFunc = async (friends, name) => {
             's',
           );
           if (remainDistance < 100) {
-            BackgroundTimer.clearInterval(watchId);
+            BackgroundTimer.clearInterval(safeReturnId);
+            infoToLocal('safeReturnId', null);
           }
         }
       }, watchingTime * 1000);
-      infoToLocal('safeReturnId', watchId);
+      infoToLocal('safeReturnId', safeReturnId);
+    },
+    (error) => {
+      console.log(error);
+      return;
+    },
+  );
+};
 
-      // Test code
-      BackgroundTimer.setTimeout(async () => {
-        const _watchId = await localToInfo('safeReturnId');
-        console.log(watchId, _watchId);
-        BackgroundTimer.clearInterval(_watchId);
-        infoToLocal('safeReturnId', null);
-        sendNotification(
-          friends,
-          '긴급 구조 요청',
-          name + '님께서 구조 요청을 하셨습니다.',
-          token,
-        );
-      }, 7000);
-      // Test Code
-    }
-  }
+export const stopSafeReturnFunc = async () => {
+  BackgroundTimer.clearInterval(await localToInfo('safeReturnId'));
+  infoToLocal('safeReturnId', null);
 };
 
 export const getAddressPosition = async (address) => {
@@ -142,7 +130,7 @@ export const requestLocationPermission = async () => {
   }
 };
 
-const getDistanceTimeByNaver = async (orgLocation, desLocation) => {
+export const getDistanceTimeByNaver = async (orgLocation, desLocation) => {
   const CLIENT_ID = naver.client_id;
   const CLIENT_SECRET = naver.client_secret;
   const BASE_URL =
@@ -166,7 +154,7 @@ const getDistanceTimeByNaver = async (orgLocation, desLocation) => {
   return hour * 3600 + min * 60 + sec;
 };
 
-const getDistanceTimeByOdySay = async (orgLocation, desLocation) => {
+export const getDistanceTimeByOdySay = async (orgLocation, desLocation) => {
   const SERVER = odysay.server;
   const WEB = odysay.web;
   const ANDROID = odysay.android;
@@ -184,67 +172,7 @@ const getDistanceTimeByOdySay = async (orgLocation, desLocation) => {
   return hour * 3600 + min;
 };
 
-const getCurrentPosition = async () => {
-  //   const perm = await requestLocationPermission();
-  //   console.log(perm);
-  //   if (perm) {
-  Geolocation.getCurrentPosition((position) => {
-    return position.coords;
-  });
-  //   }
-};
-
-const getCurrentPositionWatch = async () => {
-  await requestLocationPermission();
-  if (
-    (await localToInfo('watchId')) == null &&
-    desLocation.latitude > 0.0 &&
-    desLocation.longitude > 0.0
-  ) {
-    const watchId = BackgroundTimer.setInterval(() => {
-      Geolocation.getCurrentPosition((position) => {
-        setOrgLocation(position.coords);
-      });
-      const distance = getDistanceTwoPosition();
-      console.log('위치와의 거리 : ', distance, 'm');
-      if (distance < 300) {
-        console.log('목적지에 도착하였습니다.');
-        BackgroundTimer.clearInterval(watchId);
-        watchId = null;
-        setWatchId(null);
-        console.log('종료');
-      }
-    }, 2000);
-    infoToLocal('watchId', watchId);
-
-    BackgroundTimer.setTimeout(() => {
-      infoToLocal('watchId', null);
-      BackgroundTimer.clearInterval(watchId);
-      sendNotification(
-        ['1496391237'],
-        '안전귀가서비스',
-        `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
-        user.token,
-      );
-    }, 5000);
-  }
-};
-
-const stopGetPosition = async () => {
-  const watchId = await localToInfo('watchId');
-  if (watchId !== null) {
-    BackgroundTimer.clearInterval(watchId);
-    infoToLocal('watchId', null);
-    sendNotification(
-      ['1496391237'],
-      '안전귀가서비스',
-      `${user.userInfo.name}이 시간안에 도착하지 않았습니다.`,
-      user.token,
-    );
-  }
-};
-
-const getDistanceTwoPosition = (orgLocation, desLocation) => {
+export const getDistanceTwoPosition = (orgLocation, desLocation) => {
   const theta = orgLocation.longitude - desLocation.longitude;
   const dist =
     rad2deg(
