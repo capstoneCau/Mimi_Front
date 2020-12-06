@@ -16,7 +16,7 @@ import {RNCamera} from 'react-native-camera';
 import {FlatList} from 'react-native-gesture-handler';
 import uploadImage, {selectAnimalLabel} from '../modules/imageUpload';
 import {FancyButton, FancyFonts} from '../common/common';
-import {ProgressBar, Modal, Portal, Provider} from 'react-native-paper';
+import {ActivityIndicator, Colors} from 'react-native-paper';
 import {useSelector, shallowEqual, useDispatch} from 'react-redux';
 import {initAnimal} from '../modules/animal';
 var width = Dimensions.get('window').width;
@@ -34,8 +34,9 @@ export default function Setting({
   const [imageUri, setImageUri] = useState(null);
   const [checkRun, setCheckRun] = useState(true);
   const [selectAnimal, setSelectAnimal] = useState(false);
-  const [myAnimalPicture, setMyAnimalPicture] = useState();
+  const [myAnimalPicture, setMyAnimalPicture] = useState(null);
   const [animalImages, setAnimalImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
 
   const _initAnimal = useCallback(() => dispatch(initAnimal()), [dispatch]);
@@ -86,9 +87,12 @@ export default function Setting({
       setImageUri(uri);
       console.log(await uploadImage(uri, gender, user.fcmToken));
       console.log(animal.result);
+      setIsLoading(false);
+
       // setResult();
     }
   };
+
   const requestCameraPermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -113,24 +117,38 @@ export default function Setting({
   }, []);
   return (
     <SafeAreaView style={styles.container}>
+      <Text style={styles.containerText}>[닮은 동물 프로필 사진]</Text>
       <View style={styles.bodyContainer}>
+        <View style={[isLoading ? null : {display: 'none'}]}>
+          <ActivityIndicator animating={isLoading} color={Colors.red800} />
+        </View>
         <View style={[imageUri ? {display: 'none'} : null]}>
           <RNCamera
             ref={cameraRef}
             style={{
-              width: 100,
-              height: 80,
+              width: 150,
+              height: 100,
               marginTop: 60,
             }}
             captureAudio={false}
             type={RNCamera.Constants.Type.front}
           />
+          <FancyButton
+            style={styles.takebutton}
+            icon="camera"
+            title="Take"
+            onPress={() => {
+              takePhoto();
+              setIsLoading(true);
+            }}>
+            촬영
+          </FancyButton>
         </View>
         <View style={[!imageUri ? {display: 'none'} : null]}>
           <Image
             style={{
-              width: 100,
-              height: 80,
+              width: 200,
+              height: 200,
               marginTop: 60,
               borderRadius: 30,
             }}
@@ -138,35 +156,28 @@ export default function Setting({
               uri: imageUri,
             }}
           />
-        </View>
-
-        <View>
-          {checkRun ? (
-            <FancyButton
-              style={styles.button}
-              icon="camera"
-              title="Take"
-              onPress={() => {
-                takePhoto();
-              }}>
-              촬영
-            </FancyButton>
-          ) : (
-            <FancyButton
-              style={styles.button}
-              icon="camera-retake-outline"
-              title="Take"
-              onPress={() => {
-                setCheckRun(true);
-                setImageUri(null);
-              }}>
-              재촬영
-            </FancyButton>
-          )}
+          <FancyButton
+            style={styles.button}
+            icon="camera-retake-outline"
+            title="Take"
+            onPress={() => {
+              setCheckRun(true);
+              setImageUri(null);
+            }}>
+            재촬영
+          </FancyButton>
         </View>
       </View>
-
-      <View style={styles.contentContainer}>
+      <View
+        style={[
+          isLoading
+            ? {display: 'none'}
+            : imageUri == null
+            ? {display: 'none'}
+            : myAnimalPicture
+            ? {display: 'none'}
+            : styles.contentContainer,
+        ]}>
         <Text style={styles.titleText}>[당신과 닮은 동물 Best3]</Text>
         <FlatList
           data={!selectAnimal ? animal.result : animalImages}
@@ -178,13 +189,10 @@ export default function Setting({
                     <View style={styles.textContainer}>
                       <TouchableOpacity
                         onPress={async () => {
-                          console.log(item);
                           const {images} = await selectAnimalLabel(
                             item.category,
                           );
-                          console.log(
-                            `data:image/jpeg;base64,${images[0].base64}`,
-                          );
+
                           setAnimalImages(images);
                           setSelectAnimal(true);
                         }}>
@@ -195,21 +203,48 @@ export default function Setting({
                   </TouchableOpacity>
                 )
               : ({item, index}) => (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setMyAnimalPicture(item.id);
-                      onChange('profileImg', item.id);
-                    }}>
-                    <Image
-                      style={styles.animal}
-                      source={{uri: `data:image/jpeg;base64,${item.base64}`}}
-                    />
-                  </TouchableOpacity>
+                  <View style={styles.textContainer}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setMyAnimalPicture(item.base64);
+                        onChange('profileImg', item.id);
+                      }}>
+                      <Image
+                        style={styles.animal}
+                        source={{uri: `data:image/jpeg;base64,${item.base64}`}}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 )
           }
           keyExtractor={(_item, index) => `${index}`}
         />
-        <Image style={styles.myAnimal} source={myAnimalPicture} />
+      </View>
+      <View
+        style={[
+          isLoading
+            ? {display: 'none'}
+            : imageUri == null
+            ? {display: 'none'}
+            : !myAnimalPicture
+            ? {display: 'none'}
+            : styles.selectContainer,
+        ]}>
+        <Text style={styles.titleText}>[당신의 선택은]</Text>
+        <Image
+          style={styles.animal}
+          source={{uri: `data:image/jpeg;base64,${myAnimalPicture}`}}
+        />
+        <FancyButton
+          mode="text"
+          color="#7E6ECD"
+          icon="autorenew"
+          onPress={() => {
+            setSelectAnimal(false);
+            setMyAnimalPicture(null);
+          }}>
+          다른 동물 할래요
+        </FancyButton>
       </View>
       <View style={styles.completeContainer}>
         <FancyButton
@@ -235,13 +270,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  containerText: {
+    fontFamily: FancyFonts.BMDOHYEON,
+    fontSize: 20,
+    marginTop: 30,
+    textAlign: 'center',
+  },
   bodyContainer: {
     flex: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   contentContainer: {
-    flex: 8,
+    flex: 4,
+    alignItems: 'center',
+  },
+  selectContainer: {
+    flex: 4,
     alignItems: 'center',
   },
   completeContainer: {
@@ -252,58 +297,54 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontFamily: FancyFonts.BMDOHYEON,
   },
-  button: {
-    // width: 50,
-    // height: 50,
-    // borderRadius: 30,
-    // borderStyle: 'solid',
-    // borderColor: 'gray',
-    // borderWidth: 10,
+  takebutton: {
     marginTop: 80,
-    backgroundColor: 'white',
+    borderRadius: 30,
+    borderStyle: 'solid',
+    borderColor: '#9282CD',
+    borderWidth: 5,
+    backgroundColor: '#EBF5FF',
+  },
+  button: {
+    borderRadius: 30,
+    borderStyle: 'solid',
+    borderColor: '#9282CD',
+    borderWidth: 5,
+    marginTop: 5,
+    backgroundColor: '#EBF5FF',
   },
   tinyLogo: {},
   textContainer: {
     flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   titleText: {
     fontFamily: FancyFonts.BMDOHYEON,
     fontSize: 20,
-    marginTop: 10,
+    marginTop: 20,
     marginBottom: 10,
   },
   text: {
-    fontSize: 30,
+    fontSize: 20,
     fontFamily: FancyFonts.BMDOHYEON,
-    marginTop: 40,
     marginLeft: 20,
     marginRight: 20,
   },
-  containerStyle: {
-    width: width * 0.95,
-    height: height * 0.3,
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 30,
-    alignSelf: 'center',
-    flexDirection: 'column',
-  },
-  animalContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
+
   animal: {
     width: 80,
     height: 80,
+    marginRight: 15,
+    marginLeft: 15,
     borderRadius: 30,
-    marginRight: 30,
   },
   myAnimal: {
-    width: 80,
-    height: 80,
-    borderRadius: 30,
-    alignSelf: 'center',
-    marginBottom: 50,
+    width: 30,
+    height: 30,
+  },
+  result: {
+    fontFamily: FancyFonts.BMDOHYEON,
+    fontSize: 20,
   },
 });
