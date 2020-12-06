@@ -45,6 +45,7 @@ export const getAllRoomList = (token) => async (dispatch, getState) => {
   });
   const allRoomList = await res.json();
   dispatch({type: GET_ROOM, allRoomList});
+  return allRoomList;
 };
 
 export const getRoomInfo = (room_id, token) => async (dispatch, getState) => {

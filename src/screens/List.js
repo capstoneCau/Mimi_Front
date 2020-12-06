@@ -39,8 +39,8 @@ var height = Dimensions.get('window').height;
 
 export default function List({navigation}) {
   const {colors} = useTheme();
-  const myInfo = useSelector((state) => state.login);
   const roomInfo = useSelector((state) => state.meetingInfo);
+  const myInfo = useSelector((state) => state.login);
   const friendInfo = useSelector((state) => state.myFriend);
   const [friends, setFriends] = useState([]);
   const [showFriendModal, setShowFriendModal] = useState(false);
@@ -57,6 +57,7 @@ export default function List({navigation}) {
     {state: true},
     {state: true},
   ]);
+  const [roomsInfo, setRoomsInfo] = useState();
   const [searchPeople, setSearchPeople] = useState([2, 3, 4]);
   //List 출력전 전부 해야하는 부분//
   const dispatch = useDispatch();
@@ -77,8 +78,11 @@ export default function List({navigation}) {
   );
   useEffect(() => {
     myFriend(myInfo.token);
-    getAllRoom(myInfo.token);
+    getAllRoom(myInfo.token).then((response) => {
+      setRoomsInfo(response);
+    });
   }, [restart]);
+
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', backAction);
 
@@ -99,7 +103,6 @@ export default function List({navigation}) {
       setRemoveFriend(false);
     }
   }, [removeFriend]);
-
   useEffect(() => {
     setSearchPeople([]);
     searchNumId.forEach((val, idx) => {
@@ -133,153 +136,158 @@ export default function List({navigation}) {
   const onChangeSearch = (query) => {
     setSearchQuery(query.toUpperCase());
   };
-  console.log(searchQuery);
-  return (
-    <SafeAreaView style={styles.container}>
-      {showFriendModal && (
-        <Friends
-          showFriendModal={showFriendModal}
-          hideFriends={hideFriends}
-          friendInfo={friendInfo.myFriend}
-          friends={friends}
-          setFriends={setFriends}
-          participateRoom={participateRoom}
-          roomNum={roomNum}
-          token={myInfo.token}
-          type="l"
-          gender={myInfo.userInfo.gender}
-        />
-      )}
-      <Appbar.Header style={{backgroundColor: 'white'}}>
-        <Appbar.Content title="미팅목록" />
-        <Appbar.Action
-          icon="autorenew"
-          onPress={() => {
-            setRestart(!restart);
-          }}
-        />
-        <Appbar.Action
-          icon={isSearch ? 'cancel' : 'comment-search-outline'}
-          onPress={() => {
-            setIsSearch(!isSearch);
-          }}
-        />
-        <Appbar.Action icon="comment-plus-outline" onPress={handleAdd} />
-      </Appbar.Header>
-      <View style={[isSearch ? null : {display: 'none'}]}>
-        <Searchbar
-          maxLength={4}
-          placeholder="Mbti Search"
-          onChangeText={onChangeSearch}
-          value={searchQuery}
-        />
-        <View style={styles.Checkbox}>
-          <Checkbox.Item
-            label="2명"
-            status={searchNumId[0].state ? 'checked' : 'unchecked'}
+
+  if (typeof roomsInfo == 'undefined') {
+    return null;
+  } else {
+    return (
+      <SafeAreaView style={styles.container}>
+        {showFriendModal && (
+          <Friends
+            showFriendModal={showFriendModal}
+            hideFriends={hideFriends}
+            friendInfo={friendInfo.myFriend}
+            friends={friends}
+            setFriends={setFriends}
+            participateRoom={participateRoom}
+            roomNum={roomNum}
+            token={myInfo.token}
+            type="l"
+            gender={myInfo.userInfo.gender}
+          />
+        )}
+        <Appbar.Header style={{backgroundColor: 'white'}}>
+          <Appbar.Content title="미팅목록" />
+          <Appbar.Action
+            icon="autorenew"
             onPress={() => {
-              let newArr = [...searchNumId];
-              newArr[0].state = !newArr[0].state;
-              setSearchNumId(newArr);
+              setRestart(!restart);
             }}
           />
-          <Checkbox.Item
-            label="3명"
-            status={searchNumId[1].state ? 'checked' : 'unchecked'}
+          <Appbar.Action
+            icon={isSearch ? 'cancel' : 'comment-search-outline'}
             onPress={() => {
-              let newArr = [...searchNumId];
-              newArr[1].state = !newArr[1].state;
-              setSearchNumId(newArr);
+              setIsSearch(!isSearch);
             }}
           />
-          <Checkbox.Item
-            label="4명"
-            status={searchNumId[2].state ? 'checked' : 'unchecked'}
-            onPress={() => {
-              let newArr = [...searchNumId];
-              newArr[2].state = !newArr[2].state;
-              setSearchNumId(newArr);
-            }}
+          <Appbar.Action icon="comment-plus-outline" onPress={handleAdd} />
+        </Appbar.Header>
+        <View style={[isSearch ? null : {display: 'none'}]}>
+          <Searchbar
+            maxLength={4}
+            placeholder="Mbti Search"
+            onChangeText={onChangeSearch}
+            value={searchQuery}
           />
+          <View style={styles.Checkbox}>
+            <Checkbox.Item
+              label="2명"
+              status={searchNumId[0].state ? 'checked' : 'unchecked'}
+              onPress={() => {
+                let newArr = [...searchNumId];
+                newArr[0].state = !newArr[0].state;
+                setSearchNumId(newArr);
+              }}
+            />
+            <Checkbox.Item
+              label="3명"
+              status={searchNumId[1].state ? 'checked' : 'unchecked'}
+              onPress={() => {
+                let newArr = [...searchNumId];
+                newArr[1].state = !newArr[1].state;
+                setSearchNumId(newArr);
+              }}
+            />
+            <Checkbox.Item
+              label="4명"
+              status={searchNumId[2].state ? 'checked' : 'unchecked'}
+              onPress={() => {
+                let newArr = [...searchNumId];
+                newArr[2].state = !newArr[2].state;
+                setSearchNumId(newArr);
+              }}
+            />
+          </View>
         </View>
-      </View>
-      <FlatList
-        data={roomInfo.allRoomList.map((val) => {
-          if (searchPeople.indexOf(val.user_limit) > -1) {
-            let flag = false;
-            val.meeting.forEach((info) => {
-              let ctr = 0;
-              searchQuery.split('').forEach((ele) => {
-                if (info.mbti.includes(ele)) {
-                  ctr++;
+        <FlatList
+          data={roomsInfo.map((val) => {
+            if (searchPeople.indexOf(val.user_limit) > -1) {
+              let flag = false;
+              val.meeting.forEach((info) => {
+                let ctr = 0;
+                searchQuery.split('').forEach((ele) => {
+                  if (info.mbti.includes(ele)) {
+                    ctr++;
+                  }
+                });
+                if (ctr == searchQuery.length) {
+                  flag = true;
                 }
               });
-              if (ctr == searchQuery.length) {
-                flag = true;
-              }
-            });
 
-            if (flag) {
-              return val;
+              if (flag) {
+                return val;
+              }
             }
-          }
-        })}
-        renderItem={({item, index}) => (
-          <TouchableOpacity
-            style={[
-              typeof item !== 'undefined'
-                ? item.status == 'm'
-                  ? {display: 'none'}
-                  : styles.list_container
-                : {display: 'none'},
-            ]}
-            onPress={() => {
-              showModal();
-              setIsSearch(false);
-              setRoomNum(item.id);
-            }}>
-            <View style={styles.list}>
-              <Text style={styles.peopleCount}>
-                {typeof item !== 'undefined' ? item.user_limit : ''}
-              </Text>
-              <View style={styles.content}>
-                <Text style={styles.school}>
-                  {typeof item !== 'undefined'
-                    ? item.meeting.map((v, id) => {
-                        if (item.user_limit == id + 1) {
-                          return v.mbti;
-                        }
-                        return v.mbti + '  ';
-                      })
-                    : null}
+          })}
+          renderItem={({item, index}) => (
+            <TouchableOpacity
+              style={[
+                typeof item !== 'undefined'
+                  ? item.status == 'm'
+                    ? {display: 'none'}
+                    : styles.list_container
+                  : {display: 'none'},
+              ]}
+              onPress={() => {
+                showModal();
+                setIsSearch(false);
+                setRoomNum(item.id);
+              }}>
+              <View style={styles.list}>
+                <Text style={styles.peopleCount}>
+                  {typeof item !== 'undefined' ? item.user_limit : ''}
                 </Text>
-                <Text style={styles.intro}>
-                  {typeof item !== 'undefined' ? item.introduction : ''}
+                <View style={styles.content}>
+                  <Text style={styles.school}>
+                    {typeof item !== 'undefined'
+                      ? item.meeting.map((v, id) => {
+                          if (item.user_limit == id + 1) {
+                            return v.mbti;
+                          }
+                          return v.mbti + '  ';
+                        })
+                      : null}
+                  </Text>
+                  <Text style={styles.intro}>
+                    {typeof item !== 'undefined' ? item.introduction : ''}
+                  </Text>
+                </View>
+                <Text style={styles.dates}>
+                  {typeof item !== 'undefined'
+                    ? item.available_dates.map(
+                        (v) =>
+                          v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
+                      )
+                    : ''}
                 </Text>
               </View>
-              <Text style={styles.dates}>
-                {typeof item !== 'undefined'
-                  ? item.available_dates.map(
-                      (v) => v.split('-')[1] + '월' + v.split('-')[2] + '일\n',
-                    )
-                  : ''}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(_item, index) => `${index}`}
-      />
-      <StateInfoModal
-        visible={visible}
-        hideModal={hideModal}
-        token={myInfo.token}
-        roomId={roomNum}
-        roomType={roomType}
-        roomState="L"
-        showFriends={showFriends}
-      />
-    </SafeAreaView>
-  );
+            </TouchableOpacity>
+          )}
+          keyExtractor={(_item, index) => `${index}`}
+        />
+        <StateInfoModal
+          visible={visible}
+          hideModal={hideModal}
+          token={myInfo.token}
+          roomId={roomNum}
+          roomType={roomType}
+          roomState="L"
+          showFriends={showFriends}
+        />
+      </SafeAreaView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({

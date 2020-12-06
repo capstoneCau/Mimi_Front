@@ -181,7 +181,9 @@ export default function Setting({navigation}) {
               }
             }}>
             <List.Item
-              title={safeReturnId ? '서비스 종료' : '수동서비스'}
+              title={
+                safeReturnId ? '안전귀가서비스 종료' : '안전귀가서비스 실행'
+              }
               left={(props) => <List.Icon {...props} icon="android-auto" />}
             />
           </TouchableOpacity>
@@ -229,9 +231,13 @@ export default function Setting({navigation}) {
                   {
                     text: '네',
                     onPress: () => {
-                      logout(myInfo.token);
-                      kakaoLogout();
-                      navigation.navigate('Login');
+                      logout(myInfo.token)
+                        .then(() => {
+                          kakaoLogout();
+                        })
+                        .then(() => {
+                          navigation.navigate('Login');
+                        });
                       //navigation stack초기화 해야함
                     },
                   },
@@ -241,7 +247,7 @@ export default function Setting({navigation}) {
             }}
           />
           <List.Item
-            title="고겍센터/도움말"
+            title="고객센터/도움말"
             left={(props) => <List.Icon {...props} icon="account-question" />}
           />
         </List.Section>
