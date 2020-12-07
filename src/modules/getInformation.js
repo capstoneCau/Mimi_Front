@@ -29,7 +29,6 @@ export const getInformation = async (token, type = null, userlist = null) => {
       },
     },
   );
-  console.log(res);
   if (JSON.error) {
     console.log(JSON.detail);
     return false;
@@ -49,6 +48,19 @@ export const getMbtiList = async () => {
   }
   const list = await res.json();
   return list;
+};
+
+export const getMbtiDestination = async (mbti) => {
+  const res = await fetch(SERVER_DOMAIN + `etcInformation/mbti/${mbti}/`, {
+    method: 'GET',
+    mode: 'cors',
+  });
+  if (JSON.error) {
+    console.log(JSON.detail);
+    return false;
+  }
+  const description = await res.json();
+  return description;
 };
 
 export const getCompatibility = async (token, param, type, value) => {
