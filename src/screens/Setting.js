@@ -147,59 +147,69 @@ export default function Setting({navigation}) {
           }
         }
         const {lat: latitude, lng: longitude} = coordinate;
-        const watchingTime = 5;
+        const watchingTime = 2;
         let remainTime = null;
-        _startSafeReturn(
-          BackgroundTimer.setInterval(async () => {
-            Geolocation.getCurrentPosition((position) => {
-              orgLocation = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-              };
-            });
-            if (orgLocation != null) {
-              if (remainTime == null) {
-                const naverTime = await getDistanceTimeByNaver(orgLocation, {
-                  latitude,
-                  longitude,
-                });
-                const odsayTime = await getDistanceTimeByOdySay(orgLocation, {
-                  latitude,
-                  longitude,
-                });
-                console.log(naverTime, odsayTime);
-                remainTime = Math.max(naverTime, odsayTime);
-              }
-              remainTime -= watchingTime;
-              if (remainTime <= 0) {
-                BackgroundTimer.clearInterval(safeReturnId);
-                infoToLocal('safeReturnId', null);
-                sendNotification(
-                  friends,
-                  '긴급 구조 요청',
-                  myInfo.name + '님께서 구조 요청을 하셨습니다.',
-                  myInfo.token,
-                );
-              }
-              const remainDistance = getDistanceTwoPosition(orgLocation, {
+        const _safeReturnId = BackgroundTimer.setInterval(async () => {
+          Geolocation.getCurrentPosition((position) => {
+            orgLocation = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            };
+          });
+          if (orgLocation != null) {
+            if (remainTime == null) {
+              const naverTime = await getDistanceTimeByNaver(orgLocation, {
                 latitude,
                 longitude,
               });
-              console.log(
-                '위치와의 거리 : ',
-                remainDistance,
-                'm ',
-                '남은 시간 : ',
-                remainTime,
-                's',
-              );
-              if (remainDistance < 100) {
-                BackgroundTimer.clearInterval(safeReturnId);
-                infoToLocal('safeReturnId', null);
-              }
+              const odsayTime = await getDistanceTimeByOdySay(orgLocation, {
+                latitude,
+                longitude,
+              });
+              console.log(naverTime, odsayTime);
+              remainTime = Math.max(naverTime, odsayTime);
             }
-          }, watchingTime * 1000),
-        );
+            remainTime -= watchingTime;
+            if (remainTime <= 0) {
+              BackgroundTimer.clearInterval(safeReturnId);
+              infoToLocal('safeReturnId', null);
+              sendNotification(
+                friends,
+                '긴급 구조 요청',
+                myInfo.userInfo.name + '님께서 구조 요청을 하셨습니다.',
+                myInfo.token,
+              );
+            }
+            const remainDistance = getDistanceTwoPosition(orgLocation, {
+              latitude,
+              longitude,
+            });
+            console.log(
+              '위치와의 거리 : ',
+              remainDistance,
+              'm ',
+              '남은 시간 : ',
+              remainTime,
+              's',
+            );
+            if (remainDistance < 100) {
+              BackgroundTimer.clearInterval(safeReturnId);
+              infoToLocal('safeReturnId', null);
+            }
+          }
+        }, watchingTime * 1000);
+        _startSafeReturn(_safeReturnId);
+
+        BackgroundTimer.setTimeout(() => {
+          BackgroundTimer.clearInterval(_safeReturnId);
+          _stopSafeReturn();
+          sendNotification(
+            friends,
+            '긴급 구조 요청',
+            myInfo.userInfo.name + '님께서 구조 요청을 하셨습니다.',
+            myInfo.token,
+          );
+        }, 5000);
       },
       (error) => {
         console.log(error);
