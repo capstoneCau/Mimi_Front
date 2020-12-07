@@ -206,7 +206,7 @@ export default function CertifySchool({
             {isAuth ? '인증성공' : '인증하기'}
           </Text>
         </FancyButton>
-        <View style={styles.timer}>
+        <View style={[isAuth ? {display: 'none'} : styles.timer]}>
           <Text
             style={{
               fontFamily: FancyFonts.BMDOHYEON,

@@ -224,13 +224,19 @@ export default function Chat({navigation}) {
                           </Text>
                           <View style={styles.timeContainer}>
                             <Text style={styles.timeText}>
-                              {new Date(
-                                item.latestMessage.createdAt,
-                              ).getHours()}
+                              {new Date(item.latestMessage.createdAt).getHours()
+                                ? new Date(
+                                    item.latestMessage.createdAt,
+                                  ).getHours()
+                                : ''}
                               :
                               {new Date(
                                 item.latestMessage.createdAt,
-                              ).getMinutes()}
+                              ).getMinutes()
+                                ? new Date(
+                                    item.latestMessage.createdAt,
+                                  ).getMinutes()
+                                : ''}
                             </Text>
                           </View>
                         </View>

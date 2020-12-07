@@ -376,31 +376,33 @@ export default function Setting({navigation}) {
         <ImageBackground
           source={require('../image/starback.jpg')}
           style={styles.background}>
-          <TouchableOpacity style={styles.header} onPress={hideMyInfo}>
-            <Text style={styles.closeButton}>X</Text>
-          </TouchableOpacity>
-          <View style={styles.nameContainer}>
-            <Avatar.Image
-              size={100}
-              source={{uri: `data:image/jpeg;base64,${profileImgBase64}`}}
-            />
-            <View style={styles.idContainer}>
-              <Text style={styles.nameText}>{myInfo.userInfo.name}</Text>
-              <Text style={styles.schoolText}>
-                ({myInfo.userInfo.school.replace('학교', '학교 ')})
+          <View style={styles.modalContainer}>
+            <TouchableOpacity style={styles.header} onPress={hideMyInfo}>
+              <Text style={styles.closeButton}>X</Text>
+            </TouchableOpacity>
+            <View style={styles.nameContainer}>
+              <Avatar.Image
+                size={100}
+                source={{uri: `data:image/jpeg;base64,${profileImgBase64}`}}
+              />
+              <View style={styles.idContainer}>
+                <Text style={styles.nameText}>{myInfo.userInfo.name}</Text>
+                <Text style={styles.schoolText}>
+                  ({myInfo.userInfo.school.replace('학교', '학교 ')})
+                </Text>
+              </View>
+            </View>
+
+            {/* <Text>{myInfo.userInfo.gender}</Text> */}
+            <View style={styles.bodyContainer}>
+              {/* <Text style={styles.emailText}>({myInfo.userInfo.email})</Text> */}
+              <Text style={styles.mbtiText}>{myInfo.userInfo.mbti}</Text>
+              <Text style={styles.mbtisubText}>({mbtiDescription})</Text>
+              <Text style={styles.bodyText}>{myInfo.userInfo.star}</Text>
+              <Text style={styles.bodyText}>
+                {myInfo.userInfo.chinese_zodiac}띠
               </Text>
             </View>
-          </View>
-
-          {/* <Text>{myInfo.userInfo.gender}</Text> */}
-          <View style={styles.bodyContainer}>
-            {/* <Text style={styles.emailText}>({myInfo.userInfo.email})</Text> */}
-            <Text style={styles.mbtiText}>{myInfo.userInfo.mbti}</Text>
-            <Text style={styles.mbtisubText}>({mbtiDescription})</Text>
-            <Text style={styles.bodyText}>{myInfo.userInfo.star}</Text>
-            <Text style={styles.bodyText}>
-              {myInfo.userInfo.chinese_zodiac}띠
-            </Text>
           </View>
         </ImageBackground>
       </Modal>
@@ -442,6 +444,7 @@ const styles = StyleSheet.create({
   idText: {
     fontSize: 17,
     marginLeft: 30,
+    color: 'white',
   },
   bodyContainer: {
     marginLeft: 40,
