@@ -200,15 +200,18 @@ export default function Setting({navigation}) {
         }, watchingTime * 1000);
         _startSafeReturn(_safeReturnId);
 
-        BackgroundTimer.setTimeout(() => {
-          BackgroundTimer.clearInterval(_safeReturnId);
-          _stopSafeReturn();
-          sendNotification(
-            friends,
-            '긴급 구조 요청',
-            myInfo.userInfo.name + '님께서 구조 요청을 하셨습니다.',
-            myInfo.token,
-          );
+        BackgroundTimer.setTimeout(async () => {
+          const _id = await localToInfo('safeReturnId');
+          if (_id != null) {
+            BackgroundTimer.clearInterval(_safeReturnId);
+            _stopSafeReturn();
+            sendNotification(
+              friends,
+              '긴급 구조 요청',
+              myInfo.userInfo.name + '님께서 구조 요청을 하셨습니다.',
+              myInfo.token,
+            );
+          }
         }, 5000);
       },
       (error) => {
