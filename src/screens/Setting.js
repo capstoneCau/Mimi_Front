@@ -25,35 +25,80 @@ import {
   RadioButton,
 } from 'react-native-paper';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
+import Geolocation from 'react-native-geolocation-service';
+import {sendNotification} from '../modules/sendNotification';
+import BackgroundTimer from 'react-native-background-timer';
 import {FancyButton, FancyFonts} from '../common/common';
 import {logoutAsync} from '../modules/login';
-import {getInformation, getMbtiList} from '../modules/getInformation';
+import {getInformation, getMbtiDestination} from '../modules/getInformation';
 import KakaoLogins from '@react-native-seoul/kakao-login';
-import Friends from '../components/Friends';
+import Receivers from '../components/Receivers';
 import localToInfo from '../common/LocalToInfo';
 import infoToLocal from '../common/InfoToLocal';
-import {startSafeReturnFunc} from '../components/SafeReturn';
-import BackgroundTimer from 'react-native-background-timer';
+import {
+  getDistanceTimeByNaver,
+  getDistanceTimeByOdySay,
+  requestLocationPermission,
+  getDistanceTwoPosition,
+} from '../components/SafeReturn';
+import {
+  saveReceievers,
+  changeUseSystemSafeReturn,
+  startSafeReturn,
+  stopSafeReturn,
+} from '../modules/safeReturn';
+import {check} from 'prettier';
 export default function Setting({navigation}) {
   const myInfo = useSelector((state) => state.login);
   const friendInfo = useSelector((state) => state.myFriend);
+  const [initializing, setInitializing] = useState(true);
   const dispatch = useDispatch();
   const logout = useCallback((token) => dispatch(logoutAsync(token)), [
     dispatch,
   ]);
-  const [logoutLoading, setLogoutLoading] = useState(false);
-  // const [unlinkLoading, setUnlinkLoading] = useState(false);
-  const [token, setToken] = useState(TOKEN_EMPTY);
-  const [profile, setProfile] = useState(PROFILE_EMPTY);
-  const [destination, setDestination] = useState(); // 목적지
-  const [friends, setFriends] = useState([]); // friends kakao auth Id
-  const [friendsName, setFriendsName] = useState([]);
+
+  const _saveReceievers = useCallback(
+    (ids, names) => dispatch(saveReceievers(ids, names)),
+    [dispatch],
+  );
+  const _changeUseSystemSafeReturn = useCallback(
+    (isAuto) => dispatch(changeUseSystemSafeReturn(isAuto)),
+    [dispatch],
+  );
+  const _startSafeReturn = useCallback(
+    (safeReturnId) => dispatch(startSafeReturn(safeReturnId)),
+    [dispatch],
+  );
+  const _stopSafeReturn = useCallback(() => dispatch(stopSafeReturn()), [
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    requestLocationPermission();
+    localToInfo('safeReturnId')
+      .then((_safeReturnId) => {
+        if (_safeReturnId != safeReturnId) {
+          _startSafeReturn(_safeReturnId);
+        }
+      })
+      .then(() => setInitializing(false));
+  }, []);
+
+  const {
+    coordinate,
+    notiReceiverIds,
+    notiReceiverNames,
+    destination,
+    isSendMeetingMember,
+    isAuto,
+    safeReturnId,
+  } = useSelector((state) => state.safeReturn);
+
   const [showFriendModal, setShowFriendModal] = useState(false);
   const [visibleMyInfo, setVisibleMyInfo] = useState(false);
+
   const [profileImgBase64, setProfileImgBase64] = useState();
-  const [isSwitchOn, setIsSwitchOn] = useState(false);
-  const [safeReturnId, setSafeReturnId] = useState(null);
-  const [isManualOn, setIsManulOn] = useState(false);
+
   const [mbtiDescription, setMbtiDescription] = useState('');
 
   useEffect(() => {
@@ -62,73 +107,122 @@ export default function Setting({navigation}) {
       .then((result) => {
         setProfileImgBase64(result.image);
       });
-    getMbtiList()
-      .then((response) => response)
-      .then((result) => {
-        result.map((val) => {
-          if (val.name == myInfo.userInfo.mbti) {
-            setMbtiDescription(val.description);
-          }
-        });
-      });
+    getMbtiDestination(myInfo.userInfo.mbti).then((result) => {
+      setMbtiDescription(result.description);
+    });
     localToInfo('safeReturnId').then((_safeReturnId) => {
-      setSafeReturnId(safeReturnId);
+      _startSafeReturn(_safeReturnId);
     });
-    localToInfo('autoSafeReturn').then((_autoSafeReturn) => {
-      setIsSwitchOn(_autoSafeReturn);
-    });
+    console.log(myInfo);
   }, []);
 
   const showMyInfo = () => setVisibleMyInfo(true);
   const hideMyInfo = () => setVisibleMyInfo(false);
 
-  const logCallback = (log, callback) => {
-    console.log(log);
-    callback;
-  };
-  const TOKEN_EMPTY = 'token has not fetched';
-  const PROFILE_EMPTY = {
-    id: 'profile has not fetched',
-    email: 'profile has not fetched',
-    profile_image_url: '',
-  };
-
   const kakaoLogout = async () => {
-    logCallback('Logout Start', setLogoutLoading(true));
+    console.log('Logout Start');
     try {
       const result = await KakaoLogins.logout();
-      setToken(TOKEN_EMPTY);
-      setProfile(PROFILE_EMPTY);
-      logCallback(`Logout Finished:${result}`, setLogoutLoading(false));
+
+      console.log(`Logout Finished:${result}`);
     } catch (err) {
-      logCallback(
-        `Logout Failed:${err.code} ${err.message}`,
-        setLogoutLoading(false),
-      );
+      console.log(`Logout Failed:${err.code} ${err.message}`);
     }
   };
 
+  const startSafeReturnFunc = async (friends) => {
+    Geolocation.getCurrentPosition(
+      (initPos) => {
+        let orgLocation = null;
+        orgLocation = {
+          latitude: initPos.coords.latitude,
+          longitude: initPos.coords.longitude,
+        };
+        if (notiReceiverIds) {
+          friends = [...new Set(friends.concat(notiReceiverIds))];
+          const idx = friends.indexOf(myInfo.kakaoId);
+          if (idx != -1) {
+            friends.splice(idx, 1);
+          }
+        }
+        const {lat: latitude, lng: longitude} = coordinate;
+        const watchingTime = 5;
+        let remainTime = null;
+        _startSafeReturn(
+          BackgroundTimer.setInterval(async () => {
+            Geolocation.getCurrentPosition((position) => {
+              orgLocation = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              };
+            });
+            if (orgLocation != null) {
+              if (remainTime == null) {
+                const naverTime = await getDistanceTimeByNaver(orgLocation, {
+                  latitude,
+                  longitude,
+                });
+                const odsayTime = await getDistanceTimeByOdySay(orgLocation, {
+                  latitude,
+                  longitude,
+                });
+                console.log(naverTime, odsayTime);
+                remainTime = Math.max(naverTime, odsayTime);
+              }
+              remainTime -= watchingTime;
+              if (remainTime <= 0) {
+                BackgroundTimer.clearInterval(safeReturnId);
+                infoToLocal('safeReturnId', null);
+                sendNotification(
+                  friends,
+                  '긴급 구조 요청',
+                  myInfo.name + '님께서 구조 요청을 하셨습니다.',
+                  myInfo.token,
+                );
+              }
+              const remainDistance = getDistanceTwoPosition(orgLocation, {
+                latitude,
+                longitude,
+              });
+              console.log(
+                '위치와의 거리 : ',
+                remainDistance,
+                'm ',
+                '남은 시간 : ',
+                remainTime,
+                's',
+              );
+              if (remainDistance < 100) {
+                BackgroundTimer.clearInterval(safeReturnId);
+                infoToLocal('safeReturnId', null);
+              }
+            }
+          }, watchingTime * 1000),
+        );
+      },
+      (error) => {
+        console.log(error);
+      },
+    );
+  };
+
   const showFriends = () => {
-    setFriends([]);
-    setFriendsName([]);
     setShowFriendModal(true);
   };
   const hideFriends = () => {
     setShowFriendModal(false);
   };
+  if (initializing) return null;
   return (
     <View style={styles.container}>
       {showFriendModal && (
-        <Friends
-          showFriendModal={showFriendModal}
-          hideFriends={hideFriends}
-          onChange={setFriendsName}
-          friendsName={friendsName}
+        <Receivers
+          show={showFriendModal}
+          hide={hideFriends}
           friendInfo={friendInfo.myFriend}
-          friends={friends}
-          setFriends={setFriends}
-          type="s"
-          gender={myInfo.userInfo.gender}
+          setReceivers={_saveReceievers}
+          notiReceiverIds={notiReceiverIds}
+          isSendMeetingMember={isSendMeetingMember}
         />
       )}
       <Appbar.Header style={{backgroundColor: 'white'}}>
@@ -141,45 +235,66 @@ export default function Setting({navigation}) {
             left={(props) => <List.Icon {...props} icon="android-auto" />}
             right={(props) => (
               <Switch
-                value={isSwitchOn}
+                value={isAuto}
                 onValueChange={async () => {
-                  const des = await localToInfo('destination');
-
                   // 스위치 off상태
-                  if (!isSwitchOn) {
-                    if (des) {
+                  if (!isAuto) {
+                    if (coordinate) {
                       infoToLocal('autoSafeReturn', true);
+                      _changeUseSystemSafeReturn(true);
                       Alert.alert('자동으로 안전 귀가 서비스가 실행됩니다.');
-                      setIsSwitchOn(true);
-                    } else {
+                    } else if (!coordinate) {
                       Alert.alert('목적지를 먼저 설정하여야 합니다.');
+                    } else if (!isSendMeetingMember) {
+                      Alert.alert('수신자를 먼저 설정하여야 합니다.');
                     }
                     // 스위치 on상태
                   } else {
                     infoToLocal('autoSafeReturn', false);
-                    setIsSwitchOn(false);
+                    _changeUseSystemSafeReturn(false);
                   }
                 }}
               />
             )}
           />
           <TouchableOpacity
-            onPress={async () => {
-              const des = await localToInfo('destination');
-              const friends = await localToInfo('notiReceiver');
-              console.log(des, friends);
-              if (des && friends.length != 0 && !safeReturnId) {
-                Alert.alert('수동으로 안전 귀가 서비스가 실행됩니다.');
-                startSafeReturnFunc(friends, myInfo.userInfo.name);
-              } else if (!des) {
-                Alert.alert('목적지를 먼저 설정하여야 합니다.');
-              } else if (friends.length == 0) {
-                Alert.alert('수신자를 먼저 설정하여야 합니다.');
-              } else if (safeReturnId) {
-                BackgroundTimer.clearInterval(safeReturnId);
-                Alert.alert('안전귀가 서비스를 종료합니다.');
-              }
-            }}>
+            onPress={
+              safeReturnId
+                ? async () => {
+                    BackgroundTimer.clearInterval(safeReturnId);
+                    _stopSafeReturn();
+                    Alert.alert('안전 귀가 서비스가 종료되었습니다.');
+                  }
+                : async () => {
+                    if (
+                      coordinate &&
+                      notiReceiverIds &&
+                      notiReceiverIds.length != 0 &&
+                      !safeReturnId
+                    ) {
+                      const checkSafeReturnId = await localToInfo(
+                        'safeReturnId',
+                      );
+                      if (checkSafeReturnId) {
+                        Alert.alert('안전 귀가 서비스가 실행중입니다.');
+                        _stopSafeReturn(checkSafeReturnId);
+                      } else {
+                        startSafeReturnFunc(
+                          notiReceiverIds,
+                          myInfo.userInfo.name,
+                        );
+                        Alert.alert('수동으로 안전 귀가 서비스가 실행됩니다.');
+                      }
+                    } else if (!coordinate) {
+                      Alert.alert('목적지를 먼저 설정하여야 합니다.');
+                    } else if (notiReceiverIds && notiReceiverIds.length == 0) {
+                      Alert.alert('수신자를 먼저 설정하여야 합니다.');
+                    } else if (safeReturnId) {
+                      BackgroundTimer.clearInterval(safeReturnId);
+                      Alert.alert('안전귀가 서비스를 종료합니다.');
+                    }
+                  }
+            }>
             <List.Item
               title={
                 safeReturnId ? '안전귀가서비스 종료' : '안전귀가서비스 실행'
@@ -189,7 +304,7 @@ export default function Setting({navigation}) {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('DestinationSetting', {destination});
+              navigation.navigate('DestinationSetting');
             }}>
             <List.Item
               title="목적지설정"
@@ -202,7 +317,7 @@ export default function Setting({navigation}) {
               }}>
               <List.Item
                 title="수신자설정"
-                description={friendsName}
+                description={notiReceiverNames ? notiReceiverNames.join() : ''}
                 left={(props) => <List.Icon {...props} icon="account-alert" />}
               />
             </TouchableOpacity>
