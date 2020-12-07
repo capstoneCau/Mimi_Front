@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {
+  ImageBackground,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -372,7 +373,9 @@ export default function Setting({navigation}) {
         transparent={false}
         visible={visibleMyInfo}
         onDismiss={hideMyInfo}>
-        <View style={styles.modalContainer}>
+        <ImageBackground
+          source={require('../image/starback.jpg')}
+          style={styles.background}>
           <TouchableOpacity style={styles.header} onPress={hideMyInfo}>
             <Text style={styles.closeButton}>X</Text>
           </TouchableOpacity>
@@ -396,10 +399,10 @@ export default function Setting({navigation}) {
             <Text style={styles.mbtisubText}>({mbtiDescription})</Text>
             <Text style={styles.bodyText}>{myInfo.userInfo.star}</Text>
             <Text style={styles.bodyText}>
-              {myInfo.userInfo.chinese_zodiac}
+              {myInfo.userInfo.chinese_zodiac}띠
             </Text>
           </View>
-        </View>
+        </ImageBackground>
       </Modal>
     </View>
   );
@@ -410,12 +413,16 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
   },
+  background: {
+    flex: 1,
+  },
   modalContainer: {},
   header: {
     margin: 30,
   },
   closeButton: {
     fontSize: 30,
+    color: 'white',
   },
   nameContainer: {
     flexDirection: 'row',
@@ -430,6 +437,7 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 40,
     marginLeft: 30,
+    color: 'white',
   },
   idText: {
     fontSize: 17,
@@ -442,19 +450,24 @@ const styles = StyleSheet.create({
   schoolText: {
     fontSize: 17,
     marginLeft: 30,
+    color: 'white',
   },
   mbtiText: {
     fontSize: 30,
     marginTop: 20,
+    color: 'white',
   },
   mbtisubText: {
     fontSize: 20,
+    color: 'white',
   },
   bodyText: {
     marginTop: 20,
     fontSize: 30,
+    color: 'white',
   },
   emailText: {
     fontSize: 17,
+    color: 'white',
   },
 });
