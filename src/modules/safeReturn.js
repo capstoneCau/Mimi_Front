@@ -1,6 +1,6 @@
 import infoToLocal from '../common/InfoToLocal';
 import localToInfo from '../common/LocalToInfo';
-
+import {getAddressPosition} from '../components/SafeReturn';
 //Action Type
 const START_SAFE_RETURN = 'safeReturn/START_SAFE_RETURN';
 const STOP_SAFE_RETURN = 'safeReturn/STOP_SAFE_RETURN';
@@ -63,15 +63,13 @@ export const stopSafeReturn = () => (dispatch, getState) => {
   infoToLocal('safeReturnId', null);
   dispatch({type: STOP_SAFE_RETURN});
 };
-export const saveDestination = (destination, coordinate) => (
-  dispatch,
-  getState,
-) => {
+export const saveDestination = (destination) => async (dispatch, getState) => {
+  const coordinate = await getAddressPosition(destination);
   console.log(
     'in saveDestination',
     'destination:',
     destination,
-    'coordinate:',
+    'coordinate: ',
     coordinate,
   );
   infoToLocal('destination', destination);
@@ -85,7 +83,7 @@ export const saveDestination = (destination, coordinate) => (
 export const saveReceievers = (ids, names) => (dispatch, getState) => {
   console.log('in saveReceievers', 'ids:', ids, 'names:', names);
   infoToLocal('notiReceiverIds', ids);
-  infoToLocal('notiReceiverNames', ids);
+  infoToLocal('notiReceiverNames', names);
   dispatch({
     type: SAVE_RECEIEVERS,
     notiReceiverIds: ids,
