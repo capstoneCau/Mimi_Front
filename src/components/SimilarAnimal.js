@@ -62,6 +62,29 @@ export default function Setting({
   }, [animal.error]);
 
   useEffect(() => {
+    if (animal.result.length > 1) {
+      setIsLoading(false);
+    }
+    // if (
+    //   animal.error == '400' ||
+    //   animal.error == '404' ||
+    //   animal.error == '409'
+    // ) {
+    //   setIsLoading(false);
+    // }
+  }, [animal.result]);
+
+  useEffect(() => {
+    if (
+      animal.error == '400' ||
+      animal.error == '404' ||
+      animal.error == '409'
+    ) {
+      setIsLoading(false);
+    }
+  }, [animal.error]);
+
+  useEffect(() => {
     const backAction = () => {
       setStartMbti(true);
       setStartAnimal(false);
@@ -85,9 +108,8 @@ export default function Setting({
       });
       const {uri} = data;
       setImageUri(uri);
-      console.log(await uploadImage(uri, gender, user.fcmToken));
-      console.log(animal.result);
-      setIsLoading(false);
+      await uploadImage(uri, gender, user.fcmToken).then((res) => {});
+      // console.log(animal.result);
 
       // setResult();
     }
@@ -119,9 +141,9 @@ export default function Setting({
     <SafeAreaView style={styles.container}>
       <Text style={styles.containerText}>[닮은 동물 프로필 사진]</Text>
       <View style={styles.bodyContainer}>
-        <View style={[isLoading ? null : {display: 'none'}]}>
+        {/* <View style={[isLoading ? null : {display: 'none'}]}>
           <ActivityIndicator animating={isLoading} color={Colors.red800} />
-        </View>
+        </View> */}
         <View style={[imageUri ? {display: 'none'} : null]}>
           <RNCamera
             ref={cameraRef}
@@ -163,10 +185,15 @@ export default function Setting({
             onPress={() => {
               setCheckRun(true);
               setImageUri(null);
+              _initAnimal();
+              setIsLoading(false);
             }}>
             재촬영
           </FancyButton>
         </View>
+      </View>
+      <View style={[isLoading ? styles.loadingbar : {display: 'none'}]}>
+        <ActivityIndicator animating={isLoading} color={Colors.red800} />
       </View>
       <View
         style={[
@@ -312,6 +339,9 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     marginTop: 5,
     backgroundColor: '#EBF5FF',
+  },
+  loadingbar: {
+    marginBottom: 50,
   },
   tinyLogo: {},
   textContainer: {
