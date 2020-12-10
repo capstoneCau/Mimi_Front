@@ -309,7 +309,7 @@ export default function CertifySchool({
                       if (authTimeIntervalId != null) {
                         clearInterval(authTimeIntervalId);
                       }
-                      let _authTime = 300;
+                      let _authTime = 180;
                       setAuthTime(_authTime);
                       const intervalId = setInterval(() => {
                         _authTime--;
@@ -340,7 +340,7 @@ export default function CertifySchool({
                         if (authTimeIntervalId != null) {
                           clearInterval(authTimeIntervalId);
                         }
-                        let _authTime = 300;
+                        let _authTime = 180;
                         setAuthTime(_authTime);
                         const intervalId = setInterval(() => {
                           _authTime--;

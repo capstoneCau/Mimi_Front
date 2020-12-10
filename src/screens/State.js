@@ -105,10 +105,10 @@ export default function State() {
             icon="arrow-left-bold"
             value="left"
           />
-          <Text style={styles.toggleText}>참여</Text>
+          <Text style={styles.toggleText}>생성</Text>
         </View>
         <View style={styles.participateToggle}>
-          <Text style={styles.toggleText}>생성</Text>
+          <Text style={styles.toggleText}>참여</Text>
           <ToggleButton
             size={40}
             disabled={toggle == 'right' ? true : false}

@@ -291,7 +291,7 @@ export default function Setting({navigation}) {
                       );
                       if (checkSafeReturnId) {
                         Alert.alert('안전 귀가 서비스가 실행중입니다.');
-                        _stopSafeReturn(checkSafeReturnId);
+                        _startSafeReturn(checkSafeReturnId);
                       } else {
                         startSafeReturnFunc(
                           notiReceiverIds,

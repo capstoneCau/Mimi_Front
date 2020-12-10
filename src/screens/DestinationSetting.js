@@ -21,8 +21,9 @@ export default function YourView({navigation}) {
         style={styles.postcode}
         jsOptions={{animated: true}}
         onSelected={(data) => {
-          _saveDestination(data.address);
-          navigation.navigate('Setting');
+          _saveDestination(data.address).then(() => {
+            navigation.navigate('Setting');
+          });
         }}
       />
     </View>

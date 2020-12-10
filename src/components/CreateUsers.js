@@ -137,9 +137,9 @@ export default function CreateUsers({route, navigation}) {
       delete inputs.schoolAddress;
       delete inputs.birthYear;
 
-      registerUser(inputs);
-
-      navigation.navigate('Home');
+      registerUser(inputs).then(() => {
+        navigation.navigate('Home');
+      });
     }
   }, [finishSignUp]);
   return (
