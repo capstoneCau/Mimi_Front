@@ -1,17 +1,22 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {SafeAreaView, StyleSheet, View, Text} from 'react-native';
-import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
-import merge from 'deepmerge';
+import React, {useState, useEffect, useCallback, useLayoutEffect} from 'react';
+import {
+  NavigationContainer,
+  getFocusedRouteNameFromRoute,
+} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import {StackActions} from '@react-navigation/native';
 import * as name from './src/screens/index';
 import Icon from 'react-native-vector-icons/Ionicons';
 import messaging from '@react-native-firebase/messaging';
-import {Alert} from 'react-native';
-import {useSelector, useDispatch, shallowEqual} from 'react-redux';
-import {fcmTokenAsync} from './src/modules/login';
+import localToInfo from './src/common/LocalToInfo';
+import {requestKaKaoAuthIdAsync} from './src/modules/login';
+import infoToLocal from './src/common/InfoToLocal';
+import {startSafeReturnFunc} from './src/components/SafeReturn';
+import PushNotification from 'react-native-push-notification';
+import {getAnimalSimilarity} from './src/modules/animal';
+import {initSafeReturnData, startSafeReturn} from './src/modules/safeReturn';
+import {useDispatch} from 'react-redux';
 
 const Stack = createStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -41,41 +46,157 @@ const App = () => {
     StateGive,
     StateTake,
     Chat,
+    Messages,
     Setting,
     AddMeeting,
-    GoogleMap,
+    Friend,
+    DestinationSetting,
   } = name;
-  const [pushToken, setPushToken] = useState(null);
+  const [isLogin, setIsLogin] = useState(false);
+  const [initDestination, setInitDestination] = useState('Login');
+  const [initializing, setInitializing] = useState(true);
   const dispatch = useDispatch();
-  const onFcmToken = useCallback(
-    (fcmToken) => dispatch(fcmTokenAsync(fcmToken)),
+  const onLoginUser = useCallback(
+    (kakaoId, fcmToken) => dispatch(requestKaKaoAuthIdAsync(kakaoId, fcmToken)),
+    [dispatch],
+  );
+  const _initSafeReturnData = useCallback(
+    () => dispatch(initSafeReturnData()),
     [dispatch],
   );
 
-  const foregroundListener = useCallback(() => {
-    messaging().onMessage(async (remoteMessage) => {
-      console.log(remoteMessage);
-      const {body, title} = remoteMessage.notification;
-      Alert.alert(title, body);
-    });
-  }, []);
+  const _getAnimalSimilarity = useCallback(
+    (result) => dispatch(getAnimalSimilarity(result)),
+    [dispatch],
+  );
 
-  const handlePushToken = useCallback(async () => {
+  const handlePushToken = useCallback(async (kakaoId) => {
     const enabled = await messaging().hasPermission();
-    // console.log(enabled)
     if (enabled) {
       const fcmToken = await messaging().getToken();
       console.log(fcmToken);
-      if (fcmToken) onFcmToken(fcmToken);
+      if (fcmToken) {
+        return onLoginUser(kakaoId, fcmToken);
+      }
     } else {
       const authorizaed = await messaging.requestPermission();
-      console.log(authorizaed);
     }
   }, []);
 
   useEffect(() => {
-    handlePushToken();
-    foregroundListener();
+    PushNotification.cancelAllLocalNotifications();
+    localToInfo('kakaoId')
+      .then((kakaoId) => {
+        return handlePushToken(kakaoId);
+      })
+      .then((_isLogin) => {
+        if (_isLogin) {
+          _initSafeReturnData();
+        }
+        return _isLogin;
+      })
+      .then((_isLogin) => {
+        if (_isLogin) {
+          setInitDestination('Home');
+        }
+        setInitializing(false);
+      });
+  }, [isLogin]);
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      if (remoteMessage.notification) {
+        const {body, title} = remoteMessage.notification;
+        if (remoteMessage.data && remoteMessage.data.title == 'SAFE_RETURN') {
+          if (await localToInfo('autoSafeReturn')) {
+            PushNotification.localNotification({
+              channelId: 'fcm_default_channel',
+              title: title,
+              message: body,
+            });
+          } else {
+            PushNotification.localNotification({
+              channelId: 'fcm_default_channel',
+              title: '미팅이 종료되었습니다.',
+              message: '미팅이 종료되었습니다.',
+            });
+          }
+        } else {
+          PushNotification.localNotification({
+            channelId: 'fcm_default_channel',
+            title: title,
+            message: body,
+          });
+        }
+      }
+      if (remoteMessage.data) {
+        const {title: dataTitle, body: dataBody} = remoteMessage.data;
+        console.log(dataTitle, dataBody);
+        if (dataTitle == 'SAFE_RETURN') {
+          const autoSafeReturn = await localToInfo('autoSafeReturn');
+          const safeReturnId = await localToInfo('safeReturnId');
+          const isSendMeetingMember = await localToInfo('isSendMeetingMember');
+          const meetingMember = [];
+          const myInfo = await localToInfo('userInfo');
+          if (isSendMeetingMember) {
+            JSON.parse(dataBody).forEach((val) => {
+              if (
+                val.gender == myInfo.gender &&
+                val.id != myInfo.kakao_auth_id
+              ) {
+                meetingMember.push(val.id);
+              }
+            });
+          }
+          if (autoSafeReturn && safeReturnId == null) {
+            startSafeReturnFunc(meetingMember, myInfo.name);
+          } else {
+            // console.log(autoSafeReturn);
+          }
+        }
+        if (dataTitle == 'ANIMAL') {
+          _getAnimalSimilarity(JSON.parse(dataBody));
+        }
+      }
+    });
+    PushNotification.configure({
+      onRegister: (token) => {
+        // console.log('Register Handler:', token);
+      },
+      onNotification: (notification) => {
+        // console.log('Notification:', notification);
+      },
+      onAction: (notification) => {
+        // console.log('Action:', notification);
+      },
+      popInitialNotification: true,
+      requestPermissions: true,
+    });
+    PushNotification.channelExists('default-channel-id', (exists) => {
+      if (!exists) {
+        PushNotification.createChannel({
+          channelId: 'default-channel-id', // (required)
+          channelName: `Default channel`, // (required)
+          channelDescription: 'A default channel', // (optional) default: undefined.
+          soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+          importance: 4, // (optional) default: 4. Int value of the Android notification importance
+          vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+        });
+      }
+    });
+    PushNotification.channelExists('fcm_default_channel', (exists) => {
+      if (!exists) {
+        PushNotification.createChannel({
+          channelId: 'fcm_default_channel', // (required)
+          channelName: 'FCM default channel', // (required)
+          channelDescription: 'fcm_default_channel', // (optional) default: undefined.
+          soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+          importance: 4, // (optional) default: 4. Int value of the Android notification importance
+          vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+        });
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
   const Navigator = () => {
@@ -105,6 +226,41 @@ const App = () => {
       );
     };
 
+    const ChatStack = ({navigation, route}) => {
+      useLayoutEffect(() => {
+        const routeName = getFocusedRouteNameFromRoute(route);
+        if (routeName === 'Messages') {
+          navigation.setOptions({tabBarVisible: false});
+        } else {
+          navigation.setOptions({tabBarVisible: true});
+        }
+      }, [navigation, route]);
+      return (
+        <Stack.Navigator initialRouteName="Chat">
+          <Stack.Screen name="Chat" component={Chat} />
+          <Stack.Screen
+            name="Messages"
+            component={Messages}
+            options={({route}) => ({
+              title: route.params.thread.name,
+            })}
+          />
+        </Stack.Navigator>
+      );
+    };
+
+    const SettingStack = () => {
+      return (
+        <Stack.Navigator initialRouteName="Setting">
+          <Stack.Screen name="Setting" component={Setting} />
+          <Stack.Screen
+            name="DestinationSetting"
+            component={DestinationSetting}
+          />
+        </Stack.Navigator>
+      );
+    };
+
     const homeTab = () => {
       return (
         <BottomTabs.Navigator initialRouteName="List" backBehavior="none">
@@ -123,7 +279,7 @@ const App = () => {
           />
           <BottomTabs.Screen
             name="State"
-            component={topTab}
+            component={State}
             options={{
               tabBarIcon: ({focused}) => {
                 return focused ? (
@@ -136,7 +292,7 @@ const App = () => {
           />
           <BottomTabs.Screen
             name="Chat"
-            component={Chat}
+            component={ChatStack}
             options={{
               tabBarIcon: ({focused}) => {
                 return focused ? (
@@ -148,21 +304,21 @@ const App = () => {
             }}
           />
           <BottomTabs.Screen
-            name="Map"
-            component={GoogleMap}
+            name="Friend"
+            component={Friend}
             options={{
               tabBarIcon: ({focused}) => {
                 return focused ? (
-                  <Icon name="navigate-sharp" size={30} />
+                  <Icon name="person-add-sharp" size={30} />
                 ) : (
-                  <Icon name="navigate-outline" size={30} />
+                  <Icon name="person-add-outline" size={30} />
                 );
               },
             }}
           />
           <BottomTabs.Screen
             name="Setting"
-            component={Setting}
+            component={SettingStack}
             options={{
               tabBarIcon: ({focused}) => {
                 return focused ? (
@@ -189,13 +345,14 @@ const App = () => {
 
     return (
       <NavigationContainer theme={MyTheme}>
-        <Stack.Navigator initialRouteName="Login" headerMode="false">
+        <Stack.Navigator initialRouteName={initDestination} headerMode="false">
           <Stack.Screen name="Login" component={loginStack} />
           <Stack.Screen name="Home" component={homeStack} />
         </Stack.Navigator>
       </NavigationContainer>
     );
   };
+  if (initializing) return null;
   return <Navigator />;
 };
 

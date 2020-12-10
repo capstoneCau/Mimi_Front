@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,22 +6,19 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  BackHandler,
 } from 'react-native';
+import {backAction} from '../common/common';
 import KakaoLogins from '@react-native-seoul/kakao-login';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {requestKaKaoAuthIdAsync} from '../modules/login';
 
 export default function KakaoLoginBtn({navigation}) {
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [logoutLoading, setLogoutLoading] = useState(false);
-  const [profileLoading, setProfileLoading] = useState(false);
-  // const [unlinkLoading, setUnlinkLoading] = useState(false);
-  const [token, setToken] = useState(TOKEN_EMPTY);
   const [profile, setProfile] = useState(PROFILE_EMPTY);
-  // const user = useSelector(state => state.login);
+  const user = useSelector((state) => state.login);
   const dispatch = useDispatch();
   const onLoginUser = useCallback(
-    (kakaoId) => dispatch(requestKaKaoAuthIdAsync(kakaoId)),
+    (kakaoId, fcmToken) => dispatch(requestKaKaoAuthIdAsync(kakaoId, fcmToken)),
     [dispatch],
   );
 
@@ -37,62 +34,52 @@ export default function KakaoLoginBtn({navigation}) {
     profile_image_url: '',
   };
 
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () =>
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+  }, []);
   const kakaoLogin = async () => {
-    logCallback('Login Start', setLoginLoading(true));
+    logCallback('Login Start');
     try {
       const result = await KakaoLogins.login();
-      setToken(result.accessToken);
-      logCallback(
-        `Login Finished:${JSON.stringify(result)}`,
-        setLoginLoading(false),
-      );
+      logCallback(`Login Finished:${JSON.stringify(result)}`);
 
       const profile = await KakaoLogins.getProfile();
 
       setProfile(profile);
-      logCallback(
-        `Get Profile Finished:${JSON.stringify(profile)}`,
-        setProfileLoading(false),
-      );
+      logCallback(`Get Profile Finished:${JSON.stringify(profile)}`);
 
-      // if (await onLoginUser('1111111111')) {
-      // if (await onLoginUser('2222222222')) {
-      // if (await onLoginUser('3333333333')) {
-      // if (await onLoginUser('1489710892')) {
-      // if (await onLoginUser('1519828858')) {
-      if (await onLoginUser(profile.id)) {
-        //
+      if (await onLoginUser(profile.id, user.fcmToken)) {
         navigation.navigate('Home');
       } else {
         navigation.navigate('SignUp', {
-          gender: profile.gender.toLowerCase(),
-          birthday: profile.birthday,
+          // gender:
+          //   profile.gender != null ? profile.gender.toLowerCase() : 'male',
+          // birthday: profile.birthday,
+          gender: 'male',
+          birthday: '0522',
         });
+        // console.log('a');
       }
     } catch (err) {
       if (err.code === 'E_CANCELLED_OPERATION') {
-        logCallback(`Login Cancelled:${err.message}`, setLoginLoading(false));
+        logCallback(`Login Cancelled:${err.message}`);
       } else {
-        logCallback(
-          `Login Failed:${err.code} ${err.message}`,
-          setLoginLoading(false),
-        );
+        logCallback(`Login Failed:${err.code} ${err.message}`);
       }
+      console.log(err);
     }
   };
 
   const kakaoLogout = async () => {
-    logCallback('Logout Start', setLogoutLoading(true));
+    logCallback('Logout Start');
     try {
       const result = await KakaoLogins.logout();
-      setToken(TOKEN_EMPTY);
       setProfile(PROFILE_EMPTY);
-      logCallback(`Logout Finished:${result}`, setLogoutLoading(false));
     } catch (err) {
-      logCallback(
-        `Logout Failed:${err.code} ${err.message}`,
-        setLogoutLoading(false),
-      );
+      logCallback(`Logout Failed:${err.code} ${err.message}`);
     }
   };
 

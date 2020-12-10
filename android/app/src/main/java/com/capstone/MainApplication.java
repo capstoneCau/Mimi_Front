@@ -12,6 +12,7 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.dooboolab.kakaologins.RNKakaoLoginsPackage;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -28,74 +29,109 @@ import androidx.annotation.NonNull;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static android.content.ContentValues.TAG;
-
-
+import com.ocetnik.timer.BackgroundTimerPackage;
+import org.reactnative.camera.RNCameraPackage;
+import com.RNFetchBlob.RNFetchBlobPackage;
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 public class MainApplication extends Application implements ReactApplication {
 
-  private final ReactNativeHost mReactNativeHost =
-      new ReactNativeHost(this) {
-        @Override
-        public boolean getUseDeveloperSupport() {
-          return BuildConfig.DEBUG;
-        }
+    private final ReactNativeHost mReactNativeHost =
+            new ReactNativeHost(this) {
+                @Override
+                public boolean getUseDeveloperSupport() {
+                    return BuildConfig.DEBUG;
+                }
 
-        @Override
-        protected List<ReactPackage> getPackages() {
-          @SuppressWarnings("UnnecessaryLocalVariable")
-          List<ReactPackage> packages = new PackageList(this).getPackages();
-          // Packages that cannot be autolinked yet can be added manually here, for example:
-          // packages.add(new MyReactNativePackage());
-          packages.add(new RNKakaoLoginsPackage());
-          return packages;
-        }
+                @Override
+                protected List<ReactPackage> getPackages() {
+                    @SuppressWarnings("UnnecessaryLocalVariable")
+                    List<ReactPackage> packages = new PackageList(this).getPackages();
+                    // Packages that cannot be autolinked yet can be added manually here, for example:
+                    // packages.add(new MyReactNativePackage());
+                    packages.add(new RNKakaoLoginsPackage());
+//                    packages.add(new BackgroundTimerPackage());
+                    return packages;
+                }
 
-        @Override
-        protected String getJSMainModuleName() {
-          return "index";
-        }
-      };
+                @Override
+                protected String getJSMainModuleName() {
+                    return "index";
+                }
+            };
+//    private final LocationListener listener = new LocationListener() {
+//        @Override
+//        public void onStatusChanged(String provider, int status, Bundle extras) {
+//        }
+//
+//        @Override
+//        public void onProviderEnabled(String provider) {
+//        }
+//
+//        @Override
+//        public void onProviderDisabled(String provider) {
+//        }
+//
+//        @Override
+//        public void onLocationChanged(Location location) {
+//            Log.d("headless", location.toString());
+//            Intent myIntent = new Intent(getApplicationContext(), LocationService.class);
+//            getApplicationContext().startService(myIntent);
+//            HeadlessJsTaskService.acquireWakeLockNow(getApplicationContext());
+//        }
+//    };
 
-  @Override
-  public ReactNativeHost getReactNativeHost() {
-    return mReactNativeHost;
-  }
+    @Override
+    public ReactNativeHost getReactNativeHost() {
+        return mReactNativeHost;
+    }
 
-  @Override
-  public void onCreate() {
-    super.onCreate();
-    SoLoader.init(this, /* native exopackage */ false);
-    initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
-    try {
-      PackageInfo info = getPackageManager().getPackageInfo("com.capstone", PackageManager.GET_SIGNATURES);
-      for (Signature signature : info.signatures) {
-        MessageDigest md = MessageDigest.getInstance("SHA");
-        md.update(signature.toByteArray());
-        Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-      }
-      FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        // Start requesting for location
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            Log.d("headless", "Not permission");
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 1, listener);
+        SoLoader.init(this, /* native exopackage */ false);
+        initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo("com.capstone", PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+            }
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
                 @Override
                 public void onComplete(@NonNull Task<String> task) {
-                  if (!task.isSuccessful()) {
-                    Log.w("firefire", "Fetching FCM registration token failed", task.getException());
-                    return;
-                  }
+                    if (!task.isSuccessful()) {
+                        Log.w("firefire", "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
 
-                  // Get new FCM registration token
-                  String token = task.getResult();
-                  Log.d("firefire", "aaaaa");
-                  // Log and toast
-                  String msg = getString(R.string.msg_token_fmt, token);
-                  Log.d("firefire", msg);
+                    // Get new FCM registration token
+                    String token = task.getResult();
+                    Log.d("firefire", "aaaaa");
+                    // Log and toast
+                    String msg = getString(R.string.msg_token_fmt, token);
+                    Log.d("firefire", msg);
                 }
-              });
+            });
+        } catch (PackageManager.NameNotFoundException e) {
 
+        } catch (NoSuchAlgorithmException e) {
 
-    } catch (PackageManager.NameNotFoundException e) {
-
-    } catch (NoSuchAlgorithmException e) {
-      
-    }
+        }
   }
 
   /**

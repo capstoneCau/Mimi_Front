@@ -19,7 +19,6 @@ import {useTheme} from '@react-navigation/native';
 import {CONST_VALUE} from '../common/common';
 import {useSelector, useDispatch} from 'react-redux';
 import {registerUserInfoAsync} from '../modules/login';
-import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
 import {FancyButton, FancyFonts} from '../common/common';
 import {SearchSchool} from './SchoolApi';
@@ -35,6 +34,7 @@ export default function CertifySchool({
   schoolAddress,
   onChange,
   setInputs,
+  setStartSignUp,
   setStartCertify,
   startMbti,
   setStartMbti,
@@ -43,10 +43,12 @@ export default function CertifySchool({
   const [campusName, setCampusName] = useState('');
   const [schoolLink, setSchoolLink] = useState('');
   const [showSchoolModal, setShowSchoolModal] = useState(false);
-  const [authCode, setAuthCode] = useState(12345678);
+  const [authCode, setAuthCode] = useState(1234567);
   const [inputAuthCode, setInputAuthCode] = useState();
   const [isPressSubmit, setIsPressSubmit] = useState(false);
   const [isAuth, setAuth] = useState(false);
+  const [authTime, setAuthTime] = useState();
+  const [authTimeIntervalId, setAuthTimeIntervalId] = useState(null);
   const [schoolSort, setSchoolSort] = useState({
     schoolN: [],
     campusN: [],
@@ -69,6 +71,7 @@ export default function CertifySchool({
 
   useEffect(() => {
     const backAction = () => {
+      setStartSignUp(true);
       setStartCertify(false);
       return true;
     };
@@ -123,7 +126,6 @@ export default function CertifySchool({
         Alert.alert('잘못된 학교명입니다, 다른 이름으로 검색해주세요.');
       });
   };
-
   const schoolList = (
     <SafeAreaView style={styles.schoolModalboxContainer}>
       <Text style={styles.modalTitleText}>당신의 학교는?</Text>
@@ -133,11 +135,11 @@ export default function CertifySchool({
           <TouchableOpacity
             style={styles.schoolModalbox}
             onPress={() => {
-              setSchoolName(item + ' ' + schoolSort.campusN[index]);
+              setSchoolName(item);
               setInputs((inputs) => {
                 return {
                   ...inputs,
-                  ['school']: item + schoolSort.campusN[index],
+                  ['school']: item,
                 };
               });
               setInputs((inputs) => {
@@ -149,9 +151,7 @@ export default function CertifySchool({
               setShowSchoolModal(false);
               setIsPressSubmit(false);
             }}>
-            <Text style={styles.schoolModalText}>
-              {item} {schoolSort.campusN[index]}
-            </Text>
+            <Text style={styles.schoolModalText}>{item}</Text>
           </TouchableOpacity>
         )}
         keyExtractor={(item, index) => index.toString()}
@@ -191,6 +191,7 @@ export default function CertifySchool({
                 ToastAndroid.SHORT,
                 ToastAndroid.CENTER,
               );
+              clearInterval(authTimeIntervalId);
               onChange('email', emailHost + '@' + schoolAddress);
               setAuth(true);
             } else {
@@ -201,8 +202,21 @@ export default function CertifySchool({
               );
             }
           }}>
-          {isAuth ? '인증성공' : '인증하기'}
+          <Text style={{fontFamily: FancyFonts.BMDOHYEON}}>
+            {isAuth ? '인증성공' : '인증하기'}
+          </Text>
         </FancyButton>
+        <View style={[isAuth ? {display: 'none'} : styles.timer]}>
+          <Text
+            style={{
+              fontFamily: FancyFonts.BMDOHYEON,
+            }}>
+            {parseInt(authTime / 60)}:
+            {(authTime - parseInt(authTime / 60) * 60).toString().length == 1
+              ? '0' + (authTime - parseInt(authTime / 60) * 60).toString()
+              : (authTime - parseInt(authTime / 60) * 60).toString()}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -291,6 +305,28 @@ export default function CertifySchool({
                         ToastAndroid.SHORT,
                         ToastAndroid.CENTER,
                       );
+
+                      if (authTimeIntervalId != null) {
+                        clearInterval(authTimeIntervalId);
+                      }
+                      let _authTime = 180;
+                      setAuthTime(_authTime);
+                      const intervalId = setInterval(() => {
+                        _authTime--;
+                        setAuthTime(_authTime);
+                        if (_authTime < 0) {
+                          setAuthTime(0);
+                          clearInterval(intervalId);
+                          ToastAndroid.showWithGravity(
+                            '인증 코드가 만료되었습니다. 재전송버튼을 눌러주세요.',
+                            ToastAndroid.SHORT,
+                            ToastAndroid.CENTER,
+                          );
+                          setAuthCode(null);
+                          setAuthTimeIntervalId(null);
+                        }
+                      }, 1000);
+                      setAuthTimeIntervalId(intervalId);
                       setAuthCode(
                         await getAuthCode(emailHost + '@' + schoolAddress),
                       );
@@ -300,6 +336,28 @@ export default function CertifySchool({
                         failSchool();
                       } else {
                         setIsPressSubmit(true);
+
+                        if (authTimeIntervalId != null) {
+                          clearInterval(authTimeIntervalId);
+                        }
+                        let _authTime = 180;
+                        setAuthTime(_authTime);
+                        const intervalId = setInterval(() => {
+                          _authTime--;
+                          setAuthTime(_authTime);
+                          if (_authTime < 0) {
+                            setAuthTime(0);
+                            clearInterval(intervalId);
+                            ToastAndroid.showWithGravity(
+                              '인증 코드가 만료되었습니다. 재전송버튼을 눌러주세요.',
+                              ToastAndroid.SHORT,
+                              ToastAndroid.CENTER,
+                            );
+                            setAuthCode(null);
+                            setAuthTimeIntervalId(null);
+                          }
+                        }, 1000);
+                        setAuthTimeIntervalId(intervalId);
                         setAuthCode(
                           await getAuthCode(emailHost + '@' + schoolAddress),
                         );
@@ -327,6 +385,7 @@ export default function CertifySchool({
           onPress={async () => {
             if (isAuth) {
               email = emailHost + '@' + schoolAddress;
+              setStartCertify(false);
               setStartMbti(true);
               //delete schoolAddress;
               //delete emailHost;
@@ -438,6 +497,10 @@ const styles = StyleSheet.create({
   },
   certify: {
     flexDirection: 'row',
+  },
+  timer: {
+    justifyContent: 'center',
+    marginLeft: 10,
   },
   inputCode: {
     width: width * 0.4,

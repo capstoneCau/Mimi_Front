@@ -13,7 +13,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useTheme} from '@react-navigation/native';
 import {CONST_VALUE} from '../common/common';
-import {getInformation} from '../modules/getInformation';
+import {getMbtiList} from '../modules/getInformation';
 import {FancyButton, FancyFonts} from '../common/common';
 
 var width = Dimensions.get('window').width;
@@ -24,19 +24,18 @@ export default function MbtiCheck({
   gender,
   onChange,
   setStartMbti,
-  setFinishSignUp,
+  setStartCertify,
+  setStartAnimal,
 }) {
   const [showMbtiModal, setShowMbtiModal] = useState(false);
   const [showMbtiTestModal, setShowMbtiTestModal] = useState(false);
-  // const [showStarModal, setShowStarModal] = useState(false);
   const [mbtiSort, setMbtiSort] = useState();
-  const [starSort, setStarSort] = useState();
   const [stage, setStage] = useState(0);
   const {colors} = useTheme();
-  const [tempMbti, setTempMbti] = useState('');
 
   useEffect(() => {
     const backAction = () => {
+      setStartCertify(true);
       setStartMbti(false);
       return true;
     };
@@ -51,14 +50,13 @@ export default function MbtiCheck({
 
   useEffect(() => {
     const infor = async () => {
-      setMbtiSort(await getInformation('mbti'));
-      // setStarSort(await getInformation('star'));
+      setMbtiSort(await getMbtiList());
     };
     infor();
   }, []);
 
   const List = (kinds) => {
-    const sort = kinds === 'mbti' ? mbtiSort : starSort;
+    const sort = mbtiSort;
 
     return (
       <SafeAreaView style={styles.modalboxContainer}>
@@ -251,9 +249,10 @@ export default function MbtiCheck({
           mode="contained"
           color={mbti ? '#000069' : 'gray'}
           onPress={() => {
-            setFinishSignUp(true);
+            setStartMbti(false);
+            setStartAnimal(true);
           }}>
-          <Text style={styles.nextButtonText}>작성완료</Text>
+          <Text style={styles.nextButtonText}>다음</Text>
         </FancyButton>
       </View>
     </LinearGradient>
@@ -272,7 +271,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   titleText: {
-    fontSize: 25,
+    fontSize: 23,
     fontFamily: FancyFonts.BMDOHYEON,
   },
   checkContainer: {

@@ -13,11 +13,11 @@ import {useTheme} from '@react-navigation/native';
 import {CONST_VALUE} from '../common/common';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {registerUserInfoAsync} from '../modules/login';
-import {getInformation} from '../modules/getInformation';
 import {getAuthCode} from '../modules/getAuthCode';
 import {FancyButton, FancyFonts} from '../common/common';
 import CertifySchool from './CertifySchool';
 import MbtiCheck from './MbtiCheck';
+import SimilarAnimal from './SimilarAnimal';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -41,8 +41,10 @@ export default function CreateUsers({route, navigation}) {
   const {kakaoId: kakao_auth_id} = useSelector((state) => state.login);
 
   const {colors} = useTheme();
+  const [startSignUp, setStartSignUp] = useState(true);
   const [startCertify, setStartCertify] = useState(false);
   const [startMbti, setStartMbti] = useState(false);
+  const [startAnimal, setStartAnimal] = useState(false);
   const [finishSignUp, setFinishSignUp] = useState(false);
   const user = useSelector((state) => state.login, shallowEqual);
 
@@ -50,15 +52,18 @@ export default function CreateUsers({route, navigation}) {
     name: '',
     school: '',
     email: '',
+    // birthday: '08-23',
     birthday: route.params.birthday == null ? '0924' : route.params.birthday,
     // address: '',
     mbti: '',
+    // gender: 'male',
     gender: route.params.gender == null ? 'male' : route.params.gender,
     kakao_auth_id: kakao_auth_id,
     birthYear: '',
     emailHost: '',
     schoolAddress: '',
     fcmToken: user.fcmToken,
+    profileImg: '',
   });
 
   const {
@@ -72,6 +77,7 @@ export default function CreateUsers({route, navigation}) {
     gender,
     birthday,
     birthYear,
+    profileImg,
   } = inputs;
 
   const onChange = (name, value) => {
@@ -98,6 +104,7 @@ export default function CreateUsers({route, navigation}) {
       schoolAddress={schoolAddress}
       onChange={onChange}
       setInputs={setInputs}
+      setStartSignUp={setStartSignUp}
       setStartCertify={setStartCertify}
       startMbti={startMbti}
       setStartMbti={setStartMbti}
@@ -109,6 +116,16 @@ export default function CreateUsers({route, navigation}) {
       gender={gender}
       onChange={onChange}
       setStartMbti={setStartMbti}
+      setStartCertify={setStartCertify}
+      setStartAnimal={setStartAnimal}
+    />
+  ) : null;
+  const animalCheck = startAnimal ? (
+    <SimilarAnimal
+      gender={gender}
+      onChange={onChange}
+      setStartMbti={setStartMbti}
+      setStartAnimal={setStartAnimal}
       setFinishSignUp={setFinishSignUp}
     />
   ) : null;
@@ -120,12 +137,11 @@ export default function CreateUsers({route, navigation}) {
       delete inputs.schoolAddress;
       delete inputs.birthYear;
 
-      registerUser(inputs);
-
-      navigation.navigate('Home');
+      registerUser(inputs).then(() => {
+        navigation.navigate('Home');
+      });
     }
   }, [finishSignUp]);
-
   return (
     <LinearGradient
       colors={
@@ -134,7 +150,7 @@ export default function CreateUsers({route, navigation}) {
           : ['#ffffff', '#ffffff']
       }
       style={styles.container}>
-      <View style={[{flex: 1}, startCertify ? {display: 'none'} : {}]}>
+      <View style={[{flex: 1}, startSignUp ? {} : {display: 'none'}]}>
         <View style={styles.titleContainer}>
           <Text style={styles.titleText}>회원가입</Text>
         </View>
@@ -178,6 +194,7 @@ export default function CreateUsers({route, navigation}) {
                   '-' +
                   birthday.substring(2, 4),
               );
+              setStartSignUp(false);
               setStartCertify(true);
             }}>
             <Text style={styles.nextButtonText}>다음</Text>
@@ -186,6 +203,7 @@ export default function CreateUsers({route, navigation}) {
       </View>
       {certifySchool}
       {mbtiCheck}
+      {animalCheck}
     </LinearGradient>
   );
 }

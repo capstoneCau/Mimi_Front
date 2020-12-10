@@ -45,5 +45,5 @@ export const backAction = () => {
 };
 
 export const SERVER_DOMAIN =
-  'http://ec2-15-164-211-249.ap-northeast-2.compute.amazonaws.com/';
-// export const SERVER_DOMAIN = 'http://192.168.0.8:8000/';
+  'http://ec2-13-124-245-197.ap-northeast-2.compute.amazonaws.com/';
+// export const SERVER_DOMAIN = 'http://111.118.49.126:8000/';
