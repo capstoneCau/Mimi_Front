@@ -1,5 +1,4 @@
 import {SERVER_DOMAIN} from '../common/common';
-import State from '../screens/StateGive';
 
 //Action Type
 const GET_INVITER_PARTICIPATE_REQUEST =

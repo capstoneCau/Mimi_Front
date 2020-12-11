@@ -10,7 +10,6 @@ import {
 } from 'react-native-paper';
 
 import {FancyButton, FancyFonts} from '../common/common';
-import State from '../screens/StateGive';
 import infoToLocal from '../common/InfoToLocal';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;

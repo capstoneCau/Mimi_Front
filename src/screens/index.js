@@ -3,8 +3,6 @@ import Login from './Login';
 import Setting from './Setting';
 import SignUp from './SignUp';
 import State from './State';
-import StateGive from './StateGive';
-import StateTake from './StateTake';
 import Chat from './Chat';
 import AddMeeting from './AddMeeting';
 import Friend from './Friend';
@@ -17,8 +15,6 @@ export {
   Setting,
   SignUp,
   State,
-  StateGive,
-  StateTake,
   Chat,
   Messages,
   AddMeeting,

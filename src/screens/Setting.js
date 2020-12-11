@@ -94,6 +94,7 @@ export default function Setting({navigation}) {
     isAuto,
     safeReturnId,
   } = useSelector((state) => state.safeReturn);
+  console.log(coordinate);
 
   const [showFriendModal, setShowFriendModal] = useState(false);
   const [visibleMyInfo, setVisibleMyInfo] = useState(false);
@@ -243,7 +244,7 @@ export default function Setting({navigation}) {
         <Appbar.Content title="설정" />
       </Appbar.Header>
       <ScrollView>
-        <List.Section title="안전귀가서비스">
+        {/* <List.Section title="안전귀가서비스">
           <List.Item
             title="자동서비스"
             left={(props) => <List.Icon {...props} icon="android-auto" />}
@@ -336,7 +337,7 @@ export default function Setting({navigation}) {
               />
             </TouchableOpacity>
           </TouchableOpacity>
-        </List.Section>
+        </List.Section> */}
         <List.Section title="개인/보안">
           <List.Item
             title="내정보"
