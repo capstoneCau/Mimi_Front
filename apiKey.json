@@ -1,0 +1,15 @@
+{
+    "google" : {
+        "geocoding": "geocoding api key",
+        "distance": "distance api key"
+    },
+    "naver" : {
+        "client_id" : "naver client id",
+        "client_secret" : "naver client secret key"
+    },
+    "odysay" : {
+        "android" : "android key",
+        "server" : "server key",
+        "web" : "web key"
+    }
+}
