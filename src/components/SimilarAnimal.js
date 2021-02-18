@@ -135,7 +135,6 @@ export default function Setting({
 
   useEffect(() => {
     requestCameraPermission();
-    console.log(user, animal);
   }, []);
   return (
     <SafeAreaView style={styles.container}>

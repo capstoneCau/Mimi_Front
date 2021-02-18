@@ -18,7 +18,8 @@ import {FancyButton, FancyFonts} from '../common/common';
 import CertifySchool from './CertifySchool';
 import MbtiCheck from './MbtiCheck';
 import SimilarAnimal from './SimilarAnimal';
-
+import TextInputComp from '../common/TextInputComp';
+import {commonStyles} from '../common/style';
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
 
@@ -143,48 +144,42 @@ export default function CreateUsers({route, navigation}) {
     }
   }, [finishSignUp]);
   return (
-    <LinearGradient
-      colors={
-        gender === true
-          ? [colors.manBackground[0], colors.manBackground[1]]
-          : ['#ffffff', '#ffffff']
-      }
-      style={styles.container}>
+    <View style={styles.container}>
       <View style={[{flex: 1}, startSignUp ? {} : {display: 'none'}]}>
         <View style={styles.titleContainer}>
           <Text style={styles.titleText}>회원가입</Text>
         </View>
         <View style={styles.formContainer}>
-          <View style={styles.form}>
+          <View style={styles.textInputContainer}>
             <TextInputComp
               autoFocus={true}
               onChange={onChange}
-              title="이름"
               name="name"
               value={name}
               maxLength={5}
-              placeholder="이름을 입력해 주세요"
+              placeholder="이름"
+              width={width * 0.9}
+              height={50}
             />
           </View>
-          <View style={styles.form}>
+          <View style={styles.textInputContainer}>
             <TextInputComp
               onChange={onChange}
-              title="태어난 년도"
               name="birthYear"
               value={birthYear}
               maxLength={4}
-              placeholder="태어난 년도를 입력해 주세요(ex: 1996)"
+              placeholder="태어난 년도 ex) 2010"
+              width={width * 0.9}
+              height={50}
             />
           </View>
         </View>
 
         <View style={styles.completeContainer}>
           <FancyButton
-            style={{
-              width: width * 0.8,
-            }}
+            style={commonStyles.nextButton}
             mode="contained"
-            color={name && birthYear ? '#000069' : 'gray'}
+            color={name && birthYear ? '#FFA7A7' : 'gray'}
             onPress={() => {
               onChange(
                 'birthday',
@@ -197,37 +192,13 @@ export default function CreateUsers({route, navigation}) {
               setStartSignUp(false);
               setStartCertify(true);
             }}>
-            <Text style={styles.nextButtonText}>다음</Text>
+            <Text style={commonStyles.nextButtonText}>다음</Text>
           </FancyButton>
         </View>
       </View>
       {certifySchool}
       {mbtiCheck}
       {animalCheck}
-    </LinearGradient>
-  );
-}
-
-function TextInputComp({
-  title,
-  name,
-  value,
-  placeholder,
-  maxLength,
-  onChange,
-  autoFocus,
-}) {
-  return (
-    <View style={styles.textInputContainer}>
-      <Text style={styles.text}>{title}</Text>
-      <TextInput
-        style={styles.input}
-        value={value}
-        placeholder={placeholder}
-        maxLength={maxLength}
-        onChangeText={(v) => onChange(name, v)}
-        autoFocus={autoFocus}
-      />
     </View>
   );
 }
@@ -238,44 +209,32 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   titleContainer: {
-    flex: 1,
-    marginTop: 50,
+    flex: 1.1,
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginBottom: 30,
   },
   titleText: {
     fontSize: 30,
     fontFamily: FancyFonts.BMDOHYEON,
   },
   formContainer: {
-    flex: 9,
-    justifyContent: 'center',
+    flex: 3,
     alignItems: 'center',
-    marginBottom: height * 0.25,
   },
   text: {
     fontFamily: FancyFonts.BMDOHYEON,
   },
-  form: {
+  textInputContainer: {
     marginBottom: 20,
   },
-  input: {
-    marginTop: 5,
-    paddingLeft: 10,
-    width: width * 0.8,
-    borderColor: 'gray',
-    borderBottomWidth: 2,
-  },
+
   fancyButton: {
     marginTop: 5,
   },
 
   completeContainer: {
-    flex: 1,
+    flex: 0.5,
     alignItems: 'center',
-    marginBottom: 40,
-  },
-  nextButtonText: {
-    color: '#ffffff',
-    fontFamily: FancyFonts.BMDOHYEON,
   },
 });

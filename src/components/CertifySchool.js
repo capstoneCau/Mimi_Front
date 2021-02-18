@@ -14,7 +14,7 @@ import {
   ToastAndroid,
   BackHandler,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+
 import {useTheme} from '@react-navigation/native';
 import {CONST_VALUE} from '../common/common';
 import {useSelector, useDispatch} from 'react-redux';
@@ -22,6 +22,8 @@ import {registerUserInfoAsync} from '../modules/login';
 import {getAuthCode} from '../modules/getAuthCode';
 import {FancyButton, FancyFonts} from '../common/common';
 import {SearchSchool} from './SchoolApi';
+import TextInputComp from '../common/TextInputComp';
+import {BlankContainer, commonStyles} from '../common/style';
 
 var width = Dimensions.get('window').width;
 var height = Dimensions.get('window').height;
@@ -43,7 +45,8 @@ export default function CertifySchool({
   const [campusName, setCampusName] = useState('');
   const [schoolLink, setSchoolLink] = useState('');
   const [showSchoolModal, setShowSchoolModal] = useState(false);
-  const [authCode, setAuthCode] = useState(1234567);
+  const [showSkipModal, setShowSkipModal] = useState(false);
+  const [authCode, setAuthCode] = useState(12);
   const [inputAuthCode, setInputAuthCode] = useState();
   const [isPressSubmit, setIsPressSubmit] = useState(false);
   const [isAuth, setAuth] = useState(false);
@@ -128,96 +131,152 @@ export default function CertifySchool({
   };
   const schoolList = (
     <SafeAreaView style={styles.schoolModalboxContainer}>
-      <Text style={styles.modalTitleText}>당신의 학교는?</Text>
-      <FlatList
-        data={schoolSort.schoolN}
-        renderItem={({item, index}) => (
-          <TouchableOpacity
-            style={styles.schoolModalbox}
-            onPress={() => {
-              setSchoolName(item);
-              setInputs((inputs) => {
-                return {
-                  ...inputs,
-                  ['school']: item,
-                };
-              });
-              setInputs((inputs) => {
-                return {
-                  ...inputs,
-                  ['schoolAddress']: schoolSort.schoolL[index],
-                };
-              });
-              setShowSchoolModal(false);
-              setIsPressSubmit(false);
-            }}>
-            <Text style={styles.schoolModalText}>{item}</Text>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-      />
+      <View style={{flex: 2}}>
+        <Text style={styles.modalTitleText}>학교를 선택해 주세요</Text>
+      </View>
+      <View style={{flex: 8}}>
+        <FlatList
+          data={schoolSort.schoolN}
+          renderItem={({item, index}) => (
+            <View>
+              <TouchableOpacity
+                style={styles.schoolModalbox}
+                onPress={() => {
+                  setSchoolName(item);
+                  setInputs((inputs) => {
+                    return {
+                      ...inputs,
+                      ['school']: item,
+                    };
+                  });
+                  setInputs((inputs) => {
+                    return {
+                      ...inputs,
+                      ['schoolAddress']: schoolSort.schoolL[index],
+                    };
+                  });
+                  setShowSchoolModal(false);
+                  setIsPressSubmit(false);
+                }}>
+                <Text style={styles.schoolModalText}>{item}</Text>
+              </TouchableOpacity>
+              <View style={{marginBottom: 20}}></View>
+            </View>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </View>
+      <TouchableOpacity
+        style={styles.closeButtonContainer}
+        onPress={() => {
+          setShowSchoolModal(false);
+          setIsPressSubmit(false);
+        }}>
+        <Text style={styles.closeButton}>닫기</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 
   const schoolModal = (
-    <Modal animationType={'slide'} transparent={true} visible={showSchoolModal}>
+    <Modal
+      animationType={'slide'}
+      transparent={true}
+      visible={showSchoolModal}
+      onRequestClose={() => {
+        setShowSchoolModal(false);
+      }}>
       <View style={styles.schoolModalContainer}>{schoolList}</View>
+    </Modal>
+  );
+
+  const skipModal = (
+    <Modal
+      animationType={'slide'}
+      transparent={true}
+      visible={showSkipModal}
+      onRequestClose={() => {
+        setShowSkipModal(false);
+      }}>
+      <View style={styles.skipModalContainer}>
+        <View style={styles.skipModalTitle}>
+          <Text style={styles.modalTitleText}>학교 인증을 건너뛰겠습니까?</Text>
+        </View>
+        <View style={styles.skipModalContent}>
+          <Text style={{textAlign: 'justify', fontWeight: 'bold'}}>
+            {`
+            학교 인증을 생략시, (미인증)으로
+            등록되며 이후 인증을 원하실시
+            ‘설정’에서 하실 수 있습니다.
+            학교 이메일이 아닌 다른 방법
+            (포탈로그인 캡쳐/학생증 사진/
+            재학인증서 등) 으로 등록을 원하실시
+            ‘설정’에서 저희 회사로 email을 
+            보내주시면 신속히 처리해 드리겠습니다.
+            `}
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={styles.skipModalButton}
+          onPress={() => {
+            setStartCertify(false);
+            setStartMbti(true);
+          }}>
+          <Text style={styles.skipText}>건너뛰기</Text>
+        </TouchableOpacity>
+      </View>
     </Modal>
   );
 
   const certificationModal = (
     <View style={styles.certifyContainer}>
-      <Text style={styles.text}>인증</Text>
-      <View style={styles.certify}>
-        <TextInput
-          style={styles.inputCode}
-          title="인증코드"
-          placeholder="코드를 입력해 주세요"
-          maxLength={6}
-          onChangeText={(value) => {
-            setInputAuthCode(value);
-          }}
-        />
-        <FancyButton
-          mode="outlined"
-          color="#000069"
-          icon={isAuth ? 'shield-check' : ''}
-          style={{marginLeft: 20}}
-          disabled={isAuth}
-          onPress={() => {
-            if (authCode == inputAuthCode) {
-              ToastAndroid.showWithGravity(
-                '인증 성공',
-                ToastAndroid.SHORT,
-                ToastAndroid.CENTER,
-              );
-              clearInterval(authTimeIntervalId);
-              onChange('email', emailHost + '@' + schoolAddress);
-              setAuth(true);
-            } else {
-              ToastAndroid.showWithGravity(
-                '인증 번호가 틀립니다.',
-                ToastAndroid.SHORT,
-                ToastAndroid.CENTER,
-              );
-            }
-          }}>
-          <Text style={{fontFamily: FancyFonts.BMDOHYEON}}>
-            {isAuth ? '인증성공' : '인증하기'}
-          </Text>
-        </FancyButton>
-        <View style={[isAuth ? {display: 'none'} : styles.timer]}>
-          <Text
-            style={{
-              fontFamily: FancyFonts.BMDOHYEON,
-            }}>
-            {parseInt(authTime / 60)}:
-            {(authTime - parseInt(authTime / 60) * 60).toString().length == 1
+      <TextInputComp
+        style={styles.inputCode}
+        title="인증코드"
+        placeholder="인증번호를 입력하세요"
+        maxLength={6}
+        onChangeOne={setInputAuthCode}
+        width={width * 0.9}
+        height={50}
+      />
+      <FancyButton
+        style={[
+          commonStyles.nextButton,
+          {width: width * 0.9, height: 50, marginTop: 10},
+        ]}
+        mode="contained"
+        color={inputAuthCode ? '#FFA7A7' : 'gray'}
+        disabled={isAuth}
+        onPress={() => {
+          if (authCode == inputAuthCode) {
+            ToastAndroid.showWithGravity(
+              '인증에 성공하였습니다.',
+              ToastAndroid.SHORT,
+              ToastAndroid.CENTER,
+            );
+            clearInterval(authTimeIntervalId);
+            onChange('email', emailHost + '@' + schoolAddress);
+            setAuth(true);
+            email = emailHost + '@' + schoolAddress;
+            setStartCertify(false);
+            setStartMbti(true);
+          } else {
+            ToastAndroid.showWithGravity(
+              '인증 번호가 틀립니다.',
+              ToastAndroid.SHORT,
+              ToastAndroid.CENTER,
+            );
+          }
+        }}>
+        <Text style={commonStyles.nextButtonText}>
+          {'인증하기'} ({parseInt(authTime / 60)}:
+          {isPressSubmit
+            ? (authTime - parseInt(authTime / 60) * 60).toString().length == 1
               ? '0' + (authTime - parseInt(authTime / 60) * 60).toString()
-              : (authTime - parseInt(authTime / 60) * 60).toString()}
-          </Text>
-        </View>
-      </View>
+              : (authTime - parseInt(authTime / 60) * 60).toString()
+            : null}
+          )
+        </Text>
+      </FancyButton>
     </View>
   );
   const failSchool = () =>
@@ -249,62 +308,105 @@ export default function CertifySchool({
     );
 
   return (
-    <LinearGradient
-      colors={
-        showSchoolModal === true
-          ? [colors.modalBackground, colors.modalBackground]
-          : ['#ffffff', '#ffffff']
-      }
+    <View
       style={[styles.container, startMbti === true ? {display: 'none'} : {}]}>
       {schoolModal}
+      {skipModal}
+      <View style={styles.skipContainer}>
+        <TouchableOpacity
+          onPress={() => {
+            setShowSkipModal(true);
+          }}>
+          <Text style={styles.skipText}>건너뛰기</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.titleContainer}>
-        <Text style={styles.titleText}>학교인증</Text>
+        <Text style={styles.titleText}>학교 인증</Text>
       </View>
       <View style={styles.formContainer}>
         <View style={styles.buttonForm}>
-          <Text style={styles.text}>학교</Text>
-          <View style={styles.email}>
-            <TextInput
-              style={styles.schoolName}
+          <View style={styles.school}>
+            <TextInputComp
               value={schoolName}
-              placeholder="학교명을 입력해 주세요"
-              onChangeText={(value) => setSchoolName(value)}
+              placeholder={school ? school : '학교 이름을 입력해 주세요'}
+              onChangeOne={setSchoolName}
               autoFocus={true}
+              width={width * 0.6}
+              height={50}
             />
             <FancyButton
-              style={styles.fancyButton}
-              mode="outlined"
-              color="#000069"
-              icon="school"
+              style={[
+                commonStyles.nextButton,
+                {width: width * 0.25, height: 50, marginLeft: 20},
+              ]}
+              mode="contained"
+              color={schoolName ? '#FFA7A7' : 'gray'}
               onPress={() => {
                 requestSchoolAPI(schoolName);
               }}>
-              <Text style={styles.text}>학교검색</Text>
+              <Text style={commonStyles.nextButtonText}>학교 검색</Text>
             </FancyButton>
           </View>
         </View>
-        <View style={styles.buttonForm}>
-          <Text style={styles.text}>학교 이메일</Text>
+        <View style={[schoolAddress ? styles.buttonForm : {display: 'none'}]}>
           <View style={styles.email}>
-            <TextInput
-              style={styles.inputEmail}
+            <TextInputComp
               value={emailHost}
-              placeholder="이메일을 입력해 주세요"
-              onChangeText={(v) => onChange('emailHost', v)}
+              placeholder="학교 e-mail"
+              onChange={onChange}
+              name="emailHost"
+              width={width * 0.45}
+              height={50}
             />
             <Text style={styles.atSign}>@</Text>
             <Text style={styles.addressText}>{schoolAddress}</Text>
-            <FancyButton
-              mode="outlined"
-              color="#000069"
-              onPress={
-                isPressSubmit
-                  ? async () => {
-                      ToastAndroid.showWithGravity(
-                        '인증 메일이 재 전송 되었습니다.',
-                        ToastAndroid.SHORT,
-                        ToastAndroid.CENTER,
-                      );
+          </View>
+          <FancyButton
+            style={[
+              commonStyles.nextButton,
+              {width: width * 0.9, height: 50, marginTop: 10},
+            ]}
+            mode="contained"
+            color={emailHost ? '#FFA7A7' : 'gray'}
+            onPress={
+              isPressSubmit
+                ? async () => {
+                    ToastAndroid.showWithGravity(
+                      '인증 메일이 재 전송 되었습니다.',
+                      ToastAndroid.SHORT,
+                      ToastAndroid.CENTER,
+                    );
+
+                    if (authTimeIntervalId != null) {
+                      clearInterval(authTimeIntervalId);
+                    }
+                    let _authTime = 180;
+                    setAuthTime(_authTime);
+                    const intervalId = setInterval(() => {
+                      _authTime--;
+                      setAuthTime(_authTime);
+                      if (_authTime < 0) {
+                        setAuthTime(0);
+                        clearInterval(intervalId);
+                        ToastAndroid.showWithGravity(
+                          '인증 코드가 만료되었습니다. 재전송버튼을 눌러주세요.',
+                          ToastAndroid.SHORT,
+                          ToastAndroid.CENTER,
+                        );
+                        setAuthCode(null);
+                        setAuthTimeIntervalId(null);
+                      }
+                    }, 1000);
+                    setAuthTimeIntervalId(intervalId);
+                    setAuthCode(
+                      await getAuthCode(emailHost + '@' + schoolAddress),
+                    );
+                  }
+                : async () => {
+                    if (schoolAddress === '') {
+                      failSchool();
+                    } else {
+                      setIsPressSubmit(true);
 
                       if (authTimeIntervalId != null) {
                         clearInterval(authTimeIntervalId);
@@ -331,57 +433,23 @@ export default function CertifySchool({
                         await getAuthCode(emailHost + '@' + schoolAddress),
                       );
                     }
-                  : async () => {
-                      if (schoolAddress === '') {
-                        failSchool();
-                      } else {
-                        setIsPressSubmit(true);
-
-                        if (authTimeIntervalId != null) {
-                          clearInterval(authTimeIntervalId);
-                        }
-                        let _authTime = 180;
-                        setAuthTime(_authTime);
-                        const intervalId = setInterval(() => {
-                          _authTime--;
-                          setAuthTime(_authTime);
-                          if (_authTime < 0) {
-                            setAuthTime(0);
-                            clearInterval(intervalId);
-                            ToastAndroid.showWithGravity(
-                              '인증 코드가 만료되었습니다. 재전송버튼을 눌러주세요.',
-                              ToastAndroid.SHORT,
-                              ToastAndroid.CENTER,
-                            );
-                            setAuthCode(null);
-                            setAuthTimeIntervalId(null);
-                          }
-                        }, 1000);
-                        setAuthTimeIntervalId(intervalId);
-                        setAuthCode(
-                          await getAuthCode(emailHost + '@' + schoolAddress),
-                        );
-                      }
-                    }
-              }>
-              <Text style={styles.text}>
-                {isPressSubmit ? '재전송' : '코드전송'}
-              </Text>
-            </FancyButton>
-          </View>
+                  }
+            }>
+            <Text style={commonStyles.nextButtonText}>
+              {isPressSubmit ? '재전송' : '코드 전송'}
+            </Text>
+          </FancyButton>
         </View>
         <View style={isPressSubmit == true ? styles.buttonForm : {opacity: 0}}>
           {certificationModal}
         </View>
       </View>
-
+      {/* 
       <View style={styles.completeContainer}>
         <FancyButton
-          style={{
-            width: width * 0.8,
-          }}
+          style={commonStyles.nextButton}
           mode="contained"
-          color={isAuth ? '#000069' : 'gray'}
+          color={isAuth ? '#FFA7A7' : 'gray'}
           onPress={async () => {
             if (isAuth) {
               email = emailHost + '@' + schoolAddress;
@@ -394,10 +462,10 @@ export default function CertifySchool({
               failCertify();
             }
           }}>
-          <Text style={styles.nextButtonText}>다음</Text>
+          <Text style={commonStyles.nextButtonText}>다음</Text>
         </FancyButton>
-      </View>
-    </LinearGradient>
+      </View> */}
+    </View>
   );
 }
 
@@ -406,10 +474,20 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
   },
+  skipContainer: {
+    flex: 0.7,
+    alignItems: 'flex-end',
+  },
+  skipText: {
+    fontSize: 16,
+    color: '#5DB075',
+    paddingTop: 10,
+    paddingRight: 10,
+  },
   titleContainer: {
-    flex: 2,
-    marginTop: 50,
+    flex: 1,
     alignItems: 'center',
+    marginBottom: 10,
   },
   titleText: {
     fontSize: 30,
@@ -421,87 +499,97 @@ const styles = StyleSheet.create({
     fontFamily: FancyFonts.BMDOHYEON,
   },
   formContainer: {
-    flex: 6,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    marginBottom: height * 0.25,
+    flex: 10,
+    alignItems: 'center',
   },
 
   form: {
     marginBottom: 10,
   },
   buttonForm: {
-    flex: 1,
-    marginLeft: width * 0.1,
     marginBottom: 10,
   },
-  fancyButton: {
-    marginTop: 5,
-    marginLeft: 30,
-  },
-  schoolName: {
-    marginTop: 5,
-    paddingLeft: 10,
-    width: width * 0.4,
-    borderColor: 'gray',
-    borderBottomWidth: 2,
+  school: {
+    flexDirection: 'row',
   },
   email: {
-    marginTop: 5,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  inputEmail: {
-    marginTop: 5,
-    width: width * 0.4,
-    borderColor: 'gray',
-    borderBottomWidth: 2,
   },
   completeContainer: {
     flex: 1,
     alignItems: 'center',
-    marginBottom: 40,
+  },
+
+  skipModalContainer: {
+    display: 'flex',
+    width: width * 0.8,
+    height: height * 0.5,
+    marginTop: height * 0.25,
+    alignSelf: 'center',
+    borderWidth: 0.5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    backgroundColor: '#ffffff',
+  },
+  skipModalTitle: {
+    flex: 2,
+  },
+  skipModalContent: {
+    flex: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  skipModalButton: {
+    flex: 1,
+    alignItems: 'flex-end',
+    marginBottom: 20,
+    marginRight: 10,
+  },
+
+  schoolModalboxContainer: {
+    display: 'flex',
+    flex: 1,
   },
 
   schoolModalContainer: {
     width: width * 0.8,
-    height: height * 0.5,
-    marginTop: height * 0.2,
+    height: height * 0.7,
+    marginTop: height * 0.15,
     alignSelf: 'center',
-    borderWidth: 1,
-    borderRadius: 10,
+    borderWidth: 0.5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
     backgroundColor: '#ffffff',
   },
-  schoolModalboxContainer: {},
 
-  modalboxContainer: {},
   schoolModalbox: {
-    margin: 3,
-    borderBottomWidth: 1,
-    borderColor: 'gray',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    marginLeft: 20,
+    marginRight: 20,
+    borderBottomWidth: 0.8,
   },
   schoolModalText: {
-    height: 30,
-    fontSize: 20,
-    fontFamily: FancyFonts.BMDOHYEON,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-  nextButtonText: {
-    color: '#ffffff',
-    fontFamily: FancyFonts.BMDOHYEON,
-  },
+
   certifyContainer: {
     flexDirection: 'column',
-    alignItems: 'flex-start',
-    height: height * 0.06,
   },
-  certify: {
-    flexDirection: 'row',
-  },
-  timer: {
-    justifyContent: 'center',
-    marginLeft: 10,
-  },
+
   inputCode: {
     width: width * 0.4,
     borderColor: 'gray',
@@ -513,15 +601,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 10,
   },
-  atSign: {},
+  atSign: {
+    marginLeft: 20,
+  },
   addressText: {
     marginRight: 15,
     fontFamily: FancyFonts.BMDOHYEON,
   },
   modalTitleText: {
-    fontSize: 30,
+    fontSize: 20,
     textAlign: 'center',
-    margin: 10,
+    padding: 30,
+    marginBottom: 20,
     fontFamily: FancyFonts.BMDOHYEON,
   },
   modalbox: {
@@ -532,9 +623,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalText: {
-    height: 120,
     fontSize: 20,
     fontFamily: FancyFonts.BMDOHYEON,
     textAlign: 'center',
+  },
+  closeButtonContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  closeButton: {
+    fontSize: 16,
+    color: '#4B9460',
   },
 });
